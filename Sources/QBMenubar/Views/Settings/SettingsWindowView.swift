@@ -1,0 +1,707 @@
+import SwiftUI
+
+public enum SettingsCategory: String, CaseIterable, Identifiable {
+    case general = "通用"
+    case connection = "WebUI 连接"
+    case menubar = "菜单栏"
+    case notifications = "通知"
+    case advanced = "高级"
+    case about = "关于"
+
+    public var id: String { rawValue }
+
+    public var iconName: String {
+        switch self {
+        case .general: return "gearshape.fill"
+        case .connection: return "network"
+        case .menubar: return "menubar.rectangle"
+        case .notifications: return "bell.fill"
+        case .advanced: return "slider.horizontal.3"
+        case .about: return "info.circle.fill"
+        }
+    }
+
+    public var badgeColor: Color {
+        switch self {
+        case .general: return .blue
+        case .connection: return .cyan
+        case .menubar: return .indigo
+        case .notifications: return .red
+        case .advanced: return .purple
+        case .about: return .gray
+        }
+    }
+}
+
+public struct SettingsWindowView: View {
+    @Bindable var viewModel: QBMenubarViewModel
+
+    @State private var selectedCategory: SettingsCategory = .general
+    @State private var searchText: String = ""
+    @State private var testState: TestStatus = .idle
+
+    enum TestStatus: Equatable {
+        case idle
+        case testing
+        case success(version: String, pingMs: Int)
+        case failure(String)
+    }
+
+    public init(viewModel: QBMenubarViewModel) {
+        self.viewModel = viewModel
+    }
+
+    public var body: some View {
+        HStack(spacing: 0) {
+            // Sidebar
+            VStack(spacing: 0) {
+                // Search bar
+                HStack(spacing: 6) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                    TextField("搜索设置", text: $searchText)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 12))
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 6)
+                .background(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(Color.primary.opacity(0.06))
+                )
+                .padding(.horizontal, 12)
+                .padding(.top, 46) // Accommodate macOS traffic light buttons
+                .padding(.bottom, 8)
+
+                // Category List
+                ScrollView {
+                    VStack(spacing: 3) {
+                        ForEach(SettingsCategory.allCases) { category in
+                            Button {
+                                selectedCategory = category
+                            } label: {
+                                HStack(spacing: 10) {
+                                    // iOS/macOS System Settings style rounded colored badge
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                            .fill(category.badgeColor)
+                                            .frame(width: 22, height: 22)
+                                        Image(systemName: category.iconName)
+                                            .font(.system(size: 11, weight: .semibold))
+                                            .foregroundStyle(.white)
+                                    }
+
+                                    Text(category.rawValue)
+                                        .font(.system(size: 13, weight: selectedCategory == category ? .medium : .regular))
+                                        .foregroundStyle(selectedCategory == category ? Color.white : Color.primary)
+
+                                    Spacer()
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                        .fill(selectedCategory == category ? Color.accentColor : Color.clear)
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                }
+
+                Divider()
+
+                // Sidebar footer: Live Connection Status
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(connectionColor)
+                        .frame(width: 7, height: 7)
+
+                    Text(connectionSummary)
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+
+                    Spacer()
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+            }
+            .frame(width: 220)
+            .background(Color(NSColor.controlBackgroundColor).opacity(0.55))
+
+            Divider()
+
+            // Detail Area
+            VStack(spacing: 0) {
+                // Top Breadcrumbs Navigation Bar
+                HStack(spacing: 12) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "chevron.left")
+                        Image(systemName: "chevron.right")
+                    }
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.tertiary)
+
+                    Text(selectedCategory.rawValue)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(.primary)
+
+                    Spacer()
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 46)
+                .padding(.bottom, 14)
+                .background(.ultraThinMaterial)
+
+                Divider()
+
+                // Settings Content
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        switch selectedCategory {
+                        case .general:
+                            generalPane
+                        case .connection:
+                            connectionPane
+                        case .menubar:
+                            menubarPane
+                        case .notifications:
+                            notificationsPane
+                        case .advanced:
+                            advancedPane
+                        case .about:
+                            aboutPane
+                        }
+                    }
+                    .padding(24)
+                }
+            }
+            .frame(minWidth: 500, maxWidth: .infinity, minHeight: 480, maxHeight: .infinity)
+            .background(Color(NSColor.windowBackgroundColor))
+        }
+    }
+
+    // MARK: - Panes
+
+    @ViewBuilder
+    private var generalPane: some View {
+        SettingsGroup(title: "系统") {
+            SettingsRow(
+                title: "语言",
+                subtitle: "更改显示语言。需要重启应用才能完全生效。"
+            ) {
+                Picker("", selection: $viewModel.config.language) {
+                    ForEach(AppLanguage.allCases) { lang in
+                        Text(lang.rawValue).tag(lang)
+                    }
+                }
+                .pickerStyle(.menu)
+                .frame(width: 160)
+            }
+
+            SettingsDivider()
+
+            SettingsRow(
+                title: "qBittorrent 网页控制台",
+                subtitle: "直接在系统默认浏览器中打开 WebUI"
+            ) {
+                Button("打开 WebUI") {
+                    viewModel.openWebUI()
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var connectionPane: some View {
+        SettingsGroup(title: "网络连接") {
+            SettingsRow(
+                title: "服务器地址",
+                subtitle: "qBittorrent WebUI 访问地址 (支持本地、NAS 或域名)"
+            ) {
+                TextField("http://127.0.0.1:8080", text: $viewModel.config.baseURL)
+                    .textFieldStyle(.roundedBorder)
+                    .font(.system(size: 12, design: .monospaced))
+                    .frame(width: 220)
+            }
+
+            SettingsDivider()
+
+            SettingsRow(
+                title: "API 路径前缀",
+                subtitle: "默认 /api/v2，使用反代子目录时可在此修改"
+            ) {
+                TextField("/api/v2", text: $viewModel.config.apiPrefix)
+                    .textFieldStyle(.roundedBorder)
+                    .font(.system(size: 12, design: .monospaced))
+                    .frame(width: 220)
+            }
+
+            SettingsDivider()
+
+            SettingsRow(
+                title: "用户名",
+                subtitle: "WebUI 登录账户"
+            ) {
+                TextField("admin", text: $viewModel.config.username)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 220)
+            }
+
+            SettingsDivider()
+
+            SettingsRow(
+                title: "密码",
+                subtitle: "WebUI 访问密码"
+            ) {
+                SecureField("WebUI 密码", text: $viewModel.config.password)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 220)
+            }
+
+            SettingsDivider()
+
+            SettingsRow(
+                title: "跳过本地主机验证",
+                subtitle: "在 qBittorrent 首选项开启了 Localhost Bypass 时可启用"
+            ) {
+                Toggle("", isOn: $viewModel.config.bypassLocalhost)
+                    .toggleStyle(.switch)
+            }
+        }
+
+        SettingsGroup(title: "连通性检测") {
+            SettingsRow(
+                title: "测试与 qBittorrent 连通性",
+                subtitle: "即时探测目标地址与服务端版本号"
+            ) {
+                HStack(spacing: 8) {
+                    switch testState {
+                    case .idle:
+                        EmptyView()
+                    case .testing:
+                        ProgressView().scaleEffect(0.6).frame(width: 14, height: 14)
+                    case .success(let version, let ping):
+                        HStack(spacing: 4) {
+                            Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                            Text("\(version) • \(ping)ms")
+                                .font(.system(size: 11, weight: .medium, design: .rounded))
+                                .foregroundStyle(.green)
+                        }
+                    case .failure(let error):
+                        HStack(spacing: 4) {
+                            Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.red)
+                            Text(error)
+                                .font(.system(size: 11))
+                                .foregroundStyle(.red)
+                                .lineLimit(1)
+                        }
+                    }
+
+                    Button("测试连接") {
+                        runTestConnection()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(testState == .testing)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var menubarPane: some View {
+        // Live Preview of Menu Bar Appearance
+        SettingsGroup(title: "实时效果预览") {
+            HStack(spacing: 12) {
+                Spacer()
+
+                HStack(spacing: 6) {
+                    QBittorrentIcon(
+                        size: CGFloat(viewModel.config.iconSize.points),
+                        theme: viewModel.config.iconTheme
+                    )
+
+                    switch viewModel.config.menuBarStyle {
+                    case .downloadOnly:
+                        HStack(spacing: 2) {
+                            Text("↓")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(previewArrowColor)
+                            Text("12.6 MB/s")
+                                .font(.system(size: 11, weight: .medium, design: .rounded))
+                        }
+
+                    case .twoLines:
+                        VStack(alignment: .leading, spacing: -1) {
+                            HStack(spacing: 2) {
+                                Text("↑")
+                                    .font(.system(size: 8, weight: .bold))
+                                    .foregroundStyle(.secondary)
+                                Text("6 KB/s")
+                                    .font(.system(size: 8.5, weight: .semibold, design: .monospaced))
+                            }
+                            HStack(spacing: 2) {
+                                Text("↓")
+                                    .font(.system(size: 8, weight: .bold))
+                                    .foregroundStyle(previewArrowColor)
+                                Text("121 KB/s")
+                                    .font(.system(size: 8.5, weight: .semibold, design: .monospaced))
+                            }
+                        }
+
+                    case .singleLineBoth:
+                        HStack(spacing: 4) {
+                            Text("↓ 12.6 MB/s")
+                                .font(.system(size: 11, weight: .medium, design: .rounded))
+                            Text("↑ 1.2 MB/s")
+                                .font(.system(size: 11, weight: .regular, design: .rounded))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    if viewModel.config.showPinnedProgress && viewModel.config.pinnedTorrentHash != nil {
+                        Text("78%")
+                            .font(.system(size: 9.5, weight: .bold, design: .rounded))
+                            .foregroundStyle(.tint)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 1)
+                            .background(
+                                Capsule()
+                                    .fill(Color.primary.opacity(0.12))
+                            )
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(Color.primary.opacity(0.08))
+                )
+
+                Spacer()
+            }
+            .padding(.vertical, 8)
+        }
+
+        SettingsGroup(title: "显示布局") {
+            SettingsRow(
+                title: "状态栏显示布局",
+                subtitle: "选择屏幕顶部的速度展示模式"
+            ) {
+                Picker("", selection: $viewModel.config.menuBarStyle) {
+                    ForEach(MenuBarStyle.allCases) { style in
+                        Text(style.rawValue).tag(style)
+                    }
+                }
+                .pickerStyle(.menu)
+                .frame(width: 210)
+            }
+        }
+
+        SettingsGroup(title: "任务完成度显示") {
+            SettingsRow(
+                title: "在菜单栏显示任务进度",
+                subtitle: "在状态栏速度旁以百分比气泡显示正在下载任务的完成度"
+            ) {
+                Toggle("", isOn: $viewModel.config.showPinnedProgress)
+                    .toggleStyle(.switch)
+            }
+
+            if viewModel.config.showPinnedProgress {
+                SettingsDivider()
+
+                SettingsRow(
+                    title: "选择展示的任务",
+                    subtitle: "固定特定任务或由系统自动选择最活跃下载任务"
+                ) {
+                    Picker("", selection: Binding(
+                        get: { viewModel.config.pinnedTorrentHash ?? "none" },
+                        set: { viewModel.config.pinnedTorrentHash = ($0 == "none" ? nil : $0) }
+                    )) {
+                        Text("不显示").tag("none")
+                        Text("自动选择 (最活跃下载任务)").tag("auto")
+                        if !viewModel.torrents.isEmpty {
+                            Divider()
+                            ForEach(viewModel.torrents) { torrent in
+                                Text("\(torrent.name) (\(String(format: "%.0f%%", torrent.progress * 100)))")
+                                    .tag(torrent.hash)
+                            }
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .frame(width: 230)
+                }
+            }
+        }
+
+        SettingsGroup(title: "图标与外观") {
+            SettingsRow(
+                title: "图标色彩主题",
+                subtitle: "选择 qBittorrent 状态栏图标色彩"
+            ) {
+                Picker("", selection: $viewModel.config.iconTheme) {
+                    ForEach(IconTheme.allCases) { theme in
+                        Text(theme.rawValue).tag(theme)
+                    }
+                }
+                .pickerStyle(.menu)
+                .frame(width: 210)
+            }
+
+            SettingsDivider()
+
+            SettingsRow(
+                title: "图标大小",
+                subtitle: "调整菜单栏图标渲染尺寸"
+            ) {
+                Picker("", selection: $viewModel.config.iconSize) {
+                    ForEach(IconSizeOption.allCases) { sizeOpt in
+                        Text(sizeOpt.rawValue).tag(sizeOpt)
+                    }
+                }
+                .pickerStyle(.menu)
+                .frame(width: 210)
+            }
+
+            SettingsDivider()
+
+            SettingsRow(
+                title: "下载箭头颜色",
+                subtitle: "设置下载指示箭头的展示颜色 (支持黑/白)"
+            ) {
+                Picker("", selection: $viewModel.config.arrowTheme) {
+                    ForEach(ArrowTheme.allCases) { theme in
+                        Text(theme.rawValue).tag(theme)
+                    }
+                }
+                .pickerStyle(.menu)
+                .frame(width: 210)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var notificationsPane: some View {
+        SettingsGroup(title: "系统通知") {
+            SettingsRow(
+                title: "启用系统通知",
+                subtitle: "在 macOS 屏幕右上角接收任务状态横幅"
+            ) {
+                Toggle("", isOn: $viewModel.config.enableNotifications)
+                    .toggleStyle(.switch)
+            }
+
+            if viewModel.config.enableNotifications {
+                SettingsDivider()
+
+                SettingsRow(
+                    title: "📥 下载开始时通知",
+                    subtitle: "检测到新任务开始下载时提醒"
+                ) {
+                    Toggle("", isOn: $viewModel.config.notifyOnStart)
+                        .toggleStyle(.switch)
+                }
+
+                SettingsDivider()
+
+                SettingsRow(
+                    title: "🎉 下载完成时通知",
+                    subtitle: "任务下载完成时提醒，点击通知可直接在 Finder 中定位"
+                ) {
+                    Toggle("", isOn: $viewModel.config.notifyOnComplete)
+                        .toggleStyle(.switch)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var advancedPane: some View {
+        SettingsGroup(title: "刷新与频率") {
+            SettingsRow(
+                title: "后台轮询刷新间隔: \(String(format: "%.1f", viewModel.config.pollInterval)) 秒",
+                subtitle: "向 qBittorrent 请求最新下载速率与任务列表的频率"
+            ) {
+                Slider(value: $viewModel.config.pollInterval, in: 1.0...10.0, step: 0.5)
+                    .frame(width: 180)
+            }
+
+            SettingsDivider()
+
+            SettingsRow(
+                title: "带宽图表历史时长: \(viewModel.config.chartHistorySeconds) 秒",
+                subtitle: "顶部波形图记录的秒数跨度"
+            ) {
+                Slider(
+                    value: Binding(
+                        get: { Double(viewModel.config.chartHistorySeconds) },
+                        set: { viewModel.config.chartHistorySeconds = Int($0) }
+                    ),
+                    in: 15...60,
+                    step: 5
+                )
+                .frame(width: 180)
+            }
+        }
+
+        SettingsGroup(title: "重置") {
+            SettingsRow(
+                title: "恢复出厂默认配置",
+                subtitle: "将所有 API 地址、外观与通知重置为初始状态"
+            ) {
+                Button("恢复默认") {
+                    viewModel.config = .defaultConfig
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var aboutPane: some View {
+        SettingsGroup(title: "关于 QBMenubar") {
+            VStack(spacing: 12) {
+                HStack(spacing: 14) {
+                    ZStack {
+                        Circle()
+                            .fill(Color(red: 47/255, green: 103/255, blue: 186/255))
+                            .frame(width: 48, height: 48)
+                        Text("qb")
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("QBMenubar")
+                            .font(.system(size: 16, weight: .bold))
+                        Text("版本 1.0.0 (原生 Swift 6 + Liquid Glass)")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    Button("打开 WebUI") {
+                        viewModel.openWebUI()
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
+            .padding(.vertical, 6)
+        }
+    }
+
+    // MARK: - Helpers
+
+    private var previewArrowColor: Color {
+        switch viewModel.config.arrowTheme {
+        case .adaptive: return .primary
+        case .white: return .white
+        case .black: return .black
+        case .dynamicColor: return .green
+        }
+    }
+
+    private var connectionColor: Color {
+        switch viewModel.connectionState {
+        case .connected: return .green
+        case .connecting: return .yellow
+        case .disconnected, .error: return .red
+        }
+    }
+
+    private var connectionSummary: String {
+        switch viewModel.connectionState {
+        case .connected(let ping):
+            return "已连接 (\(ping)ms)"
+        case .connecting:
+            return "正在连接..."
+        case .disconnected:
+            return "未连接"
+        case .error:
+            return "连接失败"
+        }
+    }
+
+    private func runTestConnection() {
+        testState = .testing
+        Task {
+            let testService = QBittorrentService(config: viewModel.config)
+            do {
+                _ = try await testService.login()
+                let (version, ping) = try await testService.testConnection()
+                testState = .success(version: version, pingMs: ping)
+            } catch {
+                testState = .failure(error.localizedDescription)
+            }
+        }
+    }
+}
+
+// MARK: - Form Components matching macOS System Settings style
+
+struct SettingsGroup<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(.secondary)
+                .padding(.leading, 4)
+
+            VStack(spacing: 0) {
+                content
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color(NSColor.controlBackgroundColor))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+            )
+        }
+    }
+}
+
+struct SettingsRow<Control: View>: View {
+    let title: String
+    var subtitle: String? = nil
+    @ViewBuilder let control: Control
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 14) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundStyle(.primary)
+
+                if let sub = subtitle {
+                    Text(sub)
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Spacer(minLength: 16)
+
+            control
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+    }
+}
+
+struct SettingsDivider: View {
+    var body: some View {
+        Divider()
+            .padding(.leading, 14)
+    }
+}

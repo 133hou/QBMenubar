@@ -1,5 +1,9 @@
 # QBMenubar - Native macOS qBittorrent Menu Bar Controller
 
+<p align="center">
+  <b>English</b> | <a href="README_zh.md">简体中文</a>
+</p>
+
 A lightweight, high-performance native macOS Menu Bar application built with **Swift 6 + SwiftUI + MenuBarExtra (.window)**. Features **Liquid Glass** aesthetic styling and **Apple Motion Feel** spring physics animations to monitor and manage your qBittorrent downloads from anywhere on your Mac.
 
 <p align="center">
@@ -28,7 +32,7 @@ A lightweight, high-performance native macOS Menu Bar application built with **S
    - Live gradient bandwidth waveform chart with smooth real-time updates.
    - Quick control bar: Pause All, Resume All, Alternate Speed Limits (🐢), WebUI launcher.
    - Categorized filter tabs (All, Downloading, Seeding, Paused).
-   - Dedicated `+` button to upload `.torrent` files with pre-download file list inspect & directory chooser.
+   - Dedicated `+` button to upload `.torrent` files with pre-download file list inspection & directory chooser.
    - Quick clipboard detection for magnet and HTTP torrent links.
 3. **Interactive Torrent Cards**:
    - Detailed status badges, progress bars, size counters, ETA, and speed metrics.
@@ -38,7 +42,7 @@ A lightweight, high-performance native macOS Menu Bar application built with **S
    - Dual-pane layout without sidebar collapse buttons.
    - Fully customizable WebUI API endpoints (support for local, LAN NAS, remote VPS, or reverse proxies).
    - In-app connection tester with live ping and server version detection.
-   - Native macOS UserNotifications for download completion.
+   - Native macOS UserNotifications for download start and completion.
 
 ---
 

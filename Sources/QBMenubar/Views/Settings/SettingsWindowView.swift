@@ -37,12 +37,12 @@ public enum SettingsCategory: String, CaseIterable, Identifiable {
 
     public var badgeColor: Color {
         switch self {
-        case .general: return .blue
-        case .connection: return .cyan
-        case .menubar: return .indigo
-        case .notifications: return .red
-        case .advanced: return .purple
-        case .about: return .gray
+        case .general: return Color(red: 0.16, green: 0.52, blue: 0.98) // Azure Blue
+        case .connection: return Color(red: 0.08, green: 0.72, blue: 0.88) // Vivid Aqua Cyan
+        case .menubar: return Color(red: 0.40, green: 0.40, blue: 0.96) // Deep Indigo Glass
+        case .notifications: return Color(red: 1.00, green: 0.28, blue: 0.28) // Vivid Ruby Red
+        case .advanced: return Color(red: 0.72, green: 0.30, blue: 0.96) // Vivid Amethyst Purple
+        case .about: return Color(red: 0.55, green: 0.58, blue: 0.65) // Frosted Titanium
         }
     }
 }
@@ -93,48 +93,45 @@ public struct SettingsWindowView: View {
 
                 // Category List
                 ScrollView {
-                    VStack(spacing: 3) {
-                        ForEach(SettingsCategory.allCases) { category in
-                            Button {
-                                withAnimation(AppMotion.selection) {
-                                    selectedCategory = category
-                                }
-                            } label: {
-                                HStack(spacing: 10) {
-                                    // iOS/macOS System Settings style rounded colored badge
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                            .fill(category.badgeColor)
-                                            .frame(width: 22, height: 22)
-                                        Image(systemName: category.iconName)
-                                            .font(.system(size: 11, weight: .semibold))
-                                            .foregroundStyle(.white)
+                    AdaptiveGlassContainer(spacing: 3) {
+                        VStack(spacing: 3) {
+                            ForEach(SettingsCategory.allCases) { category in
+                                Button {
+                                    withAnimation(AppMotion.selection) {
+                                        selectedCategory = category
                                     }
-
-                                    Text(category.localizedTitle(isEn: isEn))
-                                        .font(.system(size: 13, weight: selectedCategory == category ? .medium : .regular))
-                                        .foregroundStyle(selectedCategory == category ? Color.white : Color.primary)
-
-                                    Spacer()
-                                }
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
-                                .contentShape(Rectangle())
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                        .fill(
-                                            selectedCategory == category
-                                                ? Color.accentColor
-                                                : (hoveredCategory == category ? Color.primary.opacity(0.08) : Color.clear)
+                                } label: {
+                                    HStack(spacing: 10) {
+                                        LiquidGlassCategoryBadge(
+                                            category: category,
+                                            isSelected: selectedCategory == category
                                         )
-                                )
-                            }
-                            .buttonStyle(.plain)
-                            .onHover { isHovered in
-                                if isHovered {
-                                    hoveredCategory = category
-                                } else if hoveredCategory == category {
-                                    hoveredCategory = nil
+
+                                        Text(category.localizedTitle(isEn: isEn))
+                                            .font(.system(size: 13, weight: selectedCategory == category ? .medium : .regular))
+                                            .foregroundStyle(selectedCategory == category ? Color.white : Color.primary)
+
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .contentShape(Rectangle())
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                            .fill(
+                                                selectedCategory == category
+                                                    ? Color.accentColor
+                                                    : (hoveredCategory == category ? Color.primary.opacity(0.08) : Color.clear)
+                                            )
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                                .onHover { isHovered in
+                                    if isHovered {
+                                        hoveredCategory = category
+                                    } else if hoveredCategory == category {
+                                        hoveredCategory = nil
+                                    }
                                 }
                             }
                         }
@@ -601,23 +598,64 @@ public struct SettingsWindowView: View {
             // App Hero Card
             VStack(spacing: 10) {
                 ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color(red: 47/255, green: 120/255, blue: 220/255),
-                                    Color(red: 35/255, green: 80/255, blue: 170/255)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+                    if #available(macOS 26.0, *) {
+                        Circle()
+                            .fill(Color(red: 47/255, green: 120/255, blue: 220/255).opacity(0.85))
+                            .frame(width: 58, height: 58)
+                            .glassEffect(.regular.tint(Color(red: 47/255, green: 120/255, blue: 220/255)), in: .circle)
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(
+                                        LinearGradient(
+                                            colors: [
+                                                Color.white.opacity(0.65),
+                                                Color.white.opacity(0.15)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 1
+                                    )
                             )
-                        )
-                        .frame(width: 58, height: 58)
-                        .shadow(color: Color.blue.opacity(0.28), radius: 6, x: 0, y: 3)
+                            .shadow(color: Color.blue.opacity(0.35), radius: 8, x: 0, y: 4)
 
-                    Text("qb")
-                        .font(.system(size: 26, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
+                        Text("qb")
+                            .font(.system(size: 26, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 1)
+                    } else {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color(red: 47/255, green: 120/255, blue: 220/255),
+                                        Color(red: 35/255, green: 80/255, blue: 170/255)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 58, height: 58)
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(
+                                        LinearGradient(
+                                            colors: [
+                                                Color.white.opacity(0.65),
+                                                Color.white.opacity(0.15)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 1
+                                    )
+                            )
+                            .shadow(color: Color.blue.opacity(0.28), radius: 6, x: 0, y: 3)
+
+                        Text("qb")
+                            .font(.system(size: 26, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                    }
                 }
 
                 VStack(spacing: 4) {
@@ -858,5 +896,82 @@ struct InfoBadge: View {
             .padding(.vertical, 3)
             .background(Color.primary.opacity(0.06))
             .clipShape(Capsule())
+    }
+}
+
+public struct LiquidGlassCategoryBadge: View {
+    public let category: SettingsCategory
+    public var isSelected: Bool = false
+
+    public init(category: SettingsCategory, isSelected: Bool = false) {
+        self.category = category
+        self.isSelected = isSelected
+    }
+
+    public var body: some View {
+        ZStack {
+            if #available(macOS 26.0, *) {
+                // Native macOS Tahoe Liquid Glass material with color tint
+                RoundedRectangle(cornerRadius: 6.5, style: .continuous)
+                    .fill(category.badgeColor.opacity(0.85))
+                    .frame(width: 22, height: 22)
+                    .glassEffect(.regular.tint(category.badgeColor), in: .rect(cornerRadius: 6.5, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6.5, style: .continuous)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.68),
+                                        Color.white.opacity(0.15)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 0.65
+                            )
+                    )
+                    .shadow(color: category.badgeColor.opacity(isSelected ? 0.45 : 0.28), radius: 3, x: 0, y: 1.5)
+
+                Image(systemName: category.iconName)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .shadow(color: .black.opacity(0.25), radius: 0.5, x: 0, y: 0.5)
+            } else {
+                // macOS 14/15 Liquid Glass specular simulation
+                RoundedRectangle(cornerRadius: 6.5, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                category.badgeColor.opacity(0.95),
+                                category.badgeColor.opacity(0.72)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 22, height: 22)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6.5, style: .continuous)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.65),
+                                        Color.white.opacity(0.12)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 0.65
+                            )
+                    )
+                    .shadow(color: category.badgeColor.opacity(isSelected ? 0.45 : 0.28), radius: 3, x: 0, y: 1.5)
+
+                Image(systemName: category.iconName)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .shadow(color: .black.opacity(0.25), radius: 0.5, x: 0, y: 0.5)
+            }
+        }
+        .frame(width: 22, height: 22)
     }
 }

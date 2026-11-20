@@ -21,6 +21,10 @@ mkdir -p "$RESOURCES_DIR"
 cp "$BIN_PATH" "$MACOS_DIR/QBMenubar"
 chmod +x "$MACOS_DIR/QBMenubar"
 
+if [ -f "$DIR/AppIcon.icns" ]; then
+    cp "$DIR/AppIcon.icns" "$RESOURCES_DIR/AppIcon.icns"
+fi
+
 cat <<EOF > "$CONTENTS_DIR/Info.plist"
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -35,9 +39,11 @@ cat <<EOF > "$CONTENTS_DIR/Info.plist"
     <key>CFBundleIdentifier</key>
     <string>com.antigravity.QBMenubar</string>
     <key>CFBundleVersion</key>
-    <string>1.1.0</string>
+    <string>1.2.0</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.1.0</string>
+    <string>1.2.0</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundleExecutable</key>
     <string>QBMenubar</string>
     <key>LSMinimumSystemVersion</key>

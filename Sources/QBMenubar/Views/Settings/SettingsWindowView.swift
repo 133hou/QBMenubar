@@ -146,7 +146,7 @@ public struct SettingsWindowView: View {
                         .fill(connectionColor)
                         .frame(width: 7, height: 7)
 
-                    Text(isEn ? "Connected (1ms)" : connectionSummary)
+                    Text(connectionSummary)
                         .font(.system(size: 11))
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
@@ -247,10 +247,10 @@ public struct SettingsWindowView: View {
 
     @ViewBuilder
     private var connectionPane: some View {
-        SettingsGroup(title: "网络连接") {
+        SettingsGroup(title: isEn ? "Network Connection" : "网络连接") {
             SettingsRow(
-                title: "服务器地址",
-                subtitle: "qBittorrent WebUI 访问地址 (支持本地、NAS 或域名)"
+                title: isEn ? "Server Address" : "服务器地址",
+                subtitle: isEn ? "qBittorrent WebUI URL (supports localhost, LAN IP, NAS, or domain)" : "qBittorrent WebUI 访问地址 (支持本地、NAS 或域名)"
             ) {
                 TextField("http://127.0.0.1:8080", text: $viewModel.config.baseURL)
                     .textFieldStyle(.roundedBorder)
@@ -261,8 +261,8 @@ public struct SettingsWindowView: View {
             SettingsDivider()
 
             SettingsRow(
-                title: "API 路径前缀",
-                subtitle: "默认 /api/v2，使用反代子目录时可在此修改"
+                title: isEn ? "API Path Prefix" : "API 路径前缀",
+                subtitle: isEn ? "Default /api/v2; modify if using reverse proxy subpath" : "默认 /api/v2，使用反代子目录时可在此修改"
             ) {
                 TextField("/api/v2", text: $viewModel.config.apiPrefix)
                     .textFieldStyle(.roundedBorder)
@@ -273,8 +273,8 @@ public struct SettingsWindowView: View {
             SettingsDivider()
 
             SettingsRow(
-                title: "用户名",
-                subtitle: "WebUI 登录账户"
+                title: isEn ? "Username" : "用户名",
+                subtitle: isEn ? "WebUI login account" : "WebUI 登录账户"
             ) {
                 TextField("admin", text: $viewModel.config.username)
                     .textFieldStyle(.roundedBorder)
@@ -284,10 +284,10 @@ public struct SettingsWindowView: View {
             SettingsDivider()
 
             SettingsRow(
-                title: "密码",
-                subtitle: "WebUI 访问密码"
+                title: isEn ? "Password" : "密码",
+                subtitle: isEn ? "WebUI login password" : "WebUI 访问密码"
             ) {
-                SecureField("WebUI 密码", text: $viewModel.config.password)
+                SecureField(isEn ? "WebUI Password" : "WebUI 密码", text: $viewModel.config.password)
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 220)
             }
@@ -295,18 +295,18 @@ public struct SettingsWindowView: View {
             SettingsDivider()
 
             SettingsRow(
-                title: "跳过本地主机验证",
-                subtitle: "在 qBittorrent 首选项开启了 Localhost Bypass 时可启用"
+                title: isEn ? "Bypass Localhost Authentication" : "跳过本地主机验证",
+                subtitle: isEn ? "Enable if 'Bypass authentication for clients on localhost' is checked in qBittorrent" : "在 qBittorrent 首选项开启了 Localhost Bypass 时可启用"
             ) {
                 Toggle("", isOn: $viewModel.config.bypassLocalhost)
                     .toggleStyle(.switch)
             }
         }
 
-        SettingsGroup(title: "连通性检测") {
+        SettingsGroup(title: isEn ? "Connectivity Diagnostic" : "连通性检测") {
             SettingsRow(
-                title: "测试与 qBittorrent 连通性",
-                subtitle: "即时探测目标地址与服务端版本号"
+                title: isEn ? "Test Connection to qBittorrent" : "测试与 qBittorrent 连通性",
+                subtitle: isEn ? "Probe target endpoint and fetch server version & latency" : "即时探测目标地址与服务端版本号"
             ) {
                 HStack(spacing: 8) {
                     switch testState {
@@ -331,7 +331,7 @@ public struct SettingsWindowView: View {
                         }
                     }
 
-                    Button("测试连接") {
+                    Button(isEn ? "Test Connection" : "测试连接") {
                         runTestConnection()
                     }
                     .adaptiveGlassButton(prominent: true)
@@ -344,7 +344,7 @@ public struct SettingsWindowView: View {
     @ViewBuilder
     private var menubarPane: some View {
         // Live Preview of Menu Bar Appearance
-        SettingsGroup(title: "实时效果预览") {
+        SettingsGroup(title: isEn ? "Live Appearance Preview" : "实时效果预览") {
             HStack(spacing: 12) {
                 Spacer()
 
@@ -416,14 +416,14 @@ public struct SettingsWindowView: View {
             .padding(.vertical, 8)
         }
 
-        SettingsGroup(title: "显示布局") {
+        SettingsGroup(title: isEn ? "Layout Style" : "显示布局") {
             SettingsRow(
-                title: "状态栏显示布局",
-                subtitle: "选择屏幕顶部的速度展示模式"
+                title: isEn ? "Menu Bar Display Mode" : "状态栏显示布局",
+                subtitle: isEn ? "Select download/upload speed presentation mode" : "选择屏幕顶部的速度展示模式"
             ) {
                 Picker("", selection: $viewModel.config.menuBarStyle) {
                     ForEach(MenuBarStyle.allCases) { style in
-                        Text(style.rawValue).tag(style)
+                        Text(style.localizedTitle(isEn: isEn)).tag(style)
                     }
                 }
                 .pickerStyle(.menu)
@@ -431,10 +431,10 @@ public struct SettingsWindowView: View {
             }
         }
 
-        SettingsGroup(title: "任务完成度显示") {
+        SettingsGroup(title: isEn ? "Task Progress Display" : "任务完成度显示") {
             SettingsRow(
-                title: "在菜单栏显示任务进度",
-                subtitle: "在状态栏速度旁以百分比气泡显示正在下载任务的完成度"
+                title: isEn ? "Show Task Progress in Menu Bar" : "在菜单栏显示任务进度",
+                subtitle: isEn ? "Display active downloading torrent percentage badge next to speed" : "在状态栏速度旁以百分比气泡显示正在下载任务的完成度"
             ) {
                 Toggle("", isOn: $viewModel.config.showPinnedProgress)
                     .toggleStyle(.switch)
@@ -444,15 +444,15 @@ public struct SettingsWindowView: View {
                 SettingsDivider()
 
                 SettingsRow(
-                    title: "选择展示的任务",
-                    subtitle: "固定特定任务或由系统自动选择最活跃下载任务"
+                    title: isEn ? "Selected Torrent" : "选择展示的任务",
+                    subtitle: isEn ? "Pin specific torrent or auto-select most active download" : "固定特定任务或由系统自动选择最活跃下载任务"
                 ) {
                     Picker("", selection: Binding(
                         get: { viewModel.config.pinnedTorrentHash ?? "none" },
                         set: { viewModel.config.pinnedTorrentHash = ($0 == "none" ? nil : $0) }
                     )) {
-                        Text("不显示").tag("none")
-                        Text("自动选择 (最活跃下载任务)").tag("auto")
+                        Text(isEn ? "Do Not Show" : "不显示").tag("none")
+                        Text(isEn ? "Auto (Most Active Torrent)" : "自动选择 (最活跃下载任务)").tag("auto")
                         if !viewModel.torrents.isEmpty {
                             Divider()
                             ForEach(viewModel.torrents) { torrent in
@@ -467,14 +467,14 @@ public struct SettingsWindowView: View {
             }
         }
 
-        SettingsGroup(title: "图标与外观") {
+        SettingsGroup(title: isEn ? "Icon & Colors" : "图标与外观") {
             SettingsRow(
-                title: "图标色彩主题",
-                subtitle: "选择 qBittorrent 状态栏图标色彩"
+                title: isEn ? "Logo Icon Theme" : "图标色彩主题",
+                subtitle: isEn ? "Choose qBittorrent menu bar logo color scheme" : "选择 qBittorrent 状态栏图标色彩"
             ) {
                 Picker("", selection: $viewModel.config.iconTheme) {
                     ForEach(IconTheme.allCases) { theme in
-                        Text(theme.rawValue).tag(theme)
+                        Text(theme.localizedTitle(isEn: isEn)).tag(theme)
                     }
                 }
                 .pickerStyle(.menu)
@@ -484,12 +484,12 @@ public struct SettingsWindowView: View {
             SettingsDivider()
 
             SettingsRow(
-                title: "图标大小",
-                subtitle: "调整菜单栏图标渲染尺寸"
+                title: isEn ? "Icon Size" : "图标大小",
+                subtitle: isEn ? "Adjust status bar icon rendering scale" : "调整菜单栏图标渲染尺寸"
             ) {
                 Picker("", selection: $viewModel.config.iconSize) {
                     ForEach(IconSizeOption.allCases) { sizeOpt in
-                        Text(sizeOpt.rawValue).tag(sizeOpt)
+                        Text(sizeOpt.localizedTitle(isEn: isEn)).tag(sizeOpt)
                     }
                 }
                 .pickerStyle(.menu)
@@ -499,12 +499,12 @@ public struct SettingsWindowView: View {
             SettingsDivider()
 
             SettingsRow(
-                title: "下载箭头颜色",
-                subtitle: "设置下载指示箭头的展示颜色 (支持黑/白)"
+                title: isEn ? "Arrow Color Scheme" : "下载箭头颜色",
+                subtitle: isEn ? "Choose upload/download arrow color mode" : "设置下载指示箭头的展示颜色 (支持黑/白)"
             ) {
                 Picker("", selection: $viewModel.config.arrowTheme) {
                     ForEach(ArrowTheme.allCases) { theme in
-                        Text(theme.rawValue).tag(theme)
+                        Text(theme.localizedTitle(isEn: isEn)).tag(theme)
                     }
                 }
                 .pickerStyle(.menu)
@@ -515,10 +515,10 @@ public struct SettingsWindowView: View {
 
     @ViewBuilder
     private var notificationsPane: some View {
-        SettingsGroup(title: "系统通知") {
+        SettingsGroup(title: isEn ? "System Notifications" : "系统通知") {
             SettingsRow(
-                title: "启用系统通知",
-                subtitle: "在 macOS 屏幕右上角接收任务状态横幅"
+                title: isEn ? "Enable macOS Notifications" : "启用系统通知",
+                subtitle: isEn ? "Receive task status change alerts in Notification Center" : "在 macOS 屏幕右上角接收任务状态横幅"
             ) {
                 Toggle("", isOn: $viewModel.config.enableNotifications)
                     .toggleStyle(.switch)
@@ -528,8 +528,8 @@ public struct SettingsWindowView: View {
                 SettingsDivider()
 
                 SettingsRow(
-                    title: "📥 下载开始时通知",
-                    subtitle: "检测到新任务开始下载时提醒"
+                    title: isEn ? "📥 Download Started" : "📥 下载开始时通知",
+                    subtitle: isEn ? "Notify when a newly added task begins downloading" : "检测到新任务开始下载时提醒"
                 ) {
                     Toggle("", isOn: $viewModel.config.notifyOnStart)
                         .toggleStyle(.switch)
@@ -538,8 +538,8 @@ public struct SettingsWindowView: View {
                 SettingsDivider()
 
                 SettingsRow(
-                    title: "🎉 下载完成时通知",
-                    subtitle: "任务下载完成时提醒，点击通知可直接在 Finder 中定位"
+                    title: isEn ? "🎉 Download Completed" : "🎉 下载完成时通知",
+                    subtitle: isEn ? "Notify when a task finishes downloading (click to reveal in Finder)" : "任务下载完成时提醒，点击通知可直接在 Finder 中定位"
                 ) {
                     Toggle("", isOn: $viewModel.config.notifyOnComplete)
                         .toggleStyle(.switch)
@@ -550,10 +550,10 @@ public struct SettingsWindowView: View {
 
     @ViewBuilder
     private var advancedPane: some View {
-        SettingsGroup(title: "刷新与频率") {
+        SettingsGroup(title: isEn ? "Refresh & Performance" : "刷新与频率") {
             SettingsRow(
-                title: "后台轮询刷新间隔: \(String(format: "%.1f", viewModel.config.pollInterval)) 秒",
-                subtitle: "向 qBittorrent 请求最新下载速率与任务列表的频率"
+                title: isEn ? "Background Polling Interval: \(String(format: "%.1f", viewModel.config.pollInterval))s" : "后台轮询刷新间隔: \(String(format: "%.1f", viewModel.config.pollInterval)) 秒",
+                subtitle: isEn ? "Frequency of polling speed and task list from qBittorrent" : "向 qBittorrent 请求最新下载速率与任务列表的频率"
             ) {
                 Slider(value: $viewModel.config.pollInterval, in: 1.0...10.0, step: 0.5)
                     .frame(width: 180)
@@ -562,8 +562,8 @@ public struct SettingsWindowView: View {
             SettingsDivider()
 
             SettingsRow(
-                title: "带宽图表历史时长: \(viewModel.config.chartHistorySeconds) 秒",
-                subtitle: "顶部波形图记录的秒数跨度"
+                title: isEn ? "Speed Chart History Duration: \(viewModel.config.chartHistorySeconds)s" : "带宽图表历史时长: \(viewModel.config.chartHistorySeconds) 秒",
+                subtitle: isEn ? "Time window span recorded in top bandwidth wave chart" : "顶部波形图记录的秒数跨度"
             ) {
                 Slider(
                     value: Binding(
@@ -577,12 +577,12 @@ public struct SettingsWindowView: View {
             }
         }
 
-        SettingsGroup(title: "重置") {
+        SettingsGroup(title: isEn ? "Reset" : "重置") {
             SettingsRow(
-                title: "恢复出厂默认配置",
-                subtitle: "将所有 API 地址、外观与通知重置为初始状态"
+                title: isEn ? "Restore Factory Defaults" : "恢复出厂默认配置",
+                subtitle: isEn ? "Reset all API endpoints, appearances, and notification preferences" : "将所有 API 地址、外观与通知重置为初始状态"
             ) {
-                Button("恢复默认") {
+                Button(isEn ? "Reset to Defaults" : "恢复默认") {
                     viewModel.config = .defaultConfig
                 }
                 .adaptiveGlassButton(prominent: false)
@@ -660,7 +660,7 @@ public struct SettingsWindowView: View {
                     Text("QBMenubar")
                         .font(.system(size: 17, weight: .bold))
 
-                    Text(isEn ? "Version 1.1.0 (Build 2026.11)" : "版本 1.1.0 (Build 2026.11)")
+                    Text(isEn ? "Version 1.2.0 (Build 2026.11)" : "版本 1.2.0 (Build 2026.11)")
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
 
@@ -778,15 +778,28 @@ public struct SettingsWindowView: View {
     }
 
     private var connectionSummary: String {
-        switch viewModel.connectionState {
-        case .connected(let ping):
-            return "已连接 (\(ping)ms)"
-        case .connecting:
-            return "正在连接..."
-        case .disconnected:
-            return "未连接"
-        case .error:
-            return "连接失败"
+        if isEn {
+            switch viewModel.connectionState {
+            case .connected(let ping):
+                return "Connected (\(ping)ms)"
+            case .connecting:
+                return "Connecting..."
+            case .disconnected:
+                return "Disconnected"
+            case .error:
+                return "Connection Failed"
+            }
+        } else {
+            switch viewModel.connectionState {
+            case .connected(let ping):
+                return "已连接 (\(ping)ms)"
+            case .connecting:
+                return "正在连接..."
+            case .disconnected:
+                return "未连接"
+            case .error:
+                return "连接失败"
+            }
         }
     }
 

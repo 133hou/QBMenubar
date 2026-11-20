@@ -3,6 +3,8 @@ import SwiftUI
 public struct PopoverContentView: View {
     @Bindable var viewModel: QBMenubarViewModel
 
+    private var isEn: Bool { viewModel.config.language == .en }
+
     public var body: some View {
         VStack(spacing: 0) {
             // 1. Top Header Bar
@@ -36,7 +38,7 @@ public struct PopoverContentView: View {
                             .foregroundStyle(.tint)
                     }
                     .buttonStyle(.plain)
-                    .help("添加上传种子文件 (.torrent)")
+                    .help(isEn ? "Add .torrent File" : "添加上传种子文件 (.torrent)")
 
                     Button {
                         viewModel.addFromClipboard()
@@ -46,7 +48,7 @@ public struct PopoverContentView: View {
                             .foregroundStyle(.tint)
                     }
                     .buttonStyle(.plain)
-                    .help("从剪贴板粘贴添加磁力/下载链接")
+                    .help(isEn ? "Add Magnet or URL from Clipboard" : "从剪贴板粘贴添加磁力/下载链接")
 
                     Button {
                         SettingsWindowController.shared.show(viewModel: viewModel)
@@ -56,7 +58,7 @@ public struct PopoverContentView: View {
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
-                    .help("偏好设置")
+                    .help(isEn ? "Preferences" : "偏好设置")
 
                     Button {
                         Task { await viewModel.refresh() }
@@ -66,7 +68,7 @@ public struct PopoverContentView: View {
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
-                    .help("刷新")
+                    .help(isEn ? "Refresh" : "刷新")
                 }
             }
             .padding(.horizontal, 14)
@@ -292,19 +294,37 @@ public struct PopoverContentView: View {
     }
 
     private var emptyStateText: String {
-        switch viewModel.connectionState {
-        case .disconnected:
-            return "未连接到 qBittorrent"
-        case .error(let error):
-            return "无法连接: \(error)"
-        case .connecting:
-            return "正在连接 qBittorrent WebUI..."
-        case .connected:
-            switch viewModel.selectedTab {
-            case .all: return "暂无任何种子任务"
-            case .downloading: return "当前没有正在下载的任务"
-            case .seeding: return "当前没有做种中的任务"
-            case .paused: return "当前没有暂停的任务"
+        if isEn {
+            switch viewModel.connectionState {
+            case .disconnected:
+                return "Not Connected to qBittorrent"
+            case .error(let error):
+                return "Connection Error: \(error)"
+            case .connecting:
+                return "Connecting to qBittorrent WebUI..."
+            case .connected:
+                switch viewModel.selectedTab {
+                case .all: return "No active torrents"
+                case .downloading: return "No downloading torrents"
+                case .seeding: return "No seeding torrents"
+                case .paused: return "No paused torrents"
+                }
+            }
+        } else {
+            switch viewModel.connectionState {
+            case .disconnected:
+                return "未连接到 qBittorrent"
+            case .error(let error):
+                return "无法连接: \(error)"
+            case .connecting:
+                return "正在连接 qBittorrent WebUI..."
+            case .connected:
+                switch viewModel.selectedTab {
+                case .all: return "暂无任何种子任务"
+                case .downloading: return "当前没有正在下载的任务"
+                case .seeding: return "当前没有做种中的任务"
+                case .paused: return "当前没有暂停的任务"
+                }
             }
         }
     }

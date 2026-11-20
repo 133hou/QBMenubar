@@ -20,6 +20,17 @@ public enum MenuBarStyle: String, Codable, CaseIterable, Identifiable, Sendable 
     case singleLineBoth = "单行显示 (↓下载 ↑上传)"
 
     public var id: String { rawValue }
+
+    public func localizedTitle(isEn: Bool) -> String {
+        if isEn {
+            switch self {
+            case .downloadOnly: return "Download Speed Only (Default)"
+            case .twoLines: return "Two Lines (↑Upload / ↓Download)"
+            case .singleLineBoth: return "Single Line (↓Download ↑Upload)"
+            }
+        }
+        return rawValue
+    }
 }
 
 public enum IconTheme: String, Codable, CaseIterable, Identifiable, Sendable {
@@ -29,6 +40,18 @@ public enum IconTheme: String, Codable, CaseIterable, Identifiable, Sendable {
     case black = "纯黑色 (浅色菜单栏)"
 
     public var id: String { rawValue }
+
+    public func localizedTitle(isEn: Bool) -> String {
+        if isEn {
+            switch self {
+            case .adaptive: return "System Adaptive (Black / White)"
+            case .original: return "Classic (qBittorrent Blue)"
+            case .white: return "Pure White (Dark Menu Bar)"
+            case .black: return "Pure Black (Light Menu Bar)"
+            }
+        }
+        return rawValue
+    }
 }
 
 public enum ArrowTheme: String, Codable, CaseIterable, Identifiable, Sendable {
@@ -38,6 +61,18 @@ public enum ArrowTheme: String, Codable, CaseIterable, Identifiable, Sendable {
     case dynamicColor = "动态彩色 (下载绿 / 上传蓝)"
 
     public var id: String { rawValue }
+
+    public func localizedTitle(isEn: Bool) -> String {
+        if isEn {
+            switch self {
+            case .adaptive: return "System Adaptive (Default)"
+            case .white: return "Pure White"
+            case .black: return "Pure Black"
+            case .dynamicColor: return "Dynamic Color (Green DL / Blue UL)"
+            }
+        }
+        return rawValue
+    }
 }
 
 public enum IconSizeOption: String, Codable, CaseIterable, Identifiable, Sendable {
@@ -48,6 +83,19 @@ public enum IconSizeOption: String, Codable, CaseIterable, Identifiable, Sendabl
     case xlarge = "特大 (18 pt)"
 
     public var id: String { rawValue }
+
+    public func localizedTitle(isEn: Bool) -> String {
+        if isEn {
+            switch self {
+            case .tiny: return "Tiny (10 pt)"
+            case .small: return "Small (12 pt)"
+            case .normal: return "Standard (14 pt - Default)"
+            case .large: return "Large (16 pt)"
+            case .xlarge: return "Extra Large (18 pt)"
+            }
+        }
+        return rawValue
+    }
 
     public var points: Double {
         switch self {

@@ -99,16 +99,21 @@ public struct TorrentRowView: View {
                                 .clipShape(Circle())
                         }
                         .buttonStyle(.plain)
-                        .help("在 Finder 中打开")
+                        .help(isEnglish ? "Show in Finder" : "在 Finder 中打开")
                     }
 
                     Menu {
-                        Button(isPinned ? "取消在菜单栏显示" : "在菜单栏显示此任务进度", action: onTogglePin)
+                        Button(
+                            isPinned
+                                ? (isEnglish ? "Unpin from Menu Bar" : "取消在菜单栏显示")
+                                : (isEnglish ? "Pin Task Progress to Menu Bar" : "在菜单栏显示此任务进度"),
+                            action: onTogglePin
+                        )
                         Divider()
-                        Button("重新校验完整性", action: onRecheck)
+                        Button(isEnglish ? "Force Recheck" : "重新校验完整性", action: onRecheck)
                         Divider()
-                        Button("删除任务 (保留文件)") { onDelete(false) }
-                        Button("删除任务及本地文件", role: .destructive) { onDelete(true) }
+                        Button(isEnglish ? "Delete Task (Keep Files)" : "删除任务 (保留文件)") { onDelete(false) }
+                        Button(isEnglish ? "Delete Task and Local Files" : "删除任务及本地文件", role: .destructive) { onDelete(true) }
                     } label: {
                         Image(systemName: "ellipsis")
                             .font(.system(size: 10))
@@ -198,16 +203,26 @@ public struct TorrentRowView: View {
         }
         .glassCard(cornerRadius: 10, padding: 10, isInteractive: true)
         .contextMenu {
-            Button(isPinned ? "取消在菜单栏显示" : "在菜单栏显示此任务进度", action: onTogglePin)
+            Button(
+                isPinned
+                    ? (isEnglish ? "Unpin from Menu Bar" : "取消在菜单栏显示")
+                    : (isEnglish ? "Pin Task Progress to Menu Bar" : "在菜单栏显示此任务进度"),
+                action: onTogglePin
+            )
             Divider()
-            Button(torrent.isPaused ? "恢复任务" : "暂停任务", action: onPauseResume)
+            Button(
+                torrent.isPaused
+                    ? (isEnglish ? "Resume Task" : "恢复任务")
+                    : (isEnglish ? "Pause Task" : "暂停任务"),
+                action: onPauseResume
+            )
             if let path = torrent.savePath, !path.isEmpty {
-                Button("在 Finder 中定位文件", action: onOpenFolder)
+                Button(isEnglish ? "Show in Finder" : "在 Finder 中定位文件", action: onOpenFolder)
             }
-            Button("重新校验完整性", action: onRecheck)
+            Button(isEnglish ? "Force Recheck" : "重新校验完整性", action: onRecheck)
             Divider()
-            Button("删除任务 (保留文件)") { onDelete(false) }
-            Button("删除任务及本地文件", role: .destructive) { onDelete(true) }
+            Button(isEnglish ? "Delete Task (Keep Files)" : "删除任务 (保留文件)") { onDelete(false) }
+            Button(isEnglish ? "Delete Task and Local Files" : "删除任务及本地文件", role: .destructive) { onDelete(true) }
         }
         .animation(AppMotion.expand, value: isExpanded)
     }

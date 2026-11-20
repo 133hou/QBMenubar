@@ -3,7 +3,8 @@ import SwiftUI
 public struct PopoverContentView: View {
     @Bindable var viewModel: QBMenubarViewModel
 
-    private var isEn: Bool { viewModel.config.language == .en }
+    private var lang: AppLanguage { viewModel.config.language }
+    private var isEn: Bool { !lang.isChinese }
 
     public var body: some View {
         VStack(spacing: 0) {
@@ -38,7 +39,7 @@ public struct PopoverContentView: View {
                             .foregroundStyle(.tint)
                     }
                     .buttonStyle(.plain)
-                    .help(isEn ? "Add .torrent File" : "添加上传种子文件 (.torrent)")
+                    .help(L10n.addTorrentFileTooltip(lang))
 
                     Button {
                         viewModel.addFromClipboard()
@@ -48,7 +49,7 @@ public struct PopoverContentView: View {
                             .foregroundStyle(.tint)
                     }
                     .buttonStyle(.plain)
-                    .help(isEn ? "Add Magnet or URL from Clipboard" : "从剪贴板粘贴添加磁力/下载链接")
+                    .help(L10n.addClipboardTooltip(lang))
 
                     Button {
                         SettingsWindowController.shared.show(viewModel: viewModel)
@@ -58,7 +59,7 @@ public struct PopoverContentView: View {
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
-                    .help(isEn ? "Preferences" : "偏好设置")
+                    .help(L10n.preferencesTooltip(lang))
 
                     Button {
                         Task { await viewModel.refresh() }
@@ -68,7 +69,7 @@ public struct PopoverContentView: View {
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
-                    .help(isEn ? "Refresh" : "刷新")
+                    .help(L10n.refreshTooltip(lang))
                 }
             }
             .padding(.horizontal, 14)
@@ -95,16 +96,16 @@ public struct PopoverContentView: View {
             SpeedChartView(
                 points: viewModel.speedHistory,
                 currentDLSpeed: viewModel.transferInfo.dlInfoSpeed,
-                currentUPSpeed: viewModel.transferInfo.upInfoSpeed
+                currentUPSpeed: viewModel.transferInfo.upInfoSpeed,
+                lang: lang
             )
             .padding(.horizontal, 14)
             .padding(.bottom, 8)
 
             // 3. Quick Action Buttons
-            let isEn = viewModel.config.language == .en
             HStack(spacing: 6) {
                 QuickActionButton(
-                    title: isEn ? "Pause All" : "暂停全部",
+                    title: L10n.pauseAll(lang),
                     icon: "pause.fill",
                     color: .orange
                 ) {
@@ -112,7 +113,7 @@ public struct PopoverContentView: View {
                 }
 
                 QuickActionButton(
-                    title: isEn ? "Resume All" : "全部继续",
+                    title: L10n.resumeAll(lang),
                     icon: "play.fill",
                     color: .green
                 ) {
@@ -120,7 +121,7 @@ public struct PopoverContentView: View {
                 }
 
                 QuickActionButton(
-                    title: viewModel.isAltSpeedLimits ? (isEn ? "Alt Active" : "备用限速中") : (isEn ? "Alt Speeds" : "备用限速"),
+                    title: viewModel.isAltSpeedLimits ? L10n.altActive(lang) : L10n.altSpeeds(lang),
                     icon: "tortoise.fill",
                     color: viewModel.isAltSpeedLimits ? .blue : .secondary
                 ) {
@@ -148,7 +149,7 @@ public struct PopoverContentView: View {
                         }
                     } label: {
                         HStack(spacing: 3) {
-                            Text(tab.localizedTitle(isEn: isEn))
+                            Text(tab.localizedTitle(lang: lang))
                                 .font(.system(size: 11, weight: viewModel.selectedTab == tab ? .semibold : .regular))
                             if count > 0 {
                                 Text("\(count)")
@@ -202,7 +203,7 @@ public struct PopoverContentView: View {
                                     files: viewModel.torrentFiles[torrent.hash],
                                     isLoadingFiles: viewModel.isLoadingFiles[torrent.hash] == true,
                                     isPinned: viewModel.isTorrentPinned(torrent),
-                                    isEnglish: isEn,
+                                    lang: lang,
                                     onToggleExpand: {
                                         viewModel.toggleExpandTorrent(torrent.hash)
                                     },
@@ -244,7 +245,7 @@ public struct PopoverContentView: View {
                     Image(systemName: "network")
                         .font(.system(size: 10))
                         .foregroundStyle(.secondary)
-                    Text(isEn ? "DHT: \(viewModel.transferInfo.dhtNodes) nodes" : "DHT: \(viewModel.transferInfo.dhtNodes) 节点")
+                    Text(L10n.tr(lang, zhHans: "DHT: \(viewModel.transferInfo.dhtNodes) 节点", zhHant: "DHT: \(viewModel.transferInfo.dhtNodes) 節點", en: "DHT: \(viewModel.transferInfo.dhtNodes) nodes"))
                         .font(.system(size: 10))
                         .foregroundStyle(.secondary)
                 }
@@ -252,15 +253,15 @@ public struct PopoverContentView: View {
                 Spacer()
 
                 HStack(spacing: 8) {
-                    Text(isEn ? "DL: \(APIConfig.formatBytes(viewModel.transferInfo.dlInfoData))" : "总下: \(APIConfig.formatBytes(viewModel.transferInfo.dlInfoData))")
+                    Text(L10n.tr(lang, zhHans: "总下: \(APIConfig.formatBytes(viewModel.transferInfo.dlInfoData))", zhHant: "總下: \(APIConfig.formatBytes(viewModel.transferInfo.dlInfoData))", en: "DL: \(APIConfig.formatBytes(viewModel.transferInfo.dlInfoData))"))
                         .font(.system(size: 10, design: .rounded))
                         .foregroundStyle(.secondary)
 
-                    Text(isEn ? "UL: \(APIConfig.formatBytes(viewModel.transferInfo.upInfoData))" : "总上: \(APIConfig.formatBytes(viewModel.transferInfo.upInfoData))")
+                    Text(L10n.tr(lang, zhHans: "总上: \(APIConfig.formatBytes(viewModel.transferInfo.upInfoData))", zhHant: "總上: \(APIConfig.formatBytes(viewModel.transferInfo.upInfoData))", en: "UL: \(APIConfig.formatBytes(viewModel.transferInfo.upInfoData))"))
                         .font(.system(size: 10, design: .rounded))
                         .foregroundStyle(.secondary)
 
-                    Button(isEn ? "Quit" : "退出") {
+                    Button(L10n.quit(lang)) {
                         NSApp.terminate(nil)
                     }
                     .buttonStyle(.plain)
@@ -294,7 +295,7 @@ public struct PopoverContentView: View {
     }
 
     private var emptyStateText: String {
-        if isEn {
+        if !lang.isChinese {
             switch viewModel.connectionState {
             case .disconnected:
                 return "Not Connected to qBittorrent"
@@ -308,6 +309,22 @@ public struct PopoverContentView: View {
                 case .downloading: return "No downloading torrents"
                 case .seeding: return "No seeding torrents"
                 case .paused: return "No paused torrents"
+                }
+            }
+        } else if lang.isTraditionalChinese {
+            switch viewModel.connectionState {
+            case .disconnected:
+                return "未連線到 qBittorrent"
+            case .error(let error):
+                return "無法連線: \(error)"
+            case .connecting:
+                return "正在連線 qBittorrent WebUI..."
+            case .connected:
+                switch viewModel.selectedTab {
+                case .all: return "暫無任何種子任務"
+                case .downloading: return "目前沒有正在下載的任務"
+                case .seeding: return "目前沒有做種中的任務"
+                case .paused: return "目前沒有暫停的任務"
                 }
             }
         } else {

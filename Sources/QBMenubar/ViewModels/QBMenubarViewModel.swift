@@ -17,16 +17,27 @@ public enum FilterTab: String, CaseIterable, Identifiable, Sendable {
 
     public var id: String { rawValue }
 
-    public func localizedTitle(isEn: Bool) -> String {
-        if isEn {
+    public func localizedTitle(lang: AppLanguage) -> String {
+        if !lang.isChinese {
             switch self {
             case .all: return "All"
             case .downloading: return "Downloading"
             case .seeding: return "Seeding"
             case .paused: return "Paused"
             }
+        } else if lang.isTraditionalChinese {
+            switch self {
+            case .all: return "全部"
+            case .downloading: return "下載中"
+            case .seeding: return "做種中"
+            case .paused: return "已暫停"
+            }
         }
         return rawValue
+    }
+
+    public func localizedTitle(isEn: Bool) -> String {
+        localizedTitle(lang: isEn ? .en : .zhHans)
     }
 }
 
@@ -172,15 +183,23 @@ public final class QBMenubarViewModel {
 
         guard config.enableNotifications else { return }
 
+        let lang = config.language
         for t in newTorrents {
             // 1. Download Started Notification
             if !knownTorrentHashes.contains(t.hash) {
                 knownTorrentHashes.insert(t.hash)
                 if config.notifyOnStart {
+                    let title = L10n.tr(lang, zhHans: "📥 下载已开始", zhHant: "📥 下載已開始", en: "📥 Download Started")
+                    let body = L10n.tr(
+                        lang,
+                        zhHans: "大小: \(t.formattedSize) • \(t.stateDescription)",
+                        zhHant: "大小: \(t.formattedSize) • \(t.localizedStateDescription(lang: lang))",
+                        en: "Size: \(t.formattedSize) • \(t.localizedStateDescription(lang: lang))"
+                    )
                     NotificationManager.shared.sendNotification(
-                        title: "📥 下载已开始",
+                        title: title,
                         subtitle: t.name,
-                        body: "大小: \(t.formattedSize) • \(t.stateDescription)",
+                        body: body,
                         savePath: t.savePath
                     )
                 }
@@ -191,10 +210,17 @@ public final class QBMenubarViewModel {
             if isDone && !completedTorrentHashes.contains(t.hash) {
                 completedTorrentHashes.insert(t.hash)
                 if config.notifyOnComplete {
+                    let title = L10n.tr(lang, zhHans: "🎉 下载已完成", zhHant: "🎉 下載已完成", en: "🎉 Download Completed")
+                    let body = L10n.tr(
+                        lang,
+                        zhHans: "已完成 \(t.formattedSize) 的下载，点击在 Finder 中定位",
+                        zhHant: "已完成 \(t.formattedSize) 的下載，點擊在 Finder 中定位",
+                        en: "Finished downloading \(t.formattedSize). Click to reveal in Finder."
+                    )
                     NotificationManager.shared.sendNotification(
-                        title: "🎉 下载已完成",
+                        title: title,
                         subtitle: t.name,
-                        body: "已完成 \(t.formattedSize) 的下载，点击在 Finder 中定位",
+                        body: body,
                         savePath: t.savePath
                     )
                 }

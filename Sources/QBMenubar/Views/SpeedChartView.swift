@@ -5,6 +5,7 @@ public struct SpeedChartView: View {
     public var points: [SpeedHistoryPoint]
     public var currentDLSpeed: Int64
     public var currentUPSpeed: Int64
+    public var lang: AppLanguage = .zhHans
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -74,7 +75,7 @@ public struct SpeedChartView: View {
             } else {
                 HStack {
                     Spacer()
-                    Text("正在采集实时带宽数据...")
+                    Text(L10n.tr(lang, zhHans: "正在采集实时带宽数据...", zhHant: "正在收集即時頻寬數據...", en: "Collecting real-time bandwidth data..."))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                     Spacer()

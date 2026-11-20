@@ -10,18 +10,19 @@ public enum SettingsCategory: String, CaseIterable, Identifiable {
 
     public var id: String { rawValue }
 
-    public func localizedTitle(isEn: Bool) -> String {
-        if isEn {
-            switch self {
-            case .general: return "General"
-            case .connection: return "WebUI Connection"
-            case .menubar: return "Menu Bar"
-            case .notifications: return "Notifications"
-            case .advanced: return "Advanced"
-            case .about: return "About"
-            }
+    public func localizedTitle(lang: AppLanguage) -> String {
+        switch self {
+        case .general: return L10n.general(lang)
+        case .connection: return L10n.webUIConnection(lang)
+        case .menubar: return L10n.menuBar(lang)
+        case .notifications: return L10n.notifications(lang)
+        case .advanced: return L10n.advanced(lang)
+        case .about: return L10n.about(lang)
         }
-        return rawValue
+    }
+
+    public func localizedTitle(isEn: Bool) -> String {
+        localizedTitle(lang: isEn ? .en : .zhHans)
     }
 
     public var iconName: String {
@@ -55,7 +56,8 @@ public struct SettingsWindowView: View {
     @State private var searchText: String = ""
     @State private var testState: TestStatus = .idle
 
-    private var isEn: Bool { viewModel.config.language == .en }
+    private var lang: AppLanguage { viewModel.config.language }
+    private var isEn: Bool { !lang.isChinese }
 
     enum TestStatus: Equatable {
         case idle
@@ -64,8 +66,9 @@ public struct SettingsWindowView: View {
         case failure(String)
     }
 
-    public init(viewModel: QBMenubarViewModel) {
+    public init(viewModel: QBMenubarViewModel, initialCategory: SettingsCategory = .general) {
         self.viewModel = viewModel
+        self._selectedCategory = State(initialValue: initialCategory)
     }
 
     public var body: some View {
@@ -77,7 +80,7 @@ public struct SettingsWindowView: View {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 11))
                         .foregroundStyle(.secondary)
-                    TextField(isEn ? "Search settings" : "搜索设置", text: $searchText)
+                    TextField(L10n.searchSettings(lang), text: $searchText)
                         .textFieldStyle(.plain)
                         .font(.system(size: 12))
                 }
@@ -106,7 +109,7 @@ public struct SettingsWindowView: View {
                                         isSelected: selectedCategory == category
                                     )
 
-                                    Text(category.localizedTitle(isEn: isEn))
+                                    Text(category.localizedTitle(lang: lang))
                                         .font(.system(size: 13, weight: selectedCategory == category ? .medium : .regular))
                                         .foregroundStyle(selectedCategory == category ? Color.white : Color.primary)
 
@@ -172,7 +175,7 @@ public struct SettingsWindowView: View {
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.tertiary)
 
-                    Text(selectedCategory.localizedTitle(isEn: isEn))
+                    Text(selectedCategory.localizedTitle(lang: lang))
                         .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(.primary)
 
@@ -217,14 +220,14 @@ public struct SettingsWindowView: View {
 
     @ViewBuilder
     private var generalPane: some View {
-        SettingsGroup(title: isEn ? "System" : "系统") {
+        SettingsGroup(title: L10n.systemGroup(lang)) {
             SettingsRow(
-                title: isEn ? "Language" : "语言",
-                subtitle: isEn ? "Change display language. Requires app restart to take full effect." : "更改显示语言。需要重启应用才能完全生效。"
+                title: L10n.language(lang),
+                subtitle: L10n.languageSubtitle(lang)
             ) {
                 Picker("", selection: $viewModel.config.language) {
-                    ForEach(AppLanguage.allCases) { lang in
-                        Text(lang.rawValue).tag(lang)
+                    ForEach(AppLanguage.allCases) { item in
+                        Text(item.rawValue).tag(item)
                     }
                 }
                 .pickerStyle(.menu)
@@ -234,10 +237,10 @@ public struct SettingsWindowView: View {
             SettingsDivider()
 
             SettingsRow(
-                title: isEn ? "qBittorrent Web Console" : "qBittorrent 网页控制台",
-                subtitle: isEn ? "Open WebUI directly in your default browser" : "直接在系统默认浏览器中打开 WebUI"
+                title: L10n.webConsole(lang),
+                subtitle: L10n.webConsoleSubtitle(lang)
             ) {
-                Button(isEn ? "Open WebUI" : "打开 WebUI") {
+                Button(L10n.openWebUI(lang)) {
                     viewModel.openWebUI()
                 }
                 .adaptiveGlassButton(prominent: false)
@@ -247,66 +250,75 @@ public struct SettingsWindowView: View {
 
     @ViewBuilder
     private var connectionPane: some View {
-        SettingsGroup(title: isEn ? "Network Connection" : "网络连接") {
+        SettingsGroup(title: L10n.networkConnectionGroup(lang)) {
             SettingsRow(
-                title: isEn ? "Server Address" : "服务器地址",
-                subtitle: isEn ? "qBittorrent WebUI URL (supports localhost, LAN IP, NAS, or domain)" : "qBittorrent WebUI 访问地址 (支持本地、NAS 或域名)"
+                title: L10n.serverAddress(lang),
+                subtitle: L10n.serverAddressSubtitle(lang)
             ) {
-                TextField("http://127.0.0.1:8080", text: $viewModel.config.baseURL)
-                    .textFieldStyle(.roundedBorder)
-                    .font(.system(size: 12, design: .monospaced))
-                    .frame(width: 220)
+                GlassTextField(
+                    placeholder: "http://127.0.0.1:8080",
+                    text: $viewModel.config.baseURL,
+                    isMonospaced: true,
+                    width: 220
+                )
             }
 
             SettingsDivider()
 
             SettingsRow(
-                title: isEn ? "API Path Prefix" : "API 路径前缀",
-                subtitle: isEn ? "Default /api/v2; modify if using reverse proxy subpath" : "默认 /api/v2，使用反代子目录时可在此修改"
+                title: L10n.apiPathPrefix(lang),
+                subtitle: L10n.apiPathPrefixSubtitle(lang)
             ) {
-                TextField("/api/v2", text: $viewModel.config.apiPrefix)
-                    .textFieldStyle(.roundedBorder)
-                    .font(.system(size: 12, design: .monospaced))
-                    .frame(width: 220)
+                GlassTextField(
+                    placeholder: "/api/v2",
+                    text: $viewModel.config.apiPrefix,
+                    isMonospaced: true,
+                    width: 220
+                )
             }
 
             SettingsDivider()
 
             SettingsRow(
-                title: isEn ? "Username" : "用户名",
-                subtitle: isEn ? "WebUI login account" : "WebUI 登录账户"
+                title: L10n.username(lang),
+                subtitle: L10n.usernameSubtitle(lang)
             ) {
-                TextField("admin", text: $viewModel.config.username)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 220)
+                GlassTextField(
+                    placeholder: "admin",
+                    text: $viewModel.config.username,
+                    width: 220
+                )
             }
 
             SettingsDivider()
 
             SettingsRow(
-                title: isEn ? "Password" : "密码",
-                subtitle: isEn ? "WebUI login password" : "WebUI 访问密码"
+                title: L10n.password(lang),
+                subtitle: L10n.passwordSubtitle(lang)
             ) {
-                SecureField(isEn ? "WebUI Password" : "WebUI 密码", text: $viewModel.config.password)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 220)
+                GlassTextField(
+                    placeholder: L10n.passwordPlaceholder(lang),
+                    text: $viewModel.config.password,
+                    isSecure: true,
+                    width: 220
+                )
             }
 
             SettingsDivider()
 
             SettingsRow(
-                title: isEn ? "Bypass Localhost Authentication" : "跳过本地主机验证",
-                subtitle: isEn ? "Enable if 'Bypass authentication for clients on localhost' is checked in qBittorrent" : "在 qBittorrent 首选项开启了 Localhost Bypass 时可启用"
+                title: L10n.bypassLocalhost(lang),
+                subtitle: L10n.bypassLocalhostSubtitle(lang)
             ) {
                 Toggle("", isOn: $viewModel.config.bypassLocalhost)
                     .toggleStyle(.switch)
             }
         }
 
-        SettingsGroup(title: isEn ? "Connectivity Diagnostic" : "连通性检测") {
+        SettingsGroup(title: L10n.connectivityDiagnosticGroup(lang)) {
             SettingsRow(
-                title: isEn ? "Test Connection to qBittorrent" : "测试与 qBittorrent 连通性",
-                subtitle: isEn ? "Probe target endpoint and fetch server version & latency" : "即时探测目标地址与服务端版本号"
+                title: L10n.testConnectionTitle(lang),
+                subtitle: L10n.testConnectionSubtitle(lang)
             ) {
                 HStack(spacing: 8) {
                     switch testState {
@@ -331,7 +343,7 @@ public struct SettingsWindowView: View {
                         }
                     }
 
-                    Button(isEn ? "Test Connection" : "测试连接") {
+                    Button(L10n.testConnectionButton(lang)) {
                         runTestConnection()
                     }
                     .adaptiveGlassButton(prominent: true)
@@ -416,14 +428,14 @@ public struct SettingsWindowView: View {
             .padding(.vertical, 8)
         }
 
-        SettingsGroup(title: isEn ? "Layout Style" : "显示布局") {
+        SettingsGroup(title: L10n.layoutStyleGroup(lang)) {
             SettingsRow(
-                title: isEn ? "Menu Bar Display Mode" : "状态栏显示布局",
-                subtitle: isEn ? "Select download/upload speed presentation mode" : "选择屏幕顶部的速度展示模式"
+                title: L10n.menuBarDisplayMode(lang),
+                subtitle: L10n.menuBarDisplayModeSubtitle(lang)
             ) {
                 Picker("", selection: $viewModel.config.menuBarStyle) {
                     ForEach(MenuBarStyle.allCases) { style in
-                        Text(style.localizedTitle(isEn: isEn)).tag(style)
+                        Text(style.localizedTitle(lang: lang)).tag(style)
                     }
                 }
                 .pickerStyle(.menu)
@@ -431,10 +443,10 @@ public struct SettingsWindowView: View {
             }
         }
 
-        SettingsGroup(title: isEn ? "Task Progress Display" : "任务完成度显示") {
+        SettingsGroup(title: L10n.taskProgressGroup(lang)) {
             SettingsRow(
-                title: isEn ? "Show Task Progress in Menu Bar" : "在菜单栏显示任务进度",
-                subtitle: isEn ? "Display active downloading torrent percentage badge next to speed" : "在状态栏速度旁以百分比气泡显示正在下载任务的完成度"
+                title: L10n.showTaskProgress(lang),
+                subtitle: L10n.showTaskProgressSubtitle(lang)
             ) {
                 Toggle("", isOn: $viewModel.config.showPinnedProgress)
                     .toggleStyle(.switch)
@@ -444,15 +456,15 @@ public struct SettingsWindowView: View {
                 SettingsDivider()
 
                 SettingsRow(
-                    title: isEn ? "Selected Torrent" : "选择展示的任务",
-                    subtitle: isEn ? "Pin specific torrent or auto-select most active download" : "固定特定任务或由系统自动选择最活跃下载任务"
+                    title: L10n.selectedTorrent(lang),
+                    subtitle: L10n.selectedTorrentSubtitle(lang)
                 ) {
                     Picker("", selection: Binding(
                         get: { viewModel.config.pinnedTorrentHash ?? "none" },
                         set: { viewModel.config.pinnedTorrentHash = ($0 == "none" ? nil : $0) }
                     )) {
-                        Text(isEn ? "Do Not Show" : "不显示").tag("none")
-                        Text(isEn ? "Auto (Most Active Torrent)" : "自动选择 (最活跃下载任务)").tag("auto")
+                        Text(L10n.doNotShow(lang)).tag("none")
+                        Text(L10n.autoSelectMostActive(lang)).tag("auto")
                         if !viewModel.torrents.isEmpty {
                             Divider()
                             ForEach(viewModel.torrents) { torrent in
@@ -467,14 +479,14 @@ public struct SettingsWindowView: View {
             }
         }
 
-        SettingsGroup(title: isEn ? "Icon & Colors" : "图标与外观") {
+        SettingsGroup(title: L10n.iconColorsGroup(lang)) {
             SettingsRow(
-                title: isEn ? "Logo Icon Theme" : "图标色彩主题",
-                subtitle: isEn ? "Choose qBittorrent menu bar logo color scheme" : "选择 qBittorrent 状态栏图标色彩"
+                title: L10n.iconThemeTitle(lang),
+                subtitle: L10n.iconThemeSubtitle(lang)
             ) {
                 Picker("", selection: $viewModel.config.iconTheme) {
                     ForEach(IconTheme.allCases) { theme in
-                        Text(theme.localizedTitle(isEn: isEn)).tag(theme)
+                        Text(theme.localizedTitle(lang: lang)).tag(theme)
                     }
                 }
                 .pickerStyle(.menu)
@@ -484,12 +496,12 @@ public struct SettingsWindowView: View {
             SettingsDivider()
 
             SettingsRow(
-                title: isEn ? "Icon Size" : "图标大小",
-                subtitle: isEn ? "Adjust status bar icon rendering scale" : "调整菜单栏图标渲染尺寸"
+                title: L10n.iconSizeTitle(lang),
+                subtitle: L10n.iconSizeSubtitle(lang)
             ) {
                 Picker("", selection: $viewModel.config.iconSize) {
                     ForEach(IconSizeOption.allCases) { sizeOpt in
-                        Text(sizeOpt.localizedTitle(isEn: isEn)).tag(sizeOpt)
+                        Text(sizeOpt.localizedTitle(lang: lang)).tag(sizeOpt)
                     }
                 }
                 .pickerStyle(.menu)
@@ -499,12 +511,12 @@ public struct SettingsWindowView: View {
             SettingsDivider()
 
             SettingsRow(
-                title: isEn ? "Arrow Color Scheme" : "下载箭头颜色",
-                subtitle: isEn ? "Choose upload/download arrow color mode" : "设置下载指示箭头的展示颜色 (支持黑/白)"
+                title: L10n.arrowThemeTitle(lang),
+                subtitle: L10n.arrowThemeSubtitle(lang)
             ) {
                 Picker("", selection: $viewModel.config.arrowTheme) {
                     ForEach(ArrowTheme.allCases) { theme in
-                        Text(theme.localizedTitle(isEn: isEn)).tag(theme)
+                        Text(theme.localizedTitle(lang: lang)).tag(theme)
                     }
                 }
                 .pickerStyle(.menu)
@@ -515,10 +527,10 @@ public struct SettingsWindowView: View {
 
     @ViewBuilder
     private var notificationsPane: some View {
-        SettingsGroup(title: isEn ? "System Notifications" : "系统通知") {
+        SettingsGroup(title: L10n.notificationsGroup(lang)) {
             SettingsRow(
-                title: isEn ? "Enable macOS Notifications" : "启用系统通知",
-                subtitle: isEn ? "Receive task status change alerts in Notification Center" : "在 macOS 屏幕右上角接收任务状态横幅"
+                title: L10n.enableNotifications(lang),
+                subtitle: L10n.enableNotificationsSubtitle(lang)
             ) {
                 Toggle("", isOn: $viewModel.config.enableNotifications)
                     .toggleStyle(.switch)
@@ -528,8 +540,8 @@ public struct SettingsWindowView: View {
                 SettingsDivider()
 
                 SettingsRow(
-                    title: isEn ? "📥 Download Started" : "📥 下载开始时通知",
-                    subtitle: isEn ? "Notify when a newly added task begins downloading" : "检测到新任务开始下载时提醒"
+                    title: L10n.notifyOnStartTitle(lang),
+                    subtitle: L10n.notifyOnStartSubtitle(lang)
                 ) {
                     Toggle("", isOn: $viewModel.config.notifyOnStart)
                         .toggleStyle(.switch)
@@ -538,8 +550,8 @@ public struct SettingsWindowView: View {
                 SettingsDivider()
 
                 SettingsRow(
-                    title: isEn ? "🎉 Download Completed" : "🎉 下载完成时通知",
-                    subtitle: isEn ? "Notify when a task finishes downloading (click to reveal in Finder)" : "任务下载完成时提醒，点击通知可直接在 Finder 中定位"
+                    title: L10n.notifyOnCompleteTitle(lang),
+                    subtitle: L10n.notifyOnCompleteSubtitle(lang)
                 ) {
                     Toggle("", isOn: $viewModel.config.notifyOnComplete)
                         .toggleStyle(.switch)
@@ -550,10 +562,10 @@ public struct SettingsWindowView: View {
 
     @ViewBuilder
     private var advancedPane: some View {
-        SettingsGroup(title: isEn ? "Refresh & Performance" : "刷新与频率") {
+        SettingsGroup(title: L10n.refreshPerformanceGroup(lang)) {
             SettingsRow(
-                title: isEn ? "Background Polling Interval: \(String(format: "%.1f", viewModel.config.pollInterval))s" : "后台轮询刷新间隔: \(String(format: "%.1f", viewModel.config.pollInterval)) 秒",
-                subtitle: isEn ? "Frequency of polling speed and task list from qBittorrent" : "向 qBittorrent 请求最新下载速率与任务列表的频率"
+                title: L10n.pollingIntervalTitle(lang, seconds: viewModel.config.pollInterval),
+                subtitle: L10n.pollingIntervalSubtitle(lang)
             ) {
                 Slider(value: $viewModel.config.pollInterval, in: 1.0...10.0, step: 0.5)
                     .frame(width: 180)
@@ -562,8 +574,8 @@ public struct SettingsWindowView: View {
             SettingsDivider()
 
             SettingsRow(
-                title: isEn ? "Speed Chart History Duration: \(viewModel.config.chartHistorySeconds)s" : "带宽图表历史时长: \(viewModel.config.chartHistorySeconds) 秒",
-                subtitle: isEn ? "Time window span recorded in top bandwidth wave chart" : "顶部波形图记录的秒数跨度"
+                title: L10n.chartDurationTitle(lang, seconds: viewModel.config.chartHistorySeconds),
+                subtitle: L10n.chartDurationSubtitle(lang)
             ) {
                 Slider(
                     value: Binding(
@@ -577,12 +589,12 @@ public struct SettingsWindowView: View {
             }
         }
 
-        SettingsGroup(title: isEn ? "Reset" : "重置") {
+        SettingsGroup(title: L10n.resetGroup(lang)) {
             SettingsRow(
-                title: isEn ? "Restore Factory Defaults" : "恢复出厂默认配置",
-                subtitle: isEn ? "Reset all API endpoints, appearances, and notification preferences" : "将所有 API 地址、外观与通知重置为初始状态"
+                title: L10n.restoreDefaultsTitle(lang),
+                subtitle: L10n.restoreDefaultsSubtitle(lang)
             ) {
-                Button(isEn ? "Reset to Defaults" : "恢复默认") {
+                Button(L10n.resetToDefaultsButton(lang)) {
                     viewModel.config = .defaultConfig
                 }
                 .adaptiveGlassButton(prominent: false)
@@ -595,76 +607,17 @@ public struct SettingsWindowView: View {
         VStack(spacing: 16) {
             // App Hero Card
             VStack(spacing: 10) {
-                ZStack {
-                    if #available(macOS 26.0, *) {
-                        Circle()
-                            .fill(Color(red: 47/255, green: 120/255, blue: 220/255).opacity(0.85))
-                            .frame(width: 58, height: 58)
-                            .glassEffect(.regular.tint(Color(red: 47/255, green: 120/255, blue: 220/255)), in: .circle)
-                            .overlay(
-                                Circle()
-                                    .strokeBorder(
-                                        LinearGradient(
-                                            colors: [
-                                                Color.white.opacity(0.65),
-                                                Color.white.opacity(0.15)
-                                            ],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ),
-                                        lineWidth: 1
-                                    )
-                            )
-                            .shadow(color: Color.blue.opacity(0.35), radius: 8, x: 0, y: 4)
-
-                        Text("qb")
-                            .font(.system(size: 26, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
-                            .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 1)
-                    } else {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color(red: 47/255, green: 120/255, blue: 220/255),
-                                        Color(red: 35/255, green: 80/255, blue: 170/255)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 58, height: 58)
-                            .overlay(
-                                Circle()
-                                    .strokeBorder(
-                                        LinearGradient(
-                                            colors: [
-                                                Color.white.opacity(0.65),
-                                                Color.white.opacity(0.15)
-                                            ],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ),
-                                        lineWidth: 1
-                                    )
-                            )
-                            .shadow(color: Color.blue.opacity(0.28), radius: 6, x: 0, y: 3)
-
-                        Text("qb")
-                            .font(.system(size: 26, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
-                    }
-                }
+                AppHeroIconView(size: 64)
 
                 VStack(spacing: 4) {
                     Text("QBMenubar")
                         .font(.system(size: 17, weight: .bold))
 
-                    Text(isEn ? "Version 1.2.0 (Build 2026.11)" : "版本 1.2.0 (Build 2026.11)")
+                    Text(L10n.tr(lang, zhHans: "版本 1.2.0 (Build 2026.11)", zhHant: "版本 1.2.0 (Build 2026.11)", en: "Version 1.2.0 (Build 2026.11)"))
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
 
-                    Text(isEn ? "Lightweight & elegant native qBittorrent macOS menu bar controller" : "轻量优雅的 qBittorrent macOS 原生菜单栏控制中心")
+                    Text(L10n.appSubtitle(lang))
                         .font(.system(size: 11))
                         .foregroundStyle(.tertiary)
                         .multilineTextAlignment(.center)
@@ -675,13 +628,13 @@ public struct SettingsWindowView: View {
             .padding(.vertical, 8)
 
             // Open Source & Community
-            SettingsGroup(title: isEn ? "Open Source & Community" : "开源与社区") {
+            SettingsGroup(title: L10n.openSourceCommunityGroup(lang)) {
                 SettingsRow(
-                    title: isEn ? "GitHub Repository" : "GitHub 开源仓库",
+                    title: L10n.githubRepoTitle(lang),
                     subtitle: "https://github.com/133hou/QBMenubar"
                 ) {
                     LinkButton(
-                        title: isEn ? "Repository" : "访问仓库",
+                        title: L10n.visitRepoButton(lang),
                         urlString: "https://github.com/133hou/QBMenubar"
                     )
                 }
@@ -689,11 +642,11 @@ public struct SettingsWindowView: View {
                 SettingsDivider()
 
                 SettingsRow(
-                    title: isEn ? "Releases & Updates" : "版本发布与更新日志",
-                    subtitle: isEn ? "Get the latest releases and changelogs" : "查看历史构建与最新更新说明"
+                    title: L10n.releasesTitle(lang),
+                    subtitle: L10n.releasesSubtitle(lang)
                 ) {
                     LinkButton(
-                        title: isEn ? "Releases" : "查看发布",
+                        title: L10n.viewReleasesButton(lang),
                         urlString: "https://github.com/133hou/QBMenubar/releases"
                     )
                 }
@@ -701,27 +654,27 @@ public struct SettingsWindowView: View {
                 SettingsDivider()
 
                 SettingsRow(
-                    title: isEn ? "Issues & Feedback" : "问题反馈与功能建议",
-                    subtitle: isEn ? "Report bugs or submit feature suggestions" : "在 GitHub 提交 Issue 或改进建议"
+                    title: L10n.issuesFeedbackTitle(lang),
+                    subtitle: L10n.issuesFeedbackSubtitle(lang)
                 ) {
                     LinkButton(
-                        title: isEn ? "Feedback" : "提交反馈",
+                        title: L10n.submitFeedbackButton(lang),
                         urlString: "https://github.com/133hou/QBMenubar/issues"
                     )
                 }
             }
 
             // WebUI Quick Access
-            SettingsGroup(title: isEn ? "Web Management" : "Web 管理页面") {
+            SettingsGroup(title: L10n.webManagementGroup(lang)) {
                 SettingsRow(
                     title: "qBittorrent WebUI",
-                    subtitle: isEn ? "Open WebUI management interface in default browser" : "在默认浏览器中打开当前配置的 Web 管理页面"
+                    subtitle: L10n.webManagementSubtitle(lang)
                 ) {
                     Button {
                         viewModel.openWebUI()
                     } label: {
                         HStack(spacing: 4) {
-                            Text(isEn ? "Open WebUI" : "打开 WebUI")
+                            Text(L10n.openWebUI(lang))
                                 .font(.system(size: 12, weight: .medium))
                             Image(systemName: "arrow.up.forward.app")
                                 .font(.system(size: 11))
@@ -732,9 +685,9 @@ public struct SettingsWindowView: View {
             }
 
             // Software Specifications
-            SettingsGroup(title: isEn ? "Software Info" : "软件信息") {
+            SettingsGroup(title: L10n.softwareInfoGroup(lang)) {
                 SettingsRow(
-                    title: isEn ? "Open Source License" : "开源许可协议"
+                    title: L10n.openSourceLicenseTitle(lang)
                 ) {
                     InfoBadge(text: "MIT License")
                 }
@@ -742,7 +695,7 @@ public struct SettingsWindowView: View {
                 SettingsDivider()
 
                 SettingsRow(
-                    title: isEn ? "Architecture & Stack" : "技术架构"
+                    title: L10n.techStackTitle(lang)
                 ) {
                     InfoBadge(text: "Swift 6 + SwiftUI + Liquid Glass")
                 }
@@ -750,7 +703,7 @@ public struct SettingsWindowView: View {
                 SettingsDivider()
 
                 SettingsRow(
-                    title: isEn ? "Compatibility" : "系统兼容性"
+                    title: L10n.compatibilityTitle(lang)
                 ) {
                     InfoBadge(text: "macOS 14.0+ (Apple Silicon & Intel)")
                 }
@@ -778,28 +731,15 @@ public struct SettingsWindowView: View {
     }
 
     private var connectionSummary: String {
-        if isEn {
-            switch viewModel.connectionState {
-            case .connected(let ping):
-                return "Connected (\(ping)ms)"
-            case .connecting:
-                return "Connecting..."
-            case .disconnected:
-                return "Disconnected"
-            case .error:
-                return "Connection Failed"
-            }
-        } else {
-            switch viewModel.connectionState {
-            case .connected(let ping):
-                return "已连接 (\(ping)ms)"
-            case .connecting:
-                return "正在连接..."
-            case .disconnected:
-                return "未连接"
-            case .error:
-                return "连接失败"
-            }
+        switch viewModel.connectionState {
+        case .connected(let ping):
+            return L10n.connected(lang, ping: ping)
+        case .connecting:
+            return L10n.connecting(lang)
+        case .disconnected:
+            return L10n.disconnected(lang)
+        case .error:
+            return L10n.connectionFailed(lang)
         }
     }
 

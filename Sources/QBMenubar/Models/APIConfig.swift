@@ -12,6 +12,14 @@ public enum AppLanguage: String, Codable, CaseIterable, Identifiable, Sendable {
     case ru = "Русский"
 
     public var id: String { rawValue }
+
+    public var isChinese: Bool {
+        self == .zhHans || self == .zhHant
+    }
+
+    public var isTraditionalChinese: Bool {
+        self == .zhHant
+    }
 }
 
 public enum MenuBarStyle: String, Codable, CaseIterable, Identifiable, Sendable {
@@ -21,15 +29,25 @@ public enum MenuBarStyle: String, Codable, CaseIterable, Identifiable, Sendable 
 
     public var id: String { rawValue }
 
-    public func localizedTitle(isEn: Bool) -> String {
-        if isEn {
+    public func localizedTitle(lang: AppLanguage) -> String {
+        if !lang.isChinese {
             switch self {
             case .downloadOnly: return "Download Speed Only (Default)"
             case .twoLines: return "Two Lines (↑Upload / ↓Download)"
             case .singleLineBoth: return "Single Line (↓Download ↑Upload)"
             }
+        } else if lang.isTraditionalChinese {
+            switch self {
+            case .downloadOnly: return "只顯示下載速度 (預設)"
+            case .twoLines: return "雙行顯示 (↑上傳 / ↓下載)"
+            case .singleLineBoth: return "單行顯示 (↓下載 ↑上傳)"
+            }
         }
         return rawValue
+    }
+
+    public func localizedTitle(isEn: Bool) -> String {
+        localizedTitle(lang: isEn ? .en : .zhHans)
     }
 }
 
@@ -41,16 +59,27 @@ public enum IconTheme: String, Codable, CaseIterable, Identifiable, Sendable {
 
     public var id: String { rawValue }
 
-    public func localizedTitle(isEn: Bool) -> String {
-        if isEn {
+    public func localizedTitle(lang: AppLanguage) -> String {
+        if !lang.isChinese {
             switch self {
             case .adaptive: return "System Adaptive (Black / White)"
             case .original: return "Classic (qBittorrent Blue)"
             case .white: return "Pure White (Dark Menu Bar)"
             case .black: return "Pure Black (Light Menu Bar)"
             }
+        } else if lang.isTraditionalChinese {
+            switch self {
+            case .adaptive: return "系統自適應 (黑/白)"
+            case .original: return "經典原色 (qBittorrent 經典藍)"
+            case .white: return "純白色 (深色選單列)"
+            case .black: return "純黑色 (淺色選單列)"
+            }
         }
         return rawValue
+    }
+
+    public func localizedTitle(isEn: Bool) -> String {
+        localizedTitle(lang: isEn ? .en : .zhHans)
     }
 }
 
@@ -62,16 +91,27 @@ public enum ArrowTheme: String, Codable, CaseIterable, Identifiable, Sendable {
 
     public var id: String { rawValue }
 
-    public func localizedTitle(isEn: Bool) -> String {
-        if isEn {
+    public func localizedTitle(lang: AppLanguage) -> String {
+        if !lang.isChinese {
             switch self {
             case .adaptive: return "System Adaptive (Default)"
             case .white: return "Pure White"
             case .black: return "Pure Black"
             case .dynamicColor: return "Dynamic Color (Green DL / Blue UL)"
             }
+        } else if lang.isTraditionalChinese {
+            switch self {
+            case .adaptive: return "跟隨系統 (黑/白自適應 - 預設)"
+            case .white: return "純白色"
+            case .black: return "純黑色"
+            case .dynamicColor: return "動態彩色 (下載綠 / 上傳藍)"
+            }
         }
         return rawValue
+    }
+
+    public func localizedTitle(isEn: Bool) -> String {
+        localizedTitle(lang: isEn ? .en : .zhHans)
     }
 }
 
@@ -84,8 +124,8 @@ public enum IconSizeOption: String, Codable, CaseIterable, Identifiable, Sendabl
 
     public var id: String { rawValue }
 
-    public func localizedTitle(isEn: Bool) -> String {
-        if isEn {
+    public func localizedTitle(lang: AppLanguage) -> String {
+        if !lang.isChinese {
             switch self {
             case .tiny: return "Tiny (10 pt)"
             case .small: return "Small (12 pt)"
@@ -93,8 +133,20 @@ public enum IconSizeOption: String, Codable, CaseIterable, Identifiable, Sendabl
             case .large: return "Large (16 pt)"
             case .xlarge: return "Extra Large (18 pt)"
             }
+        } else if lang.isTraditionalChinese {
+            switch self {
+            case .tiny: return "超小 (10 pt)"
+            case .small: return "小號 (12 pt)"
+            case .normal: return "標準 (14 pt - 預設)"
+            case .large: return "大號 (16 pt)"
+            case .xlarge: return "特大 (18 pt)"
+            }
         }
         return rawValue
+    }
+
+    public func localizedTitle(isEn: Bool) -> String {
+        localizedTitle(lang: isEn ? .en : .zhHans)
     }
 
     public var points: Double {

@@ -6,7 +6,8 @@ public struct TorrentRowView: View {
     public let files: [TorrentFile]?
     public let isLoadingFiles: Bool
     public let isPinned: Bool
-    public var isEnglish: Bool = false
+    public var lang: AppLanguage = .zhHans
+    public var isEnglish: Bool { !lang.isChinese }
 
     public let onToggleExpand: () -> Void
     public let onPauseResume: () -> Void
@@ -39,7 +40,7 @@ public struct TorrentRowView: View {
                     Circle()
                         .fill(statusColor)
                         .frame(width: 5, height: 5)
-                    Text(torrent.localizedStateDescription(isEn: isEnglish))
+                    Text(torrent.localizedStateDescription(lang: lang))
                         .font(.system(size: 10, weight: .semibold))
                 }
                 .padding(.horizontal, 6)
@@ -54,7 +55,7 @@ public struct TorrentRowView: View {
                         Image(systemName: "chevron.right")
                             .font(.system(size: 8, weight: .bold))
                             .rotationEffect(.degrees(isExpanded ? 90 : 0))
-                        Text(isExpanded ? (isEnglish ? "Hide" : "收起文件") : (isEnglish ? "Files" : "查看文件"))
+                        Text(isExpanded ? L10n.hideFiles(lang) : L10n.showFiles(lang))
                             .font(.system(size: 10))
                     }
                     .padding(.horizontal, 5)
@@ -78,7 +79,7 @@ public struct TorrentRowView: View {
                             .clipShape(Circle())
                     }
                     .buttonStyle(.plain)
-                    .help(isPinned ? "取消在菜单栏显示" : "在菜单栏显示此任务完成度")
+                    .help(isPinned ? L10n.unpinFromMenuBar(lang) : L10n.pinToMenuBar(lang))
 
                     Button(action: onPauseResume) {
                         Image(systemName: torrent.isPaused ? "play.fill" : "pause.fill")
@@ -88,7 +89,7 @@ public struct TorrentRowView: View {
                             .clipShape(Circle())
                     }
                     .buttonStyle(.plain)
-                    .help(torrent.isPaused ? "恢复任务" : "暂停任务")
+                    .help(torrent.isPaused ? L10n.resumeTask(lang) : L10n.pauseTask(lang))
 
                     if let path = torrent.savePath, !path.isEmpty {
                         Button(action: onOpenFolder) {
@@ -99,21 +100,21 @@ public struct TorrentRowView: View {
                                 .clipShape(Circle())
                         }
                         .buttonStyle(.plain)
-                        .help(isEnglish ? "Show in Finder" : "在 Finder 中打开")
+                        .help(L10n.showInFinder(lang))
                     }
 
                     Menu {
                         Button(
                             isPinned
-                                ? (isEnglish ? "Unpin from Menu Bar" : "取消在菜单栏显示")
-                                : (isEnglish ? "Pin Task Progress to Menu Bar" : "在菜单栏显示此任务进度"),
+                                ? L10n.unpinFromMenuBar(lang)
+                                : L10n.pinToMenuBar(lang),
                             action: onTogglePin
                         )
                         Divider()
-                        Button(isEnglish ? "Force Recheck" : "重新校验完整性", action: onRecheck)
+                        Button(L10n.forceRecheck(lang), action: onRecheck)
                         Divider()
-                        Button(isEnglish ? "Delete Task (Keep Files)" : "删除任务 (保留文件)") { onDelete(false) }
-                        Button(isEnglish ? "Delete Task and Local Files" : "删除任务及本地文件", role: .destructive) { onDelete(true) }
+                        Button(L10n.deleteTaskKeepFiles(lang)) { onDelete(false) }
+                        Button(L10n.deleteTaskWithFiles(lang), role: .destructive) { onDelete(true) }
                     } label: {
                         Image(systemName: "ellipsis")
                             .font(.system(size: 10))
@@ -179,12 +180,13 @@ public struct TorrentRowView: View {
                     .foregroundStyle(.blue)
 
                     if let ratio = torrent.ratio {
-                        Text(isEnglish ? String(format: "Ratio %.2f", ratio) : String(format: "比率 %.2f", ratio))
+                        let ratioFormat = L10n.tr(lang, zhHans: "比率 %.2f", zhHant: "分享率 %.2f", en: "Ratio %.2f")
+                        Text(String(format: ratioFormat, ratio))
                             .font(.system(size: 10, design: .rounded))
                             .foregroundStyle(.secondary)
                     }
                 } else if torrent.isPaused {
-                    Text(isEnglish ? "Paused" : "已暂停")
+                    Text(L10n.tr(lang, zhHans: "已暂停", zhHant: "已暫停", en: "Paused"))
                         .font(.system(size: 10))
                         .foregroundStyle(.secondary)
                 }
@@ -192,7 +194,7 @@ public struct TorrentRowView: View {
 
             // Expandable Internal Files List
             if isExpanded {
-                TorrentFilesListView(files: files, isLoading: isLoadingFiles)
+                TorrentFilesListView(files: files, isLoading: isLoadingFiles, lang: lang)
                     .transition(
                         .asymmetric(
                             insertion: .opacity.combined(with: .move(edge: .top)),
@@ -205,24 +207,24 @@ public struct TorrentRowView: View {
         .contextMenu {
             Button(
                 isPinned
-                    ? (isEnglish ? "Unpin from Menu Bar" : "取消在菜单栏显示")
-                    : (isEnglish ? "Pin Task Progress to Menu Bar" : "在菜单栏显示此任务进度"),
+                    ? L10n.unpinFromMenuBar(lang)
+                    : L10n.pinToMenuBar(lang),
                 action: onTogglePin
             )
             Divider()
             Button(
                 torrent.isPaused
-                    ? (isEnglish ? "Resume Task" : "恢复任务")
-                    : (isEnglish ? "Pause Task" : "暂停任务"),
+                    ? L10n.resumeTask(lang)
+                    : L10n.pauseTask(lang),
                 action: onPauseResume
             )
             if let path = torrent.savePath, !path.isEmpty {
-                Button(isEnglish ? "Show in Finder" : "在 Finder 中定位文件", action: onOpenFolder)
+                Button(L10n.showInFinder(lang), action: onOpenFolder)
             }
-            Button(isEnglish ? "Force Recheck" : "重新校验完整性", action: onRecheck)
+            Button(L10n.forceRecheck(lang), action: onRecheck)
             Divider()
-            Button(isEnglish ? "Delete Task (Keep Files)" : "删除任务 (保留文件)") { onDelete(false) }
-            Button(isEnglish ? "Delete Task and Local Files" : "删除任务及本地文件", role: .destructive) { onDelete(true) }
+            Button(L10n.deleteTaskKeepFiles(lang)) { onDelete(false) }
+            Button(L10n.deleteTaskWithFiles(lang), role: .destructive) { onDelete(true) }
         }
         .animation(AppMotion.expand, value: isExpanded)
     }

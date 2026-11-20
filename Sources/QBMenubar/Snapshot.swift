@@ -171,7 +171,7 @@ public struct SnapshotGenerator {
         
         saveView(menubarPresentation, width: 820, height: 36, to: "\(outputDir)/preview_menubar.png")
         
-        // 2. Snapshot SettingsWindowView over macOS ambient desktop backdrop
+        // 2. Snapshot SettingsWindowView (Connection Pane showing GlassTextField)
         let settingsPresentation = ZStack {
             LinearGradient(
                 colors: [
@@ -196,7 +196,7 @@ public struct SnapshotGenerator {
                     .offset(x: 200, y: 160)
             }
 
-            SettingsWindowView(viewModel: viewModel)
+            SettingsWindowView(viewModel: viewModel, initialCategory: .connection)
                 .frame(width: 780, height: 560)
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .overlay(
@@ -208,6 +208,44 @@ public struct SnapshotGenerator {
         .frame(width: 840, height: 620)
         
         saveView(settingsPresentation, width: 840, height: 620, to: "\(outputDir)/preview_settings.png")
+
+        // 3. Snapshot SettingsWindowView (About Pane showing AppHeroIconView squircle)
+        let aboutPresentation = ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.08, green: 0.11, blue: 0.16),
+                    Color(red: 0.12, green: 0.15, blue: 0.22),
+                    Color(red: 0.06, green: 0.08, blue: 0.12)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .overlay {
+                Circle()
+                    .fill(Color.blue.opacity(0.28))
+                    .frame(width: 420, height: 420)
+                    .blur(radius: 90)
+                    .offset(x: -180, y: -120)
+
+                Circle()
+                    .fill(Color.purple.opacity(0.24))
+                    .frame(width: 360, height: 360)
+                    .blur(radius: 80)
+                    .offset(x: 180, y: 140)
+            }
+
+            SettingsWindowView(viewModel: viewModel, initialCategory: .about)
+                .frame(width: 780, height: 560)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.55), radius: 26, x: 0, y: 14)
+        }
+        .frame(width: 840, height: 620)
+
+        saveView(aboutPresentation, width: 840, height: 620, to: "\(outputDir)/preview_about.png")
         
         // 3. Snapshot PopoverContentView over macOS ambient backdrop to showcase Liquid Glass refraction
         let popoverPresentation = ZStack {

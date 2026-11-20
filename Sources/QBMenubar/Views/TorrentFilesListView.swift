@@ -3,11 +3,12 @@ import SwiftUI
 public struct TorrentFilesListView: View {
     public var files: [TorrentFile]?
     public var isLoading: Bool
+    public var lang: AppLanguage = .zhHans
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("内部包含文件")
+                Text(L10n.tr(lang, zhHans: "内部包含文件", zhHant: "內部包含檔案", en: "Contained Files"))
                     .font(.caption)
                     .fontWeight(.medium)
                     .foregroundStyle(.secondary)
@@ -19,7 +20,7 @@ public struct TorrentFilesListView: View {
                         .scaleEffect(0.6)
                         .frame(width: 14, height: 14)
                 } else if let files = files {
-                    Text("\(files.count) 个文件")
+                    Text(L10n.tr(lang, zhHans: "\(files.count) 个文件", zhHant: "\(files.count) 個檔案", en: "\(files.count) Files"))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -60,14 +61,14 @@ public struct TorrentFilesListView: View {
                     }
 
                     if files.count > 15 {
-                        Text("… 及其他 \(files.count - 15) 个文件")
+                        Text(L10n.tr(lang, zhHans: "… 及其他 \(files.count - 15) 个文件", zhHant: "… 及其他 \(files.count - 15) 個檔案", en: "… and \(files.count - 15) more files"))
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
                             .padding(.top, 2)
                     }
                 }
             } else if !isLoading {
-                Text("无法获取文件列表或尚未解析完成")
+                Text(L10n.tr(lang, zhHans: "无法获取文件列表或尚未解析完成", zhHant: "無法獲取檔案清單或尚未解析完成", en: "Unable to retrieve file list or parsing"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .padding(.vertical, 4)

@@ -129,7 +129,7 @@ public struct MenuBarHeaderView: View {
                 ProgressView()
                     .scaleEffect(0.5)
                     .frame(width: 12, height: 12)
-                Text("连接中")
+                Text(L10n.tr(viewModel.config.language, zhHans: "连接中", zhHant: "連線中", en: "Connecting"))
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
 
@@ -138,7 +138,7 @@ public struct MenuBarHeaderView: View {
                 Image(systemName: "exclamationmark.circle.fill")
                     .font(.system(size: 10))
                     .foregroundStyle(.orange)
-                Text("离线")
+                Text(L10n.tr(viewModel.config.language, zhHans: "离线", zhHant: "離線", en: "Offline"))
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(.orange)
             }

@@ -103,8 +103,8 @@ public struct Torrent: Codable, Identifiable, Sendable, Equatable {
         ["error", "missingFiles"].contains(state)
     }
 
-    public func localizedStateDescription(isEn: Bool) -> String {
-        if isEn {
+    public func localizedStateDescription(lang: AppLanguage) -> String {
+        if !lang.isChinese {
             switch state {
             case "downloading": return "Downloading"
             case "metaDL": return "Metadata"
@@ -121,8 +121,30 @@ public struct Torrent: Codable, Identifiable, Sendable, Equatable {
             case "missingFiles": return "Missing"
             default: return state.capitalized
             }
+        } else if lang.isTraditionalChinese {
+            switch state {
+            case "downloading": return "下載中"
+            case "metaDL": return "獲取元數據"
+            case "forcedDL": return "強制下載"
+            case "stalledDL": return "等待連線"
+            case "queuedDL": return "排隊中"
+            case "uploading": return "做種中"
+            case "forcedUP": return "強制做種"
+            case "stalledUP": return "等待做種"
+            case "queuedUP": return "排隊做種"
+            case "pausedDL": return "已暫停"
+            case "pausedUP": return "已完成 (暫停)"
+            case "checkingDL", "checkingUP": return "校驗中"
+            case "error": return "錯誤"
+            case "missingFiles": return "文件缺失"
+            default: return state
+            }
         }
         return stateDescription
+    }
+
+    public func localizedStateDescription(isEn: Bool) -> String {
+        localizedStateDescription(lang: isEn ? .en : .zhHans)
     }
 
     public var stateDescription: String {

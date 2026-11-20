@@ -83,12 +83,7 @@ public struct PopoverContentView: View {
                         .font(.system(size: 11, weight: .medium))
                     Spacer()
                 }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .fill(.ultraThinMaterial)
-                )
+                .glassCard(cornerRadius: 8, padding: 8, isInteractive: false)
                 .padding(.horizontal, 14)
                 .padding(.bottom, 6)
                 .transition(.move(edge: .top).combined(with: .opacity))
@@ -184,50 +179,52 @@ public struct PopoverContentView: View {
 
             // 5. Scrollable Torrents List (With always visible, draggable scrollbar)
             ScrollView(.vertical) {
-                VStack(spacing: 8) {
-                    if viewModel.filteredTorrents.isEmpty {
-                        VStack(spacing: 8) {
-                            Image(systemName: "tray")
-                                .font(.system(size: 26))
-                                .foregroundStyle(.tertiary)
-                            Text(emptyStateText)
-                                .font(.system(size: 11))
-                                .foregroundStyle(.secondary)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 40)
-                    } else {
-                        ForEach(viewModel.filteredTorrents) { torrent in
-                            TorrentRowView(
-                                torrent: torrent,
-                                isExpanded: viewModel.expandedTorrentHash == torrent.hash,
-                                files: viewModel.torrentFiles[torrent.hash],
-                                isLoadingFiles: viewModel.isLoadingFiles[torrent.hash] == true,
-                                isPinned: viewModel.isTorrentPinned(torrent),
-                                isEnglish: isEn,
-                                onToggleExpand: {
-                                    viewModel.toggleExpandTorrent(torrent.hash)
-                                },
-                                onPauseResume: {
-                                    if torrent.isPaused {
-                                        viewModel.resumeTorrent(torrent.hash)
-                                    } else {
-                                        viewModel.pauseTorrent(torrent.hash)
+                AdaptiveGlassContainer(spacing: 8) {
+                    VStack(spacing: 8) {
+                        if viewModel.filteredTorrents.isEmpty {
+                            VStack(spacing: 8) {
+                                Image(systemName: "tray")
+                                    .font(.system(size: 26))
+                                    .foregroundStyle(.tertiary)
+                                Text(emptyStateText)
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 40)
+                        } else {
+                            ForEach(viewModel.filteredTorrents) { torrent in
+                                TorrentRowView(
+                                    torrent: torrent,
+                                    isExpanded: viewModel.expandedTorrentHash == torrent.hash,
+                                    files: viewModel.torrentFiles[torrent.hash],
+                                    isLoadingFiles: viewModel.isLoadingFiles[torrent.hash] == true,
+                                    isPinned: viewModel.isTorrentPinned(torrent),
+                                    isEnglish: isEn,
+                                    onToggleExpand: {
+                                        viewModel.toggleExpandTorrent(torrent.hash)
+                                    },
+                                    onPauseResume: {
+                                        if torrent.isPaused {
+                                            viewModel.resumeTorrent(torrent.hash)
+                                        } else {
+                                            viewModel.pauseTorrent(torrent.hash)
+                                        }
+                                    },
+                                    onDelete: { deleteFiles in
+                                        viewModel.deleteTorrent(torrent.hash, deleteFiles: deleteFiles)
+                                    },
+                                    onOpenFolder: {
+                                        viewModel.openInFinder(path: torrent.savePath)
+                                    },
+                                    onRecheck: {
+                                        viewModel.recheckTorrent(torrent.hash)
+                                    },
+                                    onTogglePin: {
+                                        viewModel.togglePinTorrent(torrent)
                                     }
-                                },
-                                onDelete: { deleteFiles in
-                                    viewModel.deleteTorrent(torrent.hash, deleteFiles: deleteFiles)
-                                },
-                                onOpenFolder: {
-                                    viewModel.openInFinder(path: torrent.savePath)
-                                },
-                                onRecheck: {
-                                    viewModel.recheckTorrent(torrent.hash)
-                                },
-                                onTogglePin: {
-                                    viewModel.togglePinTorrent(torrent)
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 }
@@ -320,21 +317,38 @@ private struct QuickActionButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: 4) {
-                Image(systemName: icon)
-                    .font(.system(size: 9))
-                Text(title)
-                    .font(.system(size: 10, weight: .medium))
+        if #available(macOS 26.0, *) {
+            Button(action: action) {
+                HStack(spacing: 3) {
+                    Image(systemName: icon)
+                        .font(.system(size: 8.5))
+                    Text(title)
+                        .font(.system(size: 9.5, weight: .medium))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 2)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 5)
-            .background(
-                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(Color.primary.opacity(0.06))
-            )
-            .foregroundStyle(color)
+            .buttonStyle(.glass)
+            .tint(color)
+        } else {
+            Button(action: action) {
+                HStack(spacing: 4) {
+                    Image(systemName: icon)
+                        .font(.system(size: 9))
+                    Text(title)
+                        .font(.system(size: 10, weight: .medium))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 5)
+                .background(
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(Color.primary.opacity(0.06))
+                )
+                .foregroundStyle(color)
+            }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
     }
 }

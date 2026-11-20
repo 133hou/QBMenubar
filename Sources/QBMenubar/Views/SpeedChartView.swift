@@ -82,6 +82,6 @@ public struct SpeedChartView: View {
                 .frame(height: 52)
             }
         }
-        .glassCard(cornerRadius: 12, padding: 10, opacity: 0.5)
+        .glassCard(cornerRadius: 12, padding: 10, isInteractive: false)
     }
 }

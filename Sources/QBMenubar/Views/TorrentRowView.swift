@@ -15,8 +15,6 @@ public struct TorrentRowView: View {
     public let onRecheck: () -> Void
     public let onTogglePin: () -> Void
 
-    @State private var isHovering: Bool = false
-
     private var statusColor: Color {
         if torrent.isDownloading { return .green }
         if torrent.isSeeding { return .blue }
@@ -198,7 +196,7 @@ public struct TorrentRowView: View {
                     )
             }
         }
-        .glassCard(cornerRadius: 10, padding: 10, opacity: isHovering ? 0.75 : 0.55)
+        .glassCard(cornerRadius: 10, padding: 10, isInteractive: true)
         .contextMenu {
             Button(isPinned ? "取消在菜单栏显示" : "在菜单栏显示此任务进度", action: onTogglePin)
             Divider()
@@ -210,11 +208,6 @@ public struct TorrentRowView: View {
             Divider()
             Button("删除任务 (保留文件)") { onDelete(false) }
             Button("删除任务及本地文件", role: .destructive) { onDelete(true) }
-        }
-        .onHover { hover in
-            withAnimation(.easeInOut(duration: 0.12)) {
-                isHovering = hover
-            }
         }
         .animation(.spring(response: 0.32, dampingFraction: 0.82), value: isExpanded)
     }

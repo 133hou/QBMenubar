@@ -39,7 +39,8 @@ public struct SnapshotGenerator {
             dlspeed: 10_485_760,
             upspeed: 512_000,
             eta: 134,
-            state: "downloading"
+            state: "downloading",
+            completed: 4_430_400_000
         )
         
         let mockTorrent2 = Torrent(
@@ -50,7 +51,8 @@ public struct SnapshotGenerator {
             dlspeed: 2_097_152,
             upspeed: 128_000,
             eta: 45,
-            state: "downloading"
+            state: "downloading",
+            completed: 211_250_000
         )
         
         let mockTorrent3 = Torrent(
@@ -62,7 +64,8 @@ public struct SnapshotGenerator {
             upspeed: 618_000,
             eta: 0,
             state: "uploading",
-            ratio: 2.45
+            ratio: 2.45,
+            completed: 900_000_000
         )
 
         let mockTorrent4 = Torrent(
@@ -73,7 +76,8 @@ public struct SnapshotGenerator {
             dlspeed: 0,
             upspeed: 0,
             eta: -1,
-            state: "pausedDL"
+            state: "pausedDL",
+            completed: 1_296_000_000
         )
         
         viewModel.torrents = [mockTorrent1, mockTorrent2, mockTorrent3, mockTorrent4]

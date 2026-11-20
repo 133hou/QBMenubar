@@ -207,8 +207,6 @@ public struct SettingsWindowView: View {
                                 aboutPane
                             }
                         }
-                        .id(selectedCategory)
-                        .transition(.opacity)
                     }
                     .padding(24)
                 }

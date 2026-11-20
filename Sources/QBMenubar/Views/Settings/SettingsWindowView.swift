@@ -51,6 +51,7 @@ public struct SettingsWindowView: View {
     @Bindable var viewModel: QBMenubarViewModel
 
     @State private var selectedCategory: SettingsCategory = .general
+    @State private var hoveredCategory: SettingsCategory? = nil
     @State private var searchText: String = ""
     @State private var testState: TestStatus = .idle
 
@@ -95,7 +96,9 @@ public struct SettingsWindowView: View {
                     VStack(spacing: 3) {
                         ForEach(SettingsCategory.allCases) { category in
                             Button {
-                                selectedCategory = category
+                                withAnimation(AppMotion.selection) {
+                                    selectedCategory = category
+                                }
                             } label: {
                                 HStack(spacing: 10) {
                                     // iOS/macOS System Settings style rounded colored badge
@@ -116,12 +119,24 @@ public struct SettingsWindowView: View {
                                 }
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 6)
+                                .contentShape(Rectangle())
                                 .background(
                                     RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                        .fill(selectedCategory == category ? Color.accentColor : Color.clear)
+                                        .fill(
+                                            selectedCategory == category
+                                                ? Color.accentColor
+                                                : (hoveredCategory == category ? Color.primary.opacity(0.08) : Color.clear)
+                                        )
                                 )
                             }
                             .buttonStyle(.plain)
+                            .onHover { isHovered in
+                                if isHovered {
+                                    hoveredCategory = category
+                                } else if hoveredCategory == category {
+                                    hoveredCategory = nil
+                                }
+                            }
                         }
                     }
                     .padding(.horizontal, 10)
@@ -582,35 +597,128 @@ public struct SettingsWindowView: View {
 
     @ViewBuilder
     private var aboutPane: some View {
-        SettingsGroup(title: "关于 QBMenubar") {
-            VStack(spacing: 12) {
-                HStack(spacing: 14) {
-                    ZStack {
-                        Circle()
-                            .fill(Color(red: 47/255, green: 103/255, blue: 186/255))
-                            .frame(width: 48, height: 48)
-                        Text("qb")
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
-                    }
+        VStack(spacing: 16) {
+            // App Hero Card
+            VStack(spacing: 10) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color(red: 47/255, green: 120/255, blue: 220/255),
+                                    Color(red: 35/255, green: 80/255, blue: 170/255)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 58, height: 58)
+                        .shadow(color: Color.blue.opacity(0.28), radius: 6, x: 0, y: 3)
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("QBMenubar")
-                            .font(.system(size: 16, weight: .bold))
-                        Text(isEn ? "Version 1.1.0 (Native Swift 6 + Liquid Glass)" : "版本 1.1.0 (原生 Swift 6 + Liquid Glass)")
-                            .font(.system(size: 11))
-                            .foregroundStyle(.secondary)
-                    }
+                    Text("qb")
+                        .font(.system(size: 26, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                }
 
-                    Spacer()
+                VStack(spacing: 4) {
+                    Text("QBMenubar")
+                        .font(.system(size: 17, weight: .bold))
 
-                    Button("打开 WebUI") {
+                    Text(isEn ? "Version 1.1.0 (Build 2026.11)" : "版本 1.1.0 (Build 2026.11)")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+
+                    Text(isEn ? "Lightweight & elegant native qBittorrent macOS menu bar controller" : "轻量优雅的 qBittorrent macOS 原生菜单栏控制中心")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.tertiary)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 2)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+
+            // Open Source & Community
+            SettingsGroup(title: isEn ? "Open Source & Community" : "开源与社区") {
+                SettingsRow(
+                    title: isEn ? "GitHub Repository" : "GitHub 开源仓库",
+                    subtitle: "https://github.com/133hou/QBMenubar"
+                ) {
+                    LinkButton(
+                        title: isEn ? "Repository" : "访问仓库",
+                        urlString: "https://github.com/133hou/QBMenubar"
+                    )
+                }
+
+                SettingsDivider()
+
+                SettingsRow(
+                    title: isEn ? "Releases & Updates" : "版本发布与更新日志",
+                    subtitle: isEn ? "Get the latest releases and changelogs" : "查看历史构建与最新更新说明"
+                ) {
+                    LinkButton(
+                        title: isEn ? "Releases" : "查看发布",
+                        urlString: "https://github.com/133hou/QBMenubar/releases"
+                    )
+                }
+
+                SettingsDivider()
+
+                SettingsRow(
+                    title: isEn ? "Issues & Feedback" : "问题反馈与功能建议",
+                    subtitle: isEn ? "Report bugs or submit feature suggestions" : "在 GitHub 提交 Issue 或改进建议"
+                ) {
+                    LinkButton(
+                        title: isEn ? "Feedback" : "提交反馈",
+                        urlString: "https://github.com/133hou/QBMenubar/issues"
+                    )
+                }
+            }
+
+            // WebUI Quick Access
+            SettingsGroup(title: isEn ? "Web Management" : "Web 管理页面") {
+                SettingsRow(
+                    title: "qBittorrent WebUI",
+                    subtitle: isEn ? "Open WebUI management interface in default browser" : "在默认浏览器中打开当前配置的 Web 管理页面"
+                ) {
+                    Button {
                         viewModel.openWebUI()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(isEn ? "Open WebUI" : "打开 WebUI")
+                                .font(.system(size: 12, weight: .medium))
+                            Image(systemName: "arrow.up.forward.app")
+                                .font(.system(size: 11))
+                        }
                     }
                     .adaptiveGlassButton(prominent: false)
                 }
             }
-            .padding(.vertical, 6)
+
+            // Software Specifications
+            SettingsGroup(title: isEn ? "Software Info" : "软件信息") {
+                SettingsRow(
+                    title: isEn ? "Open Source License" : "开源许可协议"
+                ) {
+                    InfoBadge(text: "MIT License")
+                }
+
+                SettingsDivider()
+
+                SettingsRow(
+                    title: isEn ? "Architecture & Stack" : "技术架构"
+                ) {
+                    InfoBadge(text: "Swift 6 + SwiftUI + Liquid Glass")
+                }
+
+                SettingsDivider()
+
+                SettingsRow(
+                    title: isEn ? "Compatibility" : "系统兼容性"
+                ) {
+                    InfoBadge(text: "macOS 14.0+ (Apple Silicon & Intel)")
+                }
+            }
         }
     }
 
@@ -700,8 +808,7 @@ struct SettingsRow<Control: View>: View {
                         .foregroundStyle(.secondary)
                 }
             }
-
-            Spacer(minLength: 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             control
         }
@@ -714,5 +821,42 @@ struct SettingsDivider: View {
     var body: some View {
         Divider()
             .padding(.leading, 14)
+    }
+}
+
+struct LinkButton: View {
+    let title: String
+    let urlString: String
+
+    var body: some View {
+        Button {
+            if let url = URL(string: urlString) {
+                let configuration = NSWorkspace.OpenConfiguration()
+                configuration.activates = true
+                NSWorkspace.shared.open(url, configuration: configuration) { _, _ in }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Text(title)
+                    .font(.system(size: 12, weight: .medium))
+                Image(systemName: "arrow.up.right")
+                    .font(.system(size: 10, weight: .semibold))
+            }
+        }
+        .adaptiveGlassButton(prominent: false)
+    }
+}
+
+struct InfoBadge: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
+            .font(.system(size: 11, weight: .medium, design: .rounded))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Color.primary.opacity(0.06))
+            .clipShape(Capsule())
     }
 }

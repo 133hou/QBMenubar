@@ -42,6 +42,6 @@ public final class SettingsWindowController: NSObject, NSWindowDelegate {
     }
 
     public func windowWillClose(_ notification: Notification) {
-        // window closed
+        self.window = nil
     }
 }

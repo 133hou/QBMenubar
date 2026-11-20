@@ -104,16 +104,15 @@ public final class QBMenubarViewModel {
     public func refresh() async {
         if isMock { return }
         do {
-            // First attempt to test/login
+            // Only perform initial login if currently disconnected
             if case .disconnected = connectionState {
                 connectionState = .connecting
+                _ = try await service.login()
+                let (_, ping) = try await service.testConnection()
+                connectionState = .connected(ping: ping)
             }
 
-            _ = try await service.login()
-            let (_, ping) = try await service.testConnection()
-            connectionState = .connected(ping: ping)
-
-            // Fetch speed and transfer
+            // Fetch speed and transfer using existing session cookie (non-blocking)
             async let transferTask = service.fetchTransferInfo()
             async let speedModeTask = service.fetchSpeedLimitsMode()
             async let torrentsTask = service.fetchTorrents()
@@ -123,6 +122,12 @@ public final class QBMenubarViewModel {
             self.transferInfo = newTransfer
             self.isAltSpeedLimits = newSpeedMode
             self.torrents = newTorrents
+
+            if case .connected = connectionState {
+                // maintain connected
+            } else {
+                connectionState = .connected(ping: 1)
+            }
 
             // Process notifications for download started & completed
             checkNotifications(newTorrents: newTorrents)
@@ -143,8 +148,13 @@ public final class QBMenubarViewModel {
                 await fetchFiles(for: expandedHash)
             }
         } catch {
-            let errorMsg = error.localizedDescription
-            connectionState = .error(errorMsg)
+            // When request fails (e.g. cookie expired), attempt re-auth once
+            if let _ = try? await service.login(), let (_, ping) = try? await service.testConnection() {
+                connectionState = .connected(ping: ping)
+            } else {
+                let errorMsg = error.localizedDescription
+                connectionState = .error(errorMsg)
+            }
         }
     }
 

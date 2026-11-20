@@ -10,8 +10,9 @@ public actor QBittorrentService {
         sessionConfig.httpCookieAcceptPolicy = .always
         sessionConfig.httpShouldSetCookies = true
         sessionConfig.httpCookieStorage = HTTPCookieStorage.shared
-        sessionConfig.timeoutIntervalForRequest = 8.0
-        sessionConfig.timeoutIntervalForResource = 15.0
+        sessionConfig.timeoutIntervalForRequest = 2.5
+        sessionConfig.timeoutIntervalForResource = 5.0
+        sessionConfig.waitsForConnectivity = false
         self.session = URLSession(configuration: sessionConfig)
     }
 

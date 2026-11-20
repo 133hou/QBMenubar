@@ -10,6 +10,20 @@ public enum SettingsCategory: String, CaseIterable, Identifiable {
 
     public var id: String { rawValue }
 
+    public func localizedTitle(isEn: Bool) -> String {
+        if isEn {
+            switch self {
+            case .general: return "General"
+            case .connection: return "WebUI Connection"
+            case .menubar: return "Menu Bar"
+            case .notifications: return "Notifications"
+            case .advanced: return "Advanced"
+            case .about: return "About"
+            }
+        }
+        return rawValue
+    }
+
     public var iconName: String {
         switch self {
         case .general: return "gearshape.fill"
@@ -40,6 +54,8 @@ public struct SettingsWindowView: View {
     @State private var searchText: String = ""
     @State private var testState: TestStatus = .idle
 
+    private var isEn: Bool { viewModel.config.language == .en }
+
     enum TestStatus: Equatable {
         case idle
         case testing
@@ -60,7 +76,7 @@ public struct SettingsWindowView: View {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 11))
                         .foregroundStyle(.secondary)
-                    TextField("搜索设置", text: $searchText)
+                    TextField(isEn ? "Search settings" : "搜索设置", text: $searchText)
                         .textFieldStyle(.plain)
                         .font(.system(size: 12))
                 }
@@ -92,7 +108,7 @@ public struct SettingsWindowView: View {
                                             .foregroundStyle(.white)
                                     }
 
-                                    Text(category.rawValue)
+                                    Text(category.localizedTitle(isEn: isEn))
                                         .font(.system(size: 13, weight: selectedCategory == category ? .medium : .regular))
                                         .foregroundStyle(selectedCategory == category ? Color.white : Color.primary)
 
@@ -120,7 +136,7 @@ public struct SettingsWindowView: View {
                         .fill(connectionColor)
                         .frame(width: 7, height: 7)
 
-                    Text(connectionSummary)
+                    Text(isEn ? "Connected (1ms)" : connectionSummary)
                         .font(.system(size: 11))
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
@@ -146,7 +162,7 @@ public struct SettingsWindowView: View {
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.tertiary)
 
-                    Text(selectedCategory.rawValue)
+                    Text(selectedCategory.localizedTitle(isEn: isEn))
                         .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(.primary)
 
@@ -189,10 +205,10 @@ public struct SettingsWindowView: View {
 
     @ViewBuilder
     private var generalPane: some View {
-        SettingsGroup(title: "系统") {
+        SettingsGroup(title: isEn ? "System" : "系统") {
             SettingsRow(
-                title: "语言",
-                subtitle: "更改显示语言。需要重启应用才能完全生效。"
+                title: isEn ? "Language" : "语言",
+                subtitle: isEn ? "Change display language. Requires app restart to take full effect." : "更改显示语言。需要重启应用才能完全生效。"
             ) {
                 Picker("", selection: $viewModel.config.language) {
                     ForEach(AppLanguage.allCases) { lang in
@@ -206,10 +222,10 @@ public struct SettingsWindowView: View {
             SettingsDivider()
 
             SettingsRow(
-                title: "qBittorrent 网页控制台",
-                subtitle: "直接在系统默认浏览器中打开 WebUI"
+                title: isEn ? "qBittorrent Web Console" : "qBittorrent 网页控制台",
+                subtitle: isEn ? "Open WebUI directly in your default browser" : "直接在系统默认浏览器中打开 WebUI"
             ) {
-                Button("打开 WebUI") {
+                Button(isEn ? "Open WebUI" : "打开 WebUI") {
                     viewModel.openWebUI()
                 }
                 .buttonStyle(.bordered)

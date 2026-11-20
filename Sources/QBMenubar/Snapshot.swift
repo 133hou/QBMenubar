@@ -4,10 +4,12 @@ import AppKit
 @MainActor
 public struct SnapshotGenerator {
     public static func generateSnapshots(outputDir: String) {
-        let viewModel = QBMenubarViewModel()
-        
-        // Mock some data so the screenshot looks realistic and vibrant
-        viewModel.connectionState = .connected(ping: 15)
+        let viewModel = QBMenubarViewModel(isMock: true)
+        viewModel.isMock = true
+        viewModel.config.language = .en // Ensure UI renders in clean English
+
+        // Mock realistic and clean data
+        viewModel.connectionState = .connected(ping: 12)
         viewModel.transferInfo = TransferInfo(
             dlInfoSpeed: 12_582_912, // 12.0 MB/s
             upInfoSpeed: 1_258_291,  // 1.2 MB/s
@@ -28,6 +30,7 @@ public struct SnapshotGenerator {
         }
         viewModel.speedHistory = mockPoints
         
+        // Generic open-source Linux distributions for privacy
         let mockTorrent1 = Torrent(
             hash: "11111111111111111111",
             name: "Ubuntu-24.04-desktop-amd64.iso",
@@ -35,13 +38,13 @@ public struct SnapshotGenerator {
             progress: 0.852,
             dlspeed: 10_485_760,
             upspeed: 512_000,
-            eta: 120,
+            eta: 134,
             state: "downloading"
         )
         
         let mockTorrent2 = Torrent(
             hash: "22222222222222222222",
-            name: "Debian-12-netinst.iso",
+            name: "Debian-12.5.0-netinst.iso",
             size: 650_000_000,
             progress: 0.325,
             dlspeed: 2_097_152,
@@ -52,17 +55,29 @@ public struct SnapshotGenerator {
         
         let mockTorrent3 = Torrent(
             hash: "33333333333333333333",
-            name: "ArchLinux-2026.11.iso",
+            name: "ArchLinux-2026.11-x86_64.iso",
             size: 900_000_000,
             progress: 1.0,
             dlspeed: 0,
             upspeed: 618_000,
             eta: 0,
-            state: "uploading"
+            state: "uploading",
+            ratio: 2.45
+        )
+
+        let mockTorrent4 = Torrent(
+            hash: "44444444444444444444",
+            name: "Fedora-Workstation-Live-40.iso",
+            size: 2_400_000_000,
+            progress: 0.540,
+            dlspeed: 0,
+            upspeed: 0,
+            eta: -1,
+            state: "pausedDL"
         )
         
-        viewModel.torrents = [mockTorrent1, mockTorrent2, mockTorrent3]
-        viewModel.config.pinnedTorrentHash = "auto"
+        viewModel.torrents = [mockTorrent1, mockTorrent2, mockTorrent3, mockTorrent4]
+        viewModel.config.pinnedTorrentHash = "11111111111111111111"
         viewModel.config.showPinnedProgress = true
         
         // 1. Snapshot MenuBarHeaderView (Simulating macOS menu bar dark glass)

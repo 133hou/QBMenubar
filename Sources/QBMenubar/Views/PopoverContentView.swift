@@ -104,9 +104,10 @@ public struct PopoverContentView: View {
             .padding(.bottom, 8)
 
             // 3. Quick Action Buttons
+            let isEn = viewModel.config.language == .en
             HStack(spacing: 6) {
                 QuickActionButton(
-                    title: "暂停全部",
+                    title: isEn ? "Pause All" : "暂停全部",
                     icon: "pause.fill",
                     color: .orange
                 ) {
@@ -114,7 +115,7 @@ public struct PopoverContentView: View {
                 }
 
                 QuickActionButton(
-                    title: "全部继续",
+                    title: isEn ? "Resume All" : "全部继续",
                     icon: "play.fill",
                     color: .green
                 ) {
@@ -122,7 +123,7 @@ public struct PopoverContentView: View {
                 }
 
                 QuickActionButton(
-                    title: viewModel.isAltSpeedLimits ? "备用限速中" : "备用限速",
+                    title: viewModel.isAltSpeedLimits ? (isEn ? "Alt Active" : "备用限速中") : (isEn ? "Alt Speeds" : "备用限速"),
                     icon: "tortoise.fill",
                     color: viewModel.isAltSpeedLimits ? .blue : .secondary
                 ) {
@@ -150,7 +151,7 @@ public struct PopoverContentView: View {
                         }
                     } label: {
                         HStack(spacing: 3) {
-                            Text(tab.rawValue)
+                            Text(tab.localizedTitle(isEn: isEn))
                                 .font(.system(size: 11, weight: viewModel.selectedTab == tab ? .semibold : .regular))
                             if count > 0 {
                                 Text("\(count)")
@@ -203,6 +204,7 @@ public struct PopoverContentView: View {
                                 files: viewModel.torrentFiles[torrent.hash],
                                 isLoadingFiles: viewModel.isLoadingFiles[torrent.hash] == true,
                                 isPinned: viewModel.isTorrentPinned(torrent),
+                                isEnglish: isEn,
                                 onToggleExpand: {
                                     viewModel.toggleExpandTorrent(torrent.hash)
                                 },
@@ -243,7 +245,7 @@ public struct PopoverContentView: View {
                     Image(systemName: "network")
                         .font(.system(size: 10))
                         .foregroundStyle(.secondary)
-                    Text("DHT: \(viewModel.transferInfo.dhtNodes) 节点")
+                    Text(isEn ? "DHT: \(viewModel.transferInfo.dhtNodes) nodes" : "DHT: \(viewModel.transferInfo.dhtNodes) 节点")
                         .font(.system(size: 10))
                         .foregroundStyle(.secondary)
                 }
@@ -251,15 +253,15 @@ public struct PopoverContentView: View {
                 Spacer()
 
                 HStack(spacing: 8) {
-                    Text("总下: \(APIConfig.formatBytes(viewModel.transferInfo.dlInfoData))")
+                    Text(isEn ? "DL: \(APIConfig.formatBytes(viewModel.transferInfo.dlInfoData))" : "总下: \(APIConfig.formatBytes(viewModel.transferInfo.dlInfoData))")
                         .font(.system(size: 10, design: .rounded))
                         .foregroundStyle(.secondary)
 
-                    Text("总上: \(APIConfig.formatBytes(viewModel.transferInfo.upInfoData))")
+                    Text(isEn ? "UL: \(APIConfig.formatBytes(viewModel.transferInfo.upInfoData))" : "总上: \(APIConfig.formatBytes(viewModel.transferInfo.upInfoData))")
                         .font(.system(size: 10, design: .rounded))
                         .foregroundStyle(.secondary)
 
-                    Button("退出") {
+                    Button(isEn ? "Quit" : "退出") {
                         NSApp.terminate(nil)
                     }
                     .buttonStyle(.plain)

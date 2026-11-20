@@ -6,6 +6,7 @@ public struct TorrentRowView: View {
     public let files: [TorrentFile]?
     public let isLoadingFiles: Bool
     public let isPinned: Bool
+    public var isEnglish: Bool = false
 
     public let onToggleExpand: () -> Void
     public let onPauseResume: () -> Void
@@ -40,7 +41,7 @@ public struct TorrentRowView: View {
                     Circle()
                         .fill(statusColor)
                         .frame(width: 5, height: 5)
-                    Text(torrent.stateDescription)
+                    Text(torrent.localizedStateDescription(isEn: isEnglish))
                         .font(.system(size: 10, weight: .semibold))
                 }
                 .padding(.horizontal, 6)
@@ -55,7 +56,7 @@ public struct TorrentRowView: View {
                         Image(systemName: "chevron.right")
                             .font(.system(size: 8, weight: .bold))
                             .rotationEffect(.degrees(isExpanded ? 90 : 0))
-                        Text(isExpanded ? "收起文件" : "查看文件")
+                        Text(isExpanded ? (isEnglish ? "Hide" : "收起文件") : (isEnglish ? "Files" : "查看文件"))
                             .font(.system(size: 10))
                     }
                     .padding(.horizontal, 5)
@@ -175,12 +176,12 @@ public struct TorrentRowView: View {
                     .foregroundStyle(.blue)
 
                     if let ratio = torrent.ratio {
-                        Text(String(format: "比率 %.2f", ratio))
+                        Text(isEnglish ? String(format: "Ratio %.2f", ratio) : String(format: "比率 %.2f", ratio))
                             .font(.system(size: 10, design: .rounded))
                             .foregroundStyle(.secondary)
                     }
                 } else if torrent.isPaused {
-                    Text("已暂停")
+                    Text(isEnglish ? "Paused" : "已暂停")
                         .font(.system(size: 10))
                         .foregroundStyle(.secondary)
                 }

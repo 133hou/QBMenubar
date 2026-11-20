@@ -103,6 +103,28 @@ public struct Torrent: Codable, Identifiable, Sendable, Equatable {
         ["error", "missingFiles"].contains(state)
     }
 
+    public func localizedStateDescription(isEn: Bool) -> String {
+        if isEn {
+            switch state {
+            case "downloading": return "Downloading"
+            case "metaDL": return "Metadata"
+            case "forcedDL": return "Forced DL"
+            case "stalledDL": return "Stalled"
+            case "queuedDL": return "Queued"
+            case "uploading", "forcedUP": return "Seeding"
+            case "stalledUP": return "Seeding"
+            case "queuedUP": return "Queued UP"
+            case "pausedDL": return "Paused"
+            case "pausedUP": return "Completed"
+            case "checkingDL", "checkingUP": return "Checking"
+            case "error": return "Error"
+            case "missingFiles": return "Missing"
+            default: return state.capitalized
+            }
+        }
+        return stateDescription
+    }
+
     public var stateDescription: String {
         switch state {
         case "downloading": return "下载中"

@@ -16,6 +16,18 @@ public enum FilterTab: String, CaseIterable, Identifiable, Sendable {
     case paused = "已暂停"
 
     public var id: String { rawValue }
+
+    public func localizedTitle(isEn: Bool) -> String {
+        if isEn {
+            switch self {
+            case .all: return "All"
+            case .downloading: return "Downloading"
+            case .seeding: return "Seeding"
+            case .paused: return "Paused"
+            }
+        }
+        return rawValue
+    }
 }
 
 @Observable
@@ -53,11 +65,16 @@ public final class QBMenubarViewModel {
     @ObservationIgnored
     private var isFirstPoll: Bool = true
 
-    public init() {
+    public var isMock: Bool = false
+
+    public init(isMock: Bool = false) {
+        self.isMock = isMock
         let loadedConfig = APIConfig.load()
         self.config = loadedConfig
         self.service = QBittorrentService(config: loadedConfig)
-        startPolling()
+        if !isMock {
+            startPolling()
+        }
     }
 
     isolated deinit {
@@ -67,6 +84,7 @@ public final class QBMenubarViewModel {
     // MARK: - Polling
 
     public func startPolling() {
+        if isMock { return }
         pollingTask?.cancel()
         pollingTask = Task { [weak self] in
             while !Task.isCancelled {
@@ -84,6 +102,7 @@ public final class QBMenubarViewModel {
     }
 
     public func refresh() async {
+        if isMock { return }
         do {
             // First attempt to test/login
             if case .disconnected = connectionState {

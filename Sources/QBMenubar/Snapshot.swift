@@ -316,6 +316,113 @@ public struct SnapshotGenerator {
         .frame(width: 440, height: 610)
         
         saveView(popoverPresentation, width: 440, height: 610, to: "\(outputDir)/preview_popover.png")
+
+        // 5. Snapshot 1280x640 GitHub Social Preview & OpenGraph Banner
+        let socialPresentation = ZStack {
+            // Ambient Backdrop
+            LinearGradient(
+                colors: [
+                    Color(red: 0.06, green: 0.08, blue: 0.12),
+                    Color(red: 0.09, green: 0.12, blue: 0.18),
+                    Color(red: 0.04, green: 0.06, blue: 0.09)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .overlay {
+                Circle()
+                    .fill(Color.blue.opacity(0.35))
+                    .frame(width: 500, height: 500)
+                    .blur(radius: 110)
+                    .offset(x: -320, y: -100)
+
+                Circle()
+                    .fill(Color.cyan.opacity(0.20))
+                    .frame(width: 450, height: 450)
+                    .blur(radius: 100)
+                    .offset(x: 320, y: 120)
+            }
+
+            HStack(spacing: 40) {
+                // Left Brand Column
+                VStack(alignment: .leading, spacing: 18) {
+                    HStack(spacing: 16) {
+                        AppHeroIconView(size: 76)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("QBMenubar")
+                                .font(.system(size: 38, weight: .bold, design: .rounded))
+                                .foregroundStyle(.white)
+
+                            Text("macOS Menu Bar Controller")
+                                .font(.system(size: 16, weight: .medium, design: .rounded))
+                                .foregroundStyle(Color(red: 0.40, green: 0.70, blue: 1.0))
+                        }
+                    }
+
+                    Text("Lightweight native qBittorrent controller with real-time download/upload speed monitoring, torrent progress pinning, bandwidth charts, and remote NAS WebUI management.")
+                        .font(.system(size: 15, weight: .regular))
+                        .foregroundStyle(Color.white.opacity(0.80))
+                        .lineSpacing(4)
+                        .frame(maxWidth: 480, alignment: .leading)
+
+                    // Menu Bar Preview Pill
+                    HStack(spacing: 6) {
+                        Image(systemName: "circle.circle")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(.white)
+                        Text("↓ 12.0 MB/s")
+                            .font(.system(size: 13, weight: .semibold, design: .rounded))
+                            .foregroundStyle(.white)
+                        Text("85%")
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(Color.white.opacity(0.20)))
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(
+                        Capsule()
+                            .fill(Color.white.opacity(0.12))
+                    )
+                    .overlay(
+                        Capsule()
+                            .strokeBorder(Color.white.opacity(0.25), lineWidth: 0.8)
+                    )
+
+                    // Feature Tag Pills
+                    HStack(spacing: 8) {
+                        ForEach(["Swift 6 + SwiftUI", "Liquid Glass", "Zero CPU Overhead", "NAS & Docker"], id: \.self) { tag in
+                            Text(tag)
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(Color.white.opacity(0.90))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.white.opacity(0.08)))
+                                .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous).strokeBorder(Color.white.opacity(0.15), lineWidth: 0.6))
+                        }
+                    }
+                }
+                .frame(width: 530)
+
+                // Right UI Showcase Card
+                PopoverContentView(viewModel: viewModel)
+                    .frame(width: 380, height: 520)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .strokeBorder(Color.white.opacity(0.18), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.55), radius: 28, x: 0, y: 16)
+                    .scaleEffect(0.95)
+            }
+            .padding(.horizontal, 50)
+        }
+        .frame(width: 1280, height: 640)
+
+        saveView(socialPresentation, width: 1280, height: 640, to: "\(outputDir)/social_preview.png")
     }
     
     private static func saveView<V: View>(_ view: V, width: CGFloat, height: CGFloat, to path: String) {

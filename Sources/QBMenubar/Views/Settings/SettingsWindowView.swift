@@ -93,45 +93,43 @@ public struct SettingsWindowView: View {
 
                 // Category List
                 ScrollView {
-                    AdaptiveGlassContainer(spacing: 3) {
-                        VStack(spacing: 3) {
-                            ForEach(SettingsCategory.allCases) { category in
-                                Button {
-                                    withAnimation(AppMotion.selection) {
-                                        selectedCategory = category
-                                    }
-                                } label: {
-                                    HStack(spacing: 10) {
-                                        LiquidGlassCategoryBadge(
-                                            category: category,
-                                            isSelected: selectedCategory == category
-                                        )
-
-                                        Text(category.localizedTitle(isEn: isEn))
-                                            .font(.system(size: 13, weight: selectedCategory == category ? .medium : .regular))
-                                            .foregroundStyle(selectedCategory == category ? Color.white : Color.primary)
-
-                                        Spacer()
-                                    }
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
-                                    .contentShape(Rectangle())
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                            .fill(
-                                                selectedCategory == category
-                                                    ? Color.accentColor
-                                                    : (hoveredCategory == category ? Color.primary.opacity(0.08) : Color.clear)
-                                            )
-                                    )
+                    VStack(spacing: 3) {
+                        ForEach(SettingsCategory.allCases) { category in
+                            Button {
+                                withAnimation(AppMotion.selection) {
+                                    selectedCategory = category
                                 }
-                                .buttonStyle(.plain)
-                                .onHover { isHovered in
-                                    if isHovered {
-                                        hoveredCategory = category
-                                    } else if hoveredCategory == category {
-                                        hoveredCategory = nil
-                                    }
+                            } label: {
+                                HStack(spacing: 10) {
+                                    LiquidGlassCategoryBadge(
+                                        category: category,
+                                        isSelected: selectedCategory == category
+                                    )
+
+                                    Text(category.localizedTitle(isEn: isEn))
+                                        .font(.system(size: 13, weight: selectedCategory == category ? .medium : .regular))
+                                        .foregroundStyle(selectedCategory == category ? Color.white : Color.primary)
+
+                                    Spacer()
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .contentShape(Rectangle())
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                        .fill(
+                                            selectedCategory == category
+                                                ? Color.accentColor
+                                                : (hoveredCategory == category ? Color.primary.opacity(0.08) : Color.clear)
+                                        )
+                                )
+                            }
+                            .buttonStyle(.plain)
+                            .onHover { isHovered in
+                                if isHovered {
+                                    hoveredCategory = category
+                                } else if hoveredCategory == category {
+                                    hoveredCategory = nil
                                 }
                             }
                         }
@@ -910,67 +908,56 @@ public struct LiquidGlassCategoryBadge: View {
 
     public var body: some View {
         ZStack {
-            if #available(macOS 26.0, *) {
-                // Native macOS Tahoe Liquid Glass material with color tint
-                RoundedRectangle(cornerRadius: 6.5, style: .continuous)
-                    .fill(category.badgeColor.opacity(0.85))
-                    .frame(width: 22, height: 22)
-                    .glassEffect(.regular.tint(category.badgeColor), in: .rect(cornerRadius: 6.5, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 6.5, style: .continuous)
-                            .strokeBorder(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(0.68),
-                                        Color.white.opacity(0.15)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 0.65
-                            )
+            // Luminous Liquid Glass gradient core
+            RoundedRectangle(cornerRadius: 6.5, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            category.badgeColor.opacity(0.94),
+                            category.badgeColor.opacity(0.72)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
                     )
-                    .shadow(color: category.badgeColor.opacity(isSelected ? 0.45 : 0.28), radius: 3, x: 0, y: 1.5)
-
-                Image(systemName: category.iconName)
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .shadow(color: .black.opacity(0.25), radius: 0.5, x: 0, y: 0.5)
-            } else {
-                // macOS 14/15 Liquid Glass specular simulation
-                RoundedRectangle(cornerRadius: 6.5, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                category.badgeColor.opacity(0.95),
-                                category.badgeColor.opacity(0.72)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+                )
+                .frame(width: 22, height: 22)
+                .overlay(
+                    // Upper glass gloss reflection
+                    RoundedRectangle(cornerRadius: 6.5, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.34),
+                                    Color.white.opacity(0.0)
+                                ],
+                                startPoint: .top,
+                                endPoint: .center
+                            )
                         )
-                    )
-                    .frame(width: 22, height: 22)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 6.5, style: .continuous)
-                            .strokeBorder(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(0.65),
-                                        Color.white.opacity(0.12)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 0.65
-                            )
-                    )
-                    .shadow(color: category.badgeColor.opacity(isSelected ? 0.45 : 0.28), radius: 3, x: 0, y: 1.5)
+                )
+                .overlay(
+                    // Specular glass rim highlight
+                    RoundedRectangle(cornerRadius: 6.5, style: .continuous)
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.70),
+                                    Color.white.opacity(0.18),
+                                    category.badgeColor.opacity(0.40)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.65
+                        )
+                )
+                .shadow(color: category.badgeColor.opacity(isSelected ? 0.45 : 0.28), radius: 3, x: 0, y: 1.5)
 
-                Image(systemName: category.iconName)
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .shadow(color: .black.opacity(0.25), radius: 0.5, x: 0, y: 0.5)
-            }
+            // Crisp SF Symbol centered inside
+            Image(systemName: category.iconName)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.white)
+                .shadow(color: .black.opacity(0.30), radius: 0.5, x: 0, y: 0.5)
         }
         .frame(width: 22, height: 22)
     }

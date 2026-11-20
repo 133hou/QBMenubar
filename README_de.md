@@ -66,9 +66,9 @@ Eine leichte, hochperformante native macOS Menüleisten-App, entwickelt mit **Sw
 ### Option 1: Vorkompilierte App herunterladen (Empfohlen)
 Laden Sie die fertige App direkt von GitHub Releases herunter:
 
-👉 **[QBMenubar v1.0.0 herunterladen (macOS)](https://github.com/133hou/QBMenubar/releases/download/v1.0.0/QBMenubar-v1.0.0-macOS.zip)**
+👉 **[QBMenubar (Latest) herunterladen (macOS)](https://github.com/133hou/QBMenubar/releases/latest)**
 
-1. Laden Sie `QBMenubar-v1.0.0-macOS.zip` herunter und entpacken Sie es.
+1. Laden Sie `QBMenubar-*-macOS.zip` herunter und entpacken Sie es.
 2. Ziehen Sie `QBMenubar.app` in den Ordner `/Programme` (`/Applications`).
 3. Starten Sie `QBMenubar.app` per Doppelklick.
 

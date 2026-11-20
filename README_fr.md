@@ -66,9 +66,9 @@ Une application native macOS légère et ultra-rapide conçue avec **Swift 6 + S
 ### Option 1 : Télécharger l'application précompilée (Recommandé)
 Téléchargez directement l'application prête à l'emploi depuis GitHub Releases :
 
-👉 **[Télécharger QBMenubar v1.0.0 (macOS)](https://github.com/133hou/QBMenubar/releases/download/v1.0.0/QBMenubar-v1.0.0-macOS.zip)**
+👉 **[Télécharger QBMenubar (Latest) (macOS)](https://github.com/133hou/QBMenubar/releases/latest)**
 
-1. Téléchargez et décompressez `QBMenubar-v1.0.0-macOS.zip`.
+1. Téléchargez et décompressez `QBMenubar-*-macOS.zip`.
 2. Déplacez `QBMenubar.app` dans votre dossier `/Applications`.
 3. Double-cliquez sur `QBMenubar.app` pour le lancer !
 

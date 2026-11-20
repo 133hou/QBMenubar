@@ -69,7 +69,7 @@
 ### 方式 1：直接下载运行包（推荐，开箱即用）
 无需安装 Xcode 或终端环境，直接下载预编译打包好的 macOS 原生应用：
 
-👉 **[下载最新版 QBMenubar v1.0.0 (macOS)](https://github.com/133hou/QBMenubar/releases/download/v1.0.0/QBMenubar-v1.0.0-macOS.zip)**
+👉 **[下载最新版 QBMenubar (Latest) (macOS)](https://github.com/133hou/QBMenubar/releases/latest)**
 
 1. 下载后双击解压出 `QBMenubar.app`；
 2. 将其拖入访达的 **「应用程序 (/Applications)」** 文件夹中；

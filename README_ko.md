@@ -66,9 +66,9 @@
 ### 방법 1: 사전 빌드된 앱 다운로드 (권장)
 GitHub Releases에서 별도의 컴파일 없이 즉시 실행 가능한 앱을 다운로드할 수 있습니다:
 
-👉 **[QBMenubar v1.0.0 다운로드 (macOS)](https://github.com/133hou/QBMenubar/releases/download/v1.0.0/QBMenubar-v1.0.0-macOS.zip)**
+👉 **[QBMenubar (Latest) 다운로드 (macOS)](https://github.com/133hou/QBMenubar/releases/latest)**
 
-1. `QBMenubar-v1.0.0-macOS.zip` 파일을 다운로드하고 압축을 풉니다.
+1. `QBMenubar-*-macOS.zip` 파일을 다운로드하고 압축을 풉니다.
 2. `QBMenubar.app`을 `/Applications` (응용 프로그램) 폴더로 이동합니다.
 3. `QBMenubar.app`을 더블 클릭하여 실행합니다.
 

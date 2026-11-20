@@ -68,7 +68,7 @@
 ### 方式 1：直接下載執行檔（推薦，開箱即用）
 無需安裝 Xcode 或終端機環境，直接下載預編譯打包好的 macOS 原生應用：
 
-👉 **[下載最新版 QBMenubar v1.0.0 (macOS)](https://github.com/133hou/QBMenubar/releases/download/v1.0.0/QBMenubar-v1.0.0-macOS.zip)**
+👉 **[下載最新版 QBMenubar (Latest) (macOS)](https://github.com/133hou/QBMenubar/releases/latest)**
 
 1. 下載後按兩下解壓縮出 `QBMenubar.app`；
 2. 將其拖入 Finder 的 **「應用程式 (/Applications)」** 資料夾中；

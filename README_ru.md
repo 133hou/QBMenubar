@@ -66,9 +66,9 @@
 ### Способ 1: Скачать готовое приложение (Рекомендуется)
 Скачайте готовое скомпилированное приложение прямо из GitHub Releases:
 
-👉 **[Скачать QBMenubar v1.0.0 (macOS)](https://github.com/133hou/QBMenubar/releases/download/v1.0.0/QBMenubar-v1.0.0-macOS.zip)**
+👉 **[Скачать QBMenubar (Latest) (macOS)](https://github.com/133hou/QBMenubar/releases/latest)**
 
-1. Скачайте и распакуйте `QBMenubar-v1.0.0-macOS.zip`.
+1. Скачайте и распакуйте `QBMenubar-*-macOS.zip`.
 2. Переместите `QBMenubar.app` в папку `/Программы` (`/Applications`).
 3. Запустите `QBMenubar.app` двойным кликом!
 

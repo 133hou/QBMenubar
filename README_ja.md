@@ -66,9 +66,9 @@
 ### 方法 1: リリースからダウンロード（推奨・ビルド不要）
 GitHub Releases からビルド済みアプリを直接ダウンロードできます：
 
-👉 **[QBMenubar v1.0.0 をダウンロード (macOS)](https://github.com/133hou/QBMenubar/releases/download/v1.0.0/QBMenubar-v1.0.0-macOS.zip)**
+👉 **[QBMenubar (Latest) をダウンロード (macOS)](https://github.com/133hou/QBMenubar/releases/latest)**
 
-1. `QBMenubar-v1.0.0-macOS.zip` をダウンロードして解凍します。
+1. `QBMenubar-*-macOS.zip` をダウンロードして解凍します。
 2. 解凍された `QBMenubar.app` を「アプリケーション (`/Applications`)」フォルダに移動します。
 3. `QBMenubar.app` をダブルクリックして起動します。
 

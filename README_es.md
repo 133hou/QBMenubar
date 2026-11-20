@@ -66,9 +66,9 @@ Una aplicación nativa de macOS ligera y de alto rendimiento construida con **Sw
 ### Opción 1: Descargar la aplicación compilada (Recomendado)
 Descarga la aplicación lista para usar desde GitHub Releases:
 
-👉 **[Descargar QBMenubar v1.0.0 (macOS)](https://github.com/133hou/QBMenubar/releases/download/v1.0.0/QBMenubar-v1.0.0-macOS.zip)**
+👉 **[Descargar QBMenubar (Latest) (macOS)](https://github.com/133hou/QBMenubar/releases/latest)**
 
-1. Descarga y descomprime `QBMenubar-v1.0.0-macOS.zip`.
+1. Descarga y descomprime `QBMenubar-*-macOS.zip`.
 2. Mueve `QBMenubar.app` a tu carpeta `/Applications` (Aplicaciones).
 3. ¡Haz doble clic en `QBMenubar.app` para iniciar!
 

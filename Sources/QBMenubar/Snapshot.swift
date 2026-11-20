@@ -84,33 +84,92 @@ public struct SnapshotGenerator {
         viewModel.config.pinnedTorrentHash = "11111111111111111111"
         viewModel.config.showPinnedProgress = true
         
-        // 1. Snapshot MenuBarHeaderView (Simulating macOS menu bar dark glass)
-        let menubarView = HStack(spacing: 12) {
-            Text("").font(.system(size: 14)).foregroundStyle(.white)
-            Text("Finder").font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
-            Text("File").font(.system(size: 13)).foregroundStyle(.white.opacity(0.85))
-            Text("Edit").font(.system(size: 13)).foregroundStyle(.white.opacity(0.85))
-            Spacer()
-            // Our QBMenubar Header
-            MenuBarHeaderView(viewModel: viewModel)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(
-                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                        .fill(Color.white.opacity(0.15))
-                )
-            Spacer().frame(width: 20)
-            Image(systemName: "wifi").font(.system(size: 12)).foregroundStyle(.white)
-            Image(systemName: "battery.100").font(.system(size: 12)).foregroundStyle(.white)
-            Text("13:38").font(.system(size: 12, weight: .medium)).foregroundStyle(.white)
+        // 1. Snapshot MenuBarHeaderView (Authentic macOS translucent menu bar with ambient backlight)
+        let menubarPresentation = ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.08, green: 0.11, blue: 0.17),
+                    Color(red: 0.13, green: 0.16, blue: 0.25),
+                    Color(red: 0.07, green: 0.10, blue: 0.15)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .overlay {
+                Circle()
+                    .fill(Color.blue.opacity(0.35))
+                    .frame(width: 260, height: 260)
+                    .blur(radius: 50)
+                    .offset(x: 180, y: -20)
+            }
+            
+            HStack(spacing: 14) {
+                HStack(spacing: 12) {
+                    Text("")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(.white)
+                    Text("Finder")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(.white)
+                    Text("File")
+                        .font(.system(size: 13))
+                        .foregroundStyle(.white.opacity(0.85))
+                    Text("Edit")
+                        .font(.system(size: 13))
+                        .foregroundStyle(.white.opacity(0.85))
+                    Text("View")
+                        .font(.system(size: 13))
+                        .foregroundStyle(.white.opacity(0.85))
+                }
+                
+                Spacer()
+                
+                // QBMenubar Status Item (Live speed + Pinned torrent progress)
+                MenuBarHeaderView(viewModel: viewModel)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 4)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .fill(Color.white.opacity(0.18))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .strokeBorder(Color.white.opacity(0.22), lineWidth: 0.5)
+                    )
+                
+                HStack(spacing: 11) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.85))
+                    Image(systemName: "switch.2")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.85))
+                    Image(systemName: "wifi")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.85))
+                    Image(systemName: "battery.100")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.85))
+                    Text("13:38")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.9))
+                }
+            }
+            .padding(.horizontal, 18)
+            .frame(width: 820, height: 36)
+            .background(.ultraThinMaterial.opacity(0.85))
+            .overlay(alignment: .bottom) {
+                Divider().opacity(0.2)
+            }
         }
-        .padding(.horizontal, 16)
-        .frame(width: 700, height: 32)
-        .background(
-            LinearGradient(colors: [Color(red: 0.1, green: 0.12, blue: 0.16), Color(red: 0.15, green: 0.18, blue: 0.24)], startPoint: .leading, endPoint: .trailing)
+        .frame(width: 820, height: 36)
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.12), lineWidth: 0.5)
         )
         
-        saveView(menubarView, width: 700, height: 32, to: "\(outputDir)/preview_menubar.png")
+        saveView(menubarPresentation, width: 820, height: 36, to: "\(outputDir)/preview_menubar.png")
         
         // 2. Snapshot SettingsWindowView
         let settingsView = SettingsWindowView(viewModel: viewModel)

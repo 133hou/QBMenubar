@@ -2,6 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/133hou/QBMenubar/releases"><img src="https://img.shields.io/github/v/release/133hou/QBMenubar?color=blue" alt="GitHub Release"></a>
+  <a href="https://github.com/133hou/QBMenubar/releases"><img src="https://img.shields.io/github/downloads/133hou/QBMenubar/total.svg?color=success" alt="Downloads"></a>
   <img src="https://img.shields.io/badge/Platform-macOS%2014.0%2B-lightgrey" alt="Platform">
   <img src="https://img.shields.io/badge/Swift-6.0-orange" alt="Swift 6">
   <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License">

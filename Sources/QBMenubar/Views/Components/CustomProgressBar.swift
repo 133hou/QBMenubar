@@ -33,7 +33,7 @@ public struct CustomProgressBar: View {
                         )
                     )
                     .frame(width: max(height, proxy.size.width * CGFloat(progress)), height: height)
-                    .animation(.spring(response: 0.35, dampingFraction: 0.82), value: progress)
+                    .animation(AppMotion.liveData, value: progress)
             }
         }
         .frame(height: height)

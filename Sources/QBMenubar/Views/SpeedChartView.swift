@@ -70,7 +70,7 @@ public struct SpeedChartView: View {
                 .chartYAxis(.hidden)
                 .chartLegend(.hidden)
                 .frame(height: 52)
-                .animation(.interactiveSpring(response: 0.3, dampingFraction: 0.8), value: points)
+                .animation(AppMotion.liveData, value: points)
             } else {
                 HStack {
                     Spacer()

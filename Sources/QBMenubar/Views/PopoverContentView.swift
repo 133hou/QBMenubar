@@ -141,7 +141,7 @@ public struct PopoverContentView: View {
                 ForEach(FilterTab.allCases) { tab in
                     let count = countForTab(tab)
                     Button {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        withAnimation(AppMotion.selection) {
                             viewModel.selectedTab = tab
                         }
                     } label: {

@@ -209,6 +209,6 @@ public struct TorrentRowView: View {
             Button("删除任务 (保留文件)") { onDelete(false) }
             Button("删除任务及本地文件", role: .destructive) { onDelete(true) }
         }
-        .animation(.spring(response: 0.32, dampingFraction: 0.82), value: isExpanded)
+        .animation(AppMotion.expand, value: isExpanded)
     }
 }

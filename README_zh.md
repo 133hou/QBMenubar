@@ -48,16 +48,19 @@
 
 ---
 
-## 快速上手
+## 快速上手与下载
 
-### 直接运行 App
-可以直接运行编译打包好的标准 macOS App Bundle：
-```bash
-open QBMenubar.app
-```
-*(应用设置了 `LSUIElement = true`，启动后仅静默常驻在屏幕顶部的状态栏，不占用 Dock 栏)*
+### 1. 直接下载运行包（推荐，开箱即用）
+无需安装 Xcode 或终端环境，直接下载预编译好的 macOS 原生应用包：
 
-### 源码编译 (Build from Source)
+👉 **[下载最新版 QBMenubar v1.0.0 (macOS)](https://github.com/133hou/QBMenubar/releases/download/v1.0.0/QBMenubar-v1.0.0-macOS.zip)**
+
+- 下载后双击解压出 `QBMenubar.app`；
+- 将其拖拽至访达的 **「应用程序 (/Applications)」** 文件夹中；
+- 双击即可直接运行！应用将静默常驻在屏幕顶部的系统菜单栏。
+
+### 2. 源码本地编译 (Build from Source)
+如果您希望自行修改代码或本地编译：
 ```bash
 cd QBMenubar
 swift build -c release

@@ -48,14 +48,17 @@ A lightweight, high-performance native macOS Menu Bar application built with **S
 
 ## Getting Started
 
-### Run the App
-Launch the precompiled application bundle:
-```bash
-open QBMenubar.app
-```
-*(Runs as a lightweight accessory item (`LSUIElement = true`) in the macOS status bar without cluttering the Dock).*
+### 1. Download Precompiled App (Recommended)
+You can download the ready-to-run macOS app directly from GitHub Releases without installing Xcode or command line tools:
 
-### Build from Source
+👉 **[Download QBMenubar v1.0.0 (macOS)](https://github.com/133hou/QBMenubar/releases/download/v1.0.0/QBMenubar-v1.0.0-macOS.zip)**
+
+1. Download and unzip `QBMenubar-v1.0.0-macOS.zip`.
+2. Move `QBMenubar.app` to your `/Applications` (Applications) folder.
+3. Double-click to launch! It will reside quietly in your macOS Menu Bar.
+
+### 2. Build from Source
+If you prefer to compile from source code:
 ```bash
 cd QBMenubar
 swift build -c release

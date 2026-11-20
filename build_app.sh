@@ -50,5 +50,7 @@ cat <<EOF > "$CONTENTS_DIR/Info.plist"
 </plist>
 EOF
 
-echo "==> QBMenubar.app successfully created!"
+codesign --force --deep --sign - "$APP_DIR"
+
+echo "==> QBMenubar.app successfully created and code-signed!"
 echo "Location: $APP_DIR"

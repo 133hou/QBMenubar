@@ -207,6 +207,8 @@ public struct SettingsWindowView: View {
                                 aboutPane
                             }
                         }
+                        .id(selectedCategory)
+                        .transition(.opacity)
                     }
                     .padding(24)
                 }
@@ -225,13 +227,11 @@ public struct SettingsWindowView: View {
                 title: L10n.language(lang),
                 subtitle: L10n.languageSubtitle(lang)
             ) {
-                Picker("", selection: $viewModel.config.language) {
-                    ForEach(AppLanguage.allCases) { item in
-                        Text(item.rawValue).tag(item)
-                    }
-                }
-                .pickerStyle(.menu)
-                .frame(width: 160)
+                GlassMenuPicker(
+                    selection: $viewModel.config.language,
+                    items: AppLanguage.allCases.map { ($0, $0.rawValue) },
+                    width: 160
+                )
             }
 
             SettingsDivider()
@@ -407,7 +407,7 @@ public struct SettingsWindowView: View {
                     if viewModel.config.showPinnedProgress && viewModel.config.pinnedTorrentHash != nil {
                         Text("78%")
                             .font(.system(size: 9.5, weight: .bold, design: .rounded))
-                            .foregroundStyle(.tint)
+                            .foregroundStyle(.primary)
                             .padding(.horizontal, 4)
                             .padding(.vertical, 1)
                             .background(
@@ -433,13 +433,11 @@ public struct SettingsWindowView: View {
                 title: L10n.menuBarDisplayMode(lang),
                 subtitle: L10n.menuBarDisplayModeSubtitle(lang)
             ) {
-                Picker("", selection: $viewModel.config.menuBarStyle) {
-                    ForEach(MenuBarStyle.allCases) { style in
-                        Text(style.localizedTitle(lang: lang)).tag(style)
-                    }
-                }
-                .pickerStyle(.menu)
-                .frame(width: 210)
+                GlassMenuPicker(
+                    selection: $viewModel.config.menuBarStyle,
+                    items: MenuBarStyle.allCases.map { ($0, $0.localizedTitle(lang: lang)) },
+                    width: 210
+                )
             }
         }
 
@@ -459,22 +457,14 @@ public struct SettingsWindowView: View {
                     title: L10n.selectedTorrent(lang),
                     subtitle: L10n.selectedTorrentSubtitle(lang)
                 ) {
-                    Picker("", selection: Binding(
-                        get: { viewModel.config.pinnedTorrentHash ?? "none" },
-                        set: { viewModel.config.pinnedTorrentHash = ($0 == "none" ? nil : $0) }
-                    )) {
-                        Text(L10n.doNotShow(lang)).tag("none")
-                        Text(L10n.autoSelectMostActive(lang)).tag("auto")
-                        if !viewModel.torrents.isEmpty {
-                            Divider()
-                            ForEach(viewModel.torrents) { torrent in
-                                Text("\(torrent.name) (\(String(format: "%.0f%%", torrent.progress * 100)))")
-                                    .tag(torrent.hash)
-                            }
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .frame(width: 230)
+                    GlassMenuPicker(
+                        selection: Binding(
+                            get: { viewModel.config.pinnedTorrentHash ?? "none" },
+                            set: { viewModel.config.pinnedTorrentHash = ($0 == "none" ? nil : $0) }
+                        ),
+                        items: pinnedTorrentOptions,
+                        width: 230
+                    )
                 }
             }
         }
@@ -484,13 +474,11 @@ public struct SettingsWindowView: View {
                 title: L10n.iconThemeTitle(lang),
                 subtitle: L10n.iconThemeSubtitle(lang)
             ) {
-                Picker("", selection: $viewModel.config.iconTheme) {
-                    ForEach(IconTheme.allCases) { theme in
-                        Text(theme.localizedTitle(lang: lang)).tag(theme)
-                    }
-                }
-                .pickerStyle(.menu)
-                .frame(width: 210)
+                GlassMenuPicker(
+                    selection: $viewModel.config.iconTheme,
+                    items: IconTheme.allCases.map { ($0, $0.localizedTitle(lang: lang)) },
+                    width: 210
+                )
             }
 
             SettingsDivider()
@@ -499,13 +487,11 @@ public struct SettingsWindowView: View {
                 title: L10n.iconSizeTitle(lang),
                 subtitle: L10n.iconSizeSubtitle(lang)
             ) {
-                Picker("", selection: $viewModel.config.iconSize) {
-                    ForEach(IconSizeOption.allCases) { sizeOpt in
-                        Text(sizeOpt.localizedTitle(lang: lang)).tag(sizeOpt)
-                    }
-                }
-                .pickerStyle(.menu)
-                .frame(width: 210)
+                GlassMenuPicker(
+                    selection: $viewModel.config.iconSize,
+                    items: IconSizeOption.allCases.map { ($0, $0.localizedTitle(lang: lang)) },
+                    width: 210
+                )
             }
 
             SettingsDivider()
@@ -514,13 +500,11 @@ public struct SettingsWindowView: View {
                 title: L10n.arrowThemeTitle(lang),
                 subtitle: L10n.arrowThemeSubtitle(lang)
             ) {
-                Picker("", selection: $viewModel.config.arrowTheme) {
-                    ForEach(ArrowTheme.allCases) { theme in
-                        Text(theme.localizedTitle(lang: lang)).tag(theme)
-                    }
-                }
-                .pickerStyle(.menu)
-                .frame(width: 210)
+                GlassMenuPicker(
+                    selection: $viewModel.config.arrowTheme,
+                    items: ArrowTheme.allCases.map { ($0, $0.localizedTitle(lang: lang)) },
+                    width: 210
+                )
             }
         }
     }
@@ -743,6 +727,18 @@ public struct SettingsWindowView: View {
         }
     }
 
+    private var pinnedTorrentOptions: [(tag: String, title: String)] {
+        var options: [(tag: String, title: String)] = [
+            ("none", L10n.doNotShow(lang)),
+            ("auto", L10n.autoSelectMostActive(lang))
+        ]
+        for torrent in viewModel.torrents {
+            let pct = String(format: "%.0f%%", torrent.progress * 100)
+            options.append((torrent.hash, "\(torrent.name) (\(pct))"))
+        }
+        return options
+    }
+
     private func runTestConnection() {
         testState = .testing
         Task {
@@ -861,57 +857,63 @@ public struct LiquidGlassCategoryBadge: View {
 
     public var body: some View {
         ZStack {
-            // Luminous Liquid Glass gradient core
+            if #available(macOS 26.0, *) {
+                RoundedRectangle(cornerRadius: 6.5, style: .continuous)
+                    .fill(category.badgeColor.opacity(0.25))
+                    .glassEffect(.regular.tint(category.badgeColor), in: .rect(cornerRadius: 6.5))
+                    .frame(width: 22, height: 22)
+            } else {
+                RoundedRectangle(cornerRadius: 6.5, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                category.badgeColor.opacity(0.85),
+                                category.badgeColor.opacity(0.65)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 22, height: 22)
+            }
+
+            // Upper glass gloss reflection
             RoundedRectangle(cornerRadius: 6.5, style: .continuous)
                 .fill(
                     LinearGradient(
                         colors: [
-                            category.badgeColor.opacity(0.94),
-                            category.badgeColor.opacity(0.72)
+                            Color.white.opacity(0.40),
+                            Color.white.opacity(0.0)
                         ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
+                        startPoint: .top,
+                        endPoint: .center
                     )
                 )
                 .frame(width: 22, height: 22)
-                .overlay(
-                    // Upper glass gloss reflection
-                    RoundedRectangle(cornerRadius: 6.5, style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.34),
-                                    Color.white.opacity(0.0)
-                                ],
-                                startPoint: .top,
-                                endPoint: .center
-                            )
-                        )
+
+            // Specular glass rim highlight
+            RoundedRectangle(cornerRadius: 6.5, style: .continuous)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.75),
+                            Color.white.opacity(0.20),
+                            category.badgeColor.opacity(0.45)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 0.65
                 )
-                .overlay(
-                    // Specular glass rim highlight
-                    RoundedRectangle(cornerRadius: 6.5, style: .continuous)
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.70),
-                                    Color.white.opacity(0.18),
-                                    category.badgeColor.opacity(0.40)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 0.65
-                        )
-                )
-                .shadow(color: category.badgeColor.opacity(isSelected ? 0.45 : 0.28), radius: 3, x: 0, y: 1.5)
+                .frame(width: 22, height: 22)
 
             // Crisp SF Symbol centered inside
             Image(systemName: category.iconName)
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(.white)
-                .shadow(color: .black.opacity(0.30), radius: 0.5, x: 0, y: 0.5)
+                .shadow(color: .black.opacity(0.35), radius: 0.5, x: 0, y: 0.5)
         }
         .frame(width: 22, height: 22)
+        .shadow(color: category.badgeColor.opacity(isSelected ? 0.45 : 0.28), radius: 3, x: 0, y: 1.5)
     }
 }

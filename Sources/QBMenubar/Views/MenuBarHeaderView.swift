@@ -41,11 +41,19 @@ public struct MenuBarHeaderView: View {
         }
     }
 
-    private func speedAndProgressString(speed: String) -> String {
-        if let progress = viewModel.pinnedTorrentProgressText {
-            return "\(speed) \(progress)"
+    @ViewBuilder
+    private var progressBadge: some View {
+        if viewModel.config.showPinnedProgress, let progress = viewModel.pinnedTorrentProgressText {
+            Text(progress)
+                .font(.system(size: 9.5, weight: .bold, design: .rounded))
+                .foregroundStyle(.primary)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 1)
+                .background(
+                    Capsule()
+                        .fill(Color.primary.opacity(0.12))
+                )
         }
-        return speed
     }
 
     public var body: some View {
@@ -66,11 +74,13 @@ public struct MenuBarHeaderView: View {
                         Text("↓")
                             .font(.system(size: 11, weight: .bold))
                             .foregroundStyle(downloadArrowColor(dlSpeed: dlSpeed))
-                        Text(speedAndProgressString(speed: APIConfig.formatSpeed(dlSpeed)))
+                        Text(APIConfig.formatSpeed(dlSpeed))
                             .font(.system(size: 11, weight: .medium, design: .rounded))
                             .foregroundStyle(dlSpeed > 0 ? .primary : .secondary)
                     }
                     .fixedSize()
+
+                    progressBadge
 
                 case .twoLines:
                     // Two-line vertical layout (Upload top, Download bottom)
@@ -88,12 +98,14 @@ public struct MenuBarHeaderView: View {
                             Text("↓")
                                 .font(.system(size: 8, weight: .bold))
                                 .foregroundStyle(downloadArrowColor(dlSpeed: dlSpeed))
-                            Text(speedAndProgressString(speed: APIConfig.formatSpeed(dlSpeed)))
+                            Text(APIConfig.formatSpeed(dlSpeed))
                                 .font(.system(size: 8.5, weight: .semibold, design: .monospaced))
                                 .foregroundStyle(dlSpeed > 0 ? .primary : .secondary)
                         }
                     }
                     .fixedSize()
+
+                    progressBadge
 
                 case .singleLineBoth:
                     // Single line displaying both download and upload
@@ -102,7 +114,7 @@ public struct MenuBarHeaderView: View {
                             Text("↓")
                                 .font(.system(size: 11, weight: .bold))
                                 .foregroundStyle(downloadArrowColor(dlSpeed: dlSpeed))
-                            Text(speedAndProgressString(speed: APIConfig.formatSpeed(dlSpeed)))
+                            Text(APIConfig.formatSpeed(dlSpeed))
                                 .font(.system(size: 11, weight: .medium, design: .rounded))
                         }
 
@@ -116,6 +128,8 @@ public struct MenuBarHeaderView: View {
                         }
                     }
                     .fixedSize()
+
+                    progressBadge
                 }
 
                 // 3. Alternative Speed Limit indicator

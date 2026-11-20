@@ -8,11 +8,24 @@ public struct AppHeroIconView: View {
         self.size = size
     }
 
+    private var appIconImage: NSImage? {
+        if let icon = NSImage(named: "AppIcon") {
+            return icon
+        }
+        if let path = Bundle.main.path(forResource: "AppIcon", ofType: "icns"),
+           let icon = NSImage(contentsOfFile: path) {
+            return icon
+        }
+        if let icon = NSImage(contentsOfFile: "AppIcon.icns") {
+            return icon
+        }
+        return nil
+    }
+
     public var body: some View {
         let squircleRadius = size * (185.0 / 824.0)
 
-        if let nsImage = NSImage(named: "AppIcon") ?? (NSApp.applicationIconImage.isValid ? NSApp.applicationIconImage : nil),
-           nsImage.size.width > 0 {
+        if let nsImage = appIconImage, nsImage.size.width > 0 {
             Image(nsImage: nsImage)
                 .resizable()
                 .aspectRatio(contentMode: .fit)

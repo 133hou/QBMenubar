@@ -209,6 +209,38 @@ public struct SnapshotGenerator {
         
         saveView(settingsPresentation, width: 840, height: 620, to: "\(outputDir)/preview_settings.png")
 
+        // 2b. Snapshot SettingsWindowView (General Pane showing GlassMenuPicker for Language)
+        let generalPresentation = ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.08, green: 0.11, blue: 0.16),
+                    Color(red: 0.12, green: 0.15, blue: 0.22),
+                    Color(red: 0.06, green: 0.08, blue: 0.12)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .overlay {
+                Circle()
+                    .fill(Color.blue.opacity(0.25))
+                    .frame(width: 400, height: 400)
+                    .blur(radius: 80)
+                    .offset(x: -160, y: -120)
+            }
+
+            SettingsWindowView(viewModel: viewModel, initialCategory: .general)
+                .frame(width: 780, height: 560)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.55), radius: 26, x: 0, y: 14)
+        }
+        .frame(width: 840, height: 620)
+
+        saveView(generalPresentation, width: 840, height: 620, to: "\(outputDir)/preview_general.png")
+
         // 3. Snapshot SettingsWindowView (About Pane showing AppHeroIconView squircle)
         let aboutPresentation = ZStack {
             LinearGradient(

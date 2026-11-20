@@ -83,5 +83,22 @@ public extension View {
     func glassCard(cornerRadius: CGFloat = 12, padding: CGFloat = 12, opacity: Double) -> some View {
         self.modifier(GlassCardModifier(cornerRadius: cornerRadius, padding: padding, isInteractive: false))
     }
+
+    @ViewBuilder
+    func adaptiveGlassButton(prominent: Bool = false) -> some View {
+        if #available(macOS 26.0, *) {
+            if prominent {
+                self.buttonStyle(.glassProminent)
+            } else {
+                self.buttonStyle(.glass)
+            }
+        } else {
+            if prominent {
+                self.buttonStyle(.borderedProminent)
+            } else {
+                self.buttonStyle(.bordered)
+            }
+        }
+    }
 }
 

@@ -147,7 +147,7 @@ public struct SettingsWindowView: View {
                 .padding(.vertical, 10)
             }
             .frame(width: 220)
-            .background(Color(NSColor.controlBackgroundColor).opacity(0.55))
+            .background(.ultraThinMaterial)
 
             Divider()
 
@@ -177,27 +177,29 @@ public struct SettingsWindowView: View {
 
                 // Settings Content
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
-                        switch selectedCategory {
-                        case .general:
-                            generalPane
-                        case .connection:
-                            connectionPane
-                        case .menubar:
-                            menubarPane
-                        case .notifications:
-                            notificationsPane
-                        case .advanced:
-                            advancedPane
-                        case .about:
-                            aboutPane
+                    AdaptiveGlassContainer(spacing: 16) {
+                        VStack(alignment: .leading, spacing: 20) {
+                            switch selectedCategory {
+                            case .general:
+                                generalPane
+                            case .connection:
+                                connectionPane
+                            case .menubar:
+                                menubarPane
+                            case .notifications:
+                                notificationsPane
+                            case .advanced:
+                                advancedPane
+                            case .about:
+                                aboutPane
+                            }
                         }
                     }
                     .padding(24)
                 }
             }
             .frame(minWidth: 500, maxWidth: .infinity, minHeight: 480, maxHeight: .infinity)
-            .background(Color(NSColor.windowBackgroundColor))
+            .background(.regularMaterial)
         }
     }
 
@@ -228,7 +230,7 @@ public struct SettingsWindowView: View {
                 Button(isEn ? "Open WebUI" : "打开 WebUI") {
                     viewModel.openWebUI()
                 }
-                .buttonStyle(.bordered)
+                .adaptiveGlassButton(prominent: false)
             }
         }
     }
@@ -322,7 +324,7 @@ public struct SettingsWindowView: View {
                     Button("测试连接") {
                         runTestConnection()
                     }
-                    .buttonStyle(.borderedProminent)
+                    .adaptiveGlassButton(prominent: true)
                     .disabled(testState == .testing)
                 }
             }
@@ -573,7 +575,7 @@ public struct SettingsWindowView: View {
                 Button("恢复默认") {
                     viewModel.config = .defaultConfig
                 }
-                .buttonStyle(.bordered)
+                .adaptiveGlassButton(prominent: false)
             }
         }
     }
@@ -595,7 +597,7 @@ public struct SettingsWindowView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("QBMenubar")
                             .font(.system(size: 16, weight: .bold))
-                        Text("版本 1.0.0 (原生 Swift 6 + Liquid Glass)")
+                        Text(isEn ? "Version 1.1.0 (Native Swift 6 + Liquid Glass)" : "版本 1.1.0 (原生 Swift 6 + Liquid Glass)")
                             .font(.system(size: 11))
                             .foregroundStyle(.secondary)
                     }
@@ -605,7 +607,7 @@ public struct SettingsWindowView: View {
                     Button("打开 WebUI") {
                         viewModel.openWebUI()
                     }
-                    .buttonStyle(.bordered)
+                    .adaptiveGlassButton(prominent: false)
                 }
             }
             .padding(.vertical, 6)
@@ -675,14 +677,7 @@ struct SettingsGroup<Content: View>: View {
             VStack(spacing: 0) {
                 content
             }
-            .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color(NSColor.controlBackgroundColor))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
-            )
+            .glassCard(cornerRadius: 10, padding: 0, isInteractive: false)
         }
     }
 }

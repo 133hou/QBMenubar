@@ -29,6 +29,8 @@ public final class SettingsWindowController: NSObject, NSWindowDelegate {
         newWindow.titlebarAppearsTransparent = true
         newWindow.toolbar = nil
         newWindow.isReleasedWhenClosed = false
+        newWindow.isOpaque = false
+        newWindow.backgroundColor = .clear
         newWindow.contentView = hostingView
         newWindow.minSize = NSSize(width: 720, height: 480)
         newWindow.center()

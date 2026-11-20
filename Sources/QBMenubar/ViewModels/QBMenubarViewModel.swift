@@ -349,17 +349,23 @@ public final class QBMenubarViewModel {
 
     public func openInFinder(path: String?) {
         guard let path = path, !path.isEmpty else { return }
-        if FileManager.default.fileExists(atPath: path) {
-            NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: path)
-        } else {
-            showBanner("本地路径不存在或为远程服务器路径")
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            if FileManager.default.fileExists(atPath: path) {
+                NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: path)
+            } else {
+                Task { @MainActor in
+                    self?.showBanner("本地路径不存在或为远程服务器路径")
+                }
+            }
         }
     }
 
     public func openWebUI() {
-        if let url = URL(string: config.normalizedBaseURL) {
-            NSWorkspace.shared.open(url)
-        }
+        guard let url = URL(string: config.normalizedBaseURL) else { return }
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = true
+        // Use non-blocking asynchronous LaunchServices API to eliminate main-thread UI hitching
+        NSWorkspace.shared.open(url, configuration: configuration) { _, _ in }
     }
 
     // MARK: - Add Torrent Dialog

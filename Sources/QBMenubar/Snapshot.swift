@@ -117,13 +117,43 @@ public struct SnapshotGenerator {
             .frame(width: 780, height: 560)
         saveView(settingsView, width: 780, height: 560, to: "\(outputDir)/preview_settings.png")
         
-        // 3. Snapshot PopoverContentView
-        let popoverView = PopoverContentView(viewModel: viewModel)
-            .frame(width: 380, height: 550)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .shadow(color: .black.opacity(0.3), radius: 10, y: 5)
-            .padding(10)
-        saveView(popoverView, width: 400, height: 570, to: "\(outputDir)/preview_popover.png")
+        // 3. Snapshot PopoverContentView over macOS ambient backdrop to showcase Liquid Glass refraction
+        let popoverPresentation = ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.08, green: 0.11, blue: 0.16),
+                    Color(red: 0.12, green: 0.15, blue: 0.22),
+                    Color(red: 0.06, green: 0.08, blue: 0.12)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .overlay {
+                Circle()
+                    .fill(Color.blue.opacity(0.28))
+                    .frame(width: 300, height: 300)
+                    .blur(radius: 70)
+                    .offset(x: -90, y: -120)
+
+                Circle()
+                    .fill(Color.teal.opacity(0.22))
+                    .frame(width: 260, height: 260)
+                    .blur(radius: 60)
+                    .offset(x: 90, y: 140)
+            }
+
+            PopoverContentView(viewModel: viewModel)
+                .frame(width: 380, height: 550)
+                .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 13, style: .continuous)
+                        .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.5), radius: 22, x: 0, y: 12)
+        }
+        .frame(width: 440, height: 610)
+        
+        saveView(popoverPresentation, width: 440, height: 610, to: "\(outputDir)/preview_popover.png")
     }
     
     private static func saveView<V: View>(_ view: V, width: CGFloat, height: CGFloat, to path: String) {

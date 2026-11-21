@@ -60,6 +60,7 @@ public struct SettingsWindowView: View {
     @State private var hoveredCategory: SettingsCategory? = nil
     @State private var searchText: String = ""
     @State private var testState: TestStatus = .idle
+    @Namespace private var sidebarLensNamespace
 
     private var lang: AppLanguage { viewModel.config.language }
     private var isEn: Bool { !lang.isChinese }
@@ -103,6 +104,7 @@ public struct SettingsWindowView: View {
                 ScrollView {
                     VStack(spacing: 3) {
                         ForEach(SettingsCategory.allCases) { category in
+                            let isSelected = selectedCategory == category
                             Button {
                                 withAnimation(AppMotion.selection) {
                                     selectedCategory = category
@@ -111,25 +113,39 @@ public struct SettingsWindowView: View {
                                 HStack(spacing: 10) {
                                     LiquidGlassCategoryBadge(
                                         category: category,
-                                        isSelected: selectedCategory == category
+                                        isSelected: isSelected
                                     )
 
                                     Text(category.localizedTitle(lang: lang))
-                                        .font(.system(size: 13, weight: selectedCategory == category ? .medium : .regular))
-                                        .foregroundStyle(selectedCategory == category ? Color.white : Color.primary)
+                                        .font(.system(size: 13, weight: isSelected ? .semibold : .regular))
+                                        .foregroundStyle(
+                                            isSelected
+                                                ? (viewModel.config.sidebarSelectionStyle == .liquidGlass ? Color.accentColor : Color.white)
+                                                : Color.primary
+                                        )
 
                                     Spacer()
                                 }
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 6)
                                 .contentShape(Rectangle())
-                                .background(
-                                    LiquidGlassSidebarSelection(
-                                        isSelected: selectedCategory == category,
-                                        isHovered: hoveredCategory == category,
-                                        style: viewModel.config.sidebarSelectionStyle
-                                    )
-                                )
+                                .background {
+                                    if isSelected {
+                                        LiquidGlassSidebarSelection(
+                                            isSelected: true,
+                                            isHovered: false,
+                                            style: viewModel.config.sidebarSelectionStyle
+                                        )
+                                        .matchedGeometryEffect(id: "sidebarSelectionLens", in: sidebarLensNamespace)
+                                    } else if hoveredCategory == category {
+                                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                            .fill(Color.primary.opacity(0.06))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                                    .strokeBorder(Color.white.opacity(0.08), lineWidth: 0.5)
+                                            )
+                                    }
+                                }
                             }
                             .buttonStyle(.plain)
                             .onHover { isHovered in
@@ -1129,36 +1145,62 @@ public struct LiquidGlassSidebarSelection: View {
             if isSelected {
                 switch style {
                 case .liquidGlass:
+                    // Authentic Clear Optical Liquid Glass Lens with Meniscus Refraction & Chromatic Dispersion
                     ZStack {
-                        // 1. Frosted Material Base (on macOS 26+, native glassEffect; fallback: ultraThinMaterial)
+                        // 1. Crystal Clear Glass Base
                         if #available(macOS 26.0, *) {
                             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .fill(Color.accentColor.opacity(0.18))
-                                .glassEffect(.regular.tint(Color.accentColor).interactive(), in: .rect(cornerRadius: 8))
+                                .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 8))
                         } else {
                             RoundedRectangle(cornerRadius: 8, style: .continuous)
                                 .fill(.ultraThinMaterial)
                         }
 
-                        // 2. Liquid Glass Tint Gradient (deep vibrant accent)
+                        // Subtle transparent glass illumination
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color.accentColor.opacity(0.85),
-                                        Color.accentColor.opacity(0.65)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
+                            .fill(Color.white.opacity(0.12))
 
-                        // 3. Upper Specular Gloss Reflection (simulating glass curvature)
+                        // 2. Optical Meniscus Refraction Shadows (Curved top & bottom internal refraction lips)
+                        VStack(spacing: 0) {
+                            Capsule()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            Color.black.opacity(0.22),
+                                            Color.black.opacity(0.06),
+                                            Color.clear
+                                        ],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                )
+                                .frame(height: 7)
+                                .padding(.horizontal, 6)
+
+                            Spacer()
+
+                            Capsule()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            Color.clear,
+                                            Color.black.opacity(0.06),
+                                            Color.black.opacity(0.24)
+                                        ],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                )
+                                .frame(height: 7)
+                                .padding(.horizontal, 6)
+                        }
+
+                        // 3. Upper Specular Meniscus Curvature Highlight
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
                             .fill(
                                 LinearGradient(
                                     colors: [
-                                        Color.white.opacity(0.38),
+                                        Color.white.opacity(0.40),
                                         Color.white.opacity(0.0)
                                     ],
                                     startPoint: .top,
@@ -1166,23 +1208,25 @@ public struct LiquidGlassSidebarSelection: View {
                                 )
                             )
 
-                        // 4. Specular Highlight Rim Border
+                        // 4. Prismatic Chromatic Dispersion & Specular Rim Border
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
                             .strokeBorder(
                                 LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(0.75),
-                                        Color.white.opacity(0.22),
-                                        Color.white.opacity(0.06),
-                                        Color.white.opacity(0.32)
+                                    stops: [
+                                        .init(color: Color(red: 1.0, green: 0.85, blue: 0.70).opacity(0.45), location: 0.0),
+                                        .init(color: Color.white.opacity(0.95), location: 0.20),
+                                        .init(color: Color(red: 0.55, green: 0.90, blue: 1.0).opacity(0.50), location: 0.50),
+                                        .init(color: Color(red: 0.90, green: 0.65, blue: 1.0).opacity(0.40), location: 0.80),
+                                        .init(color: Color.white.opacity(0.70), location: 1.0)
                                     ],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 ),
-                                lineWidth: 0.75
+                                lineWidth: 0.85
                             )
                     }
-                    .shadow(color: Color.accentColor.opacity(0.40), radius: 6, x: 0, y: 2)
+                    .shadow(color: Color.black.opacity(0.16), radius: 5, x: 0, y: 2)
+                    .shadow(color: Color.accentColor.opacity(0.12), radius: 8, x: 0, y: 3)
 
                 case .classic:
                     // Original Solid Accent Color Fill (100% preserved)

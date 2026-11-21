@@ -51,6 +51,10 @@
   <img src="docs/images/preview_settings.png" alt="Fenêtre de réglages style Réglages Système macOS" width="480" />
 </p>
 
+<p align="center">
+  <img src="docs/images/preview_widgets_showcase.png" alt="Widgets Bureau & Centre de notifications macOS de QBMenubar" width="650" />
+</p>
+
 ---
 
 ## 📊 Tableau comparatif : Pourquoi choisir QBMenubar ?
@@ -64,7 +68,38 @@
 | **CPU au repos** | 🟢 **< 0,1 %** | 🟡 1% - 5% | 🟡 1% - 3% | 🟡 1% - 2% |
 | **Accès NAS & Docker distant** | ✅ LAN, NAS & HTTPS | ✅ | ❌ Local uniquement | ⚠️ Prise en charge limitée |
 | **Arborescence de fichiers extensible** | ✅ Cartes interactives | ⚠️ Tableau lourd | ⚠️ Tableau compact | ❌ |
+| **Widgets Bureau & Centre de notifications (WidgetKit)** | ✅ Petit, Moyen & Grand | ❌ | ❌ | ❌ |
 | **Notifications natives macOS** | ✅ Fin de téléchargement | ⚠️ Permission navigateur | ⚠️ Ancienne alerte | ❌ |
+
+---
+
+## ✨ Fonctionnalités clés
+
+1. **Surveillance en temps réel en barre des menus** :
+   - Vitesses de téléchargement et de téléversement en direct avec glyphes dynamiques (`↓` / `↑`).
+   - Pourcentage de progression épinglé (badge capsule monochrome élégant).
+   - Ajustement dynamique de la largeur du texte pour éviter toute troncature.
+2. **Panneau popover Liquid Glass** :
+   - Véritable matériau Liquid Glass translucide de macOS avec bordures biseautées.
+   - Onde de trafic fluide en temps réel propulsée par Swift Charts.
+   - Barre d'actions rapides : Tout suspendre, Tout reprendre, Vitesse alternative (🐢 mode tortue), Ouvrir la WebUI.
+   - Onglets de filtrage : Tous, Téléchargement, Partage, Suspendus.
+   - **➕ Ajouter un torrent local** : Aperçu préalable des fichiers et sélection du dossier de destination.
+   - **📋 Détection de liens** : Reconnaissance instantanée des liens `magnet:` et URLs copiés.
+3. **Cartes de torrents interactives** :
+   - Métriques détaillées : barres de progression, temps restant (ETA), tailles, débits en direct.
+   - Explorateur de fichiers : Dépliez l'arborescence avec icônes de formats et progression individuelle.
+   - Menu contextuel : Révéler dans le Finder, forcer la revérification, supprimer (avec ou sans fichiers).
+4. **Réglages style macOS** :
+   - Vue fixe à deux volets sans panneau rétractable.
+   - Localisation intégrale en 9 langues (Français, Anglais, Chinois, Japonais, Coréen, Allemand, Espagnol, Russe).
+   - Testeur de connectivité intégré pour vérifier le ping et la version du serveur qBittorrent.
+5. **Widgets Bureau & Centre de notifications macOS (WidgetKit)** :
+   - **Petit widget (`.systemSmall`)** : Aperçu du téléchargement le plus actif avec barre de progression, vitesse en direct et temps restant (ETA).
+   - **Moyen widget (`.systemMedium`)** : Disposition à deux volets affichant la bande passante globale à gauche et la liste des tâches actives à droite.
+   - **Grand widget (`.systemLarge`)** : Tableau de bord complet avec résumé des vitesses, liste des torrents, badges d'état et ouverture directe dans QBMenubar.
+   - **Stockage partagé App Group sans impact** : Synchronisation fluide et légère entre le démon de la barre des menus et les widgets macOS.
+   - Prise en charge native des modes Couleur, Sombre et Teinté/Accentuation (`widgetAccentable`).
 
 ---
 

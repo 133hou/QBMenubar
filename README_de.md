@@ -51,6 +51,10 @@
   <img src="docs/images/preview_settings.png" alt="QBMenubar macOS Einstellungen-Fenster" width="480" />
 </p>
 
+<p align="center">
+  <img src="docs/images/preview_widgets_showcase.png" alt="QBMenubar macOS Schreibtisch- & Mitteilungszentrale-Widgets" width="650" />
+</p>
+
 ---
 
 ## 📊 Funktionsvergleich: Warum QBMenubar?
@@ -64,7 +68,38 @@
 | **CPU im Leerlauf** | 🟢 **< 0,1%** | 🟡 1% - 5% | 🟡 1% - 3% | 🟡 1% - 2% |
 | **NAS & Docker Remote** | ✅ LAN, NAS & HTTPS Proxy | ✅ | ❌ Nur lokaler Daemon | ⚠️ Begrenzt |
 | **Dateibaum-Vorschau** | ✅ Aufklappbare Karten | ⚠️ Mehrfaches Klicken | ⚠️ Unübersichtliche Tabelle | ❌ |
+| **Schreibtisch- & Mitteilungszentrale-Widgets (WidgetKit)** | ✅ Klein, Mittel & Groß | ❌ | ❌ | ❌ |
 | **macOS Native Benachrichtigungen** | ✅ Download abgeschlossen | ⚠️ Browser-Rechte nötig | ⚠️ Veralteter Dialog | ❌ |
+
+---
+
+## ✨ Funktionen im Überblick
+
+1. **Menüleisten-Echtzeitüberwachung**:
+   - Live-Upload- und Download-Raten mit dynamischen Richtungspfeilen (`↓` / `↑`).
+   - Angehefteter Fortschrittsprozentsatz (dezentes monochromes Kapsel-Badge).
+   - Dynamische Breitenanpassung verhindert abgeschnittenen Text in der Statusleiste.
+2. **Liquid Glass Popover-Panel**:
+   - Echtes halbtransparentes Liquid Glass-Material von macOS mit feinen Lichtkanten.
+   - Weiche Bandbreiten-Wellenform in Echtzeit (unterstützt von Swift Charts).
+   - Schnellaktionen: Alle anhalten, Alle fortsetzen, Alternative Geschwindigkeitsgrenzen (🐢 Schildkrötenmodus), WebUI im Browser öffnen.
+   - Filter-Tabs: Alle, Lädt herunter, Seeding, Angehalten.
+   - **➕ Lokalen Torrent hinzufügen**: Dateiinhalt vorab einsehen und Zielordner frei wählen.
+   - **📋 Smarte Zwischenablage**: Automatische Erkennung beim Kopieren von `magnet:`- oder Torrent-Links.
+3. **Interaktive Torrent-Karten**:
+   - Wichtige Kennzahlen: Fortschrittsbalken, Restzeit (ETA), Dateigröße, Geschwindigkeiten.
+   - Datei-Explorer: Aufklappbare Ordnerstruktur mit individuellen Dateisymbolen und Prozentanzeigen.
+   - Kontextmenü: Im Finder anzeigen, Datenintegrität neu prüfen, Löschen (optional mit Dateien).
+4. **macOS Systemeinstellungen-Stil**:
+   - Feste zweispaltige Ansicht ohne störende einklappbare Seitenleiste.
+   - Vollständige Lokalisierung in 9 Sprachen (Deutsch, Englisch, Chinesisch, Japanisch, Koreanisch, Französisch, Spanisch, Russisch).
+   - Integrierter Verbindungstest zur Überprüfung von Latenz (Ping) und qBittorrent-Serverversion.
+5. **macOS Schreibtisch- & Mitteilungszentrale-Widgets (WidgetKit)**:
+   - **Kleines Widget (`.systemSmall`)**: Schnelle Übersicht über den aktivsten Download mit Fortschrittsbalken, Live-Geschwindigkeit und Restzeit (ETA).
+   - **Mittleres Widget (`.systemMedium`)**: Zweispaltiges Layout mit Gesamtdatenrate links und Aufgabenliste rechts.
+   - **Großes Widget (`.systemLarge`)**: Vollständiges Dashboard mit Bandbreiten-Karten, Aufgabenliste, Status-Badges und Direkt-Link zu QBMenubar.
+   - **Zero-Overhead App Group-Speicher**: Nahtlose, ressourcenschonende Synchronisierung zwischen Hintergrunddienst und macOS-Widgets.
+   - Volle Unterstützung für macOS Vollfarbe, Dark Mode sowie Akzent- & Tönungsmodi (`widgetAccentable`).
 
 ---
 

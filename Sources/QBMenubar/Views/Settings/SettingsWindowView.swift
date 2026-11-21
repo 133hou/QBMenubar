@@ -516,7 +516,7 @@ public struct SettingsWindowView: View {
 
     @ViewBuilder
     private var widgetsPane: some View {
-        // Group 1: Desktop Widget Synchronization Switch
+        // Group 1: Desktop Widget Synchronization & Permissions
         SettingsGroup(title: L10n.widgets(lang)) {
             SettingsRow(
                 title: L10n.enableWidgetSync(lang),
@@ -537,64 +537,53 @@ public struct SettingsWindowView: View {
                 ))
                 .toggleStyle(.switch)
             }
-        }
 
-        // Group 2: Cross-Process Shared Data & Privacy Permission
-        SettingsGroup(title: L10n.widgetPermissionSection(lang)) {
-            VStack(alignment: .leading, spacing: 14) {
-                // Status banner
-                HStack(spacing: 8) {
+            SettingsDivider()
+
+            SettingsRow(
+                title: isEn ? "Permission Status" : "系统权限状态",
+                subtitle: isEn ? "macOS App Group cross-process sharing status" : "macOS App Group 跨进程数据共享状态"
+            ) {
+                HStack(spacing: 6) {
                     if !viewModel.config.enableWidgetSync {
-                        Image(systemName: "pause.circle.fill")
-                            .foregroundStyle(.secondary)
+                        Circle().fill(Color.secondary).frame(width: 7, height: 7)
                         Text(L10n.widgetPermissionDisabled(lang))
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(.system(size: 11, weight: .medium))
                             .foregroundStyle(.secondary)
                     } else if WidgetDataManager.checkGroupContainerPermission() {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
+                        Circle().fill(Color.green).frame(width: 7, height: 7)
                         Text(L10n.widgetPermissionGranted(lang))
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(.system(size: 11, weight: .medium))
                             .foregroundStyle(.green)
                     } else {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
+                        Circle().fill(Color.orange).frame(width: 7, height: 7)
                         Text(L10n.widgetPermissionBlocked(lang))
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(.system(size: 11, weight: .medium))
                             .foregroundStyle(.orange)
                     }
-                    Spacer()
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
+            }
+
+            SettingsDivider()
+
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 6) {
+                    Image(systemName: "checkmark.shield.fill")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.blue)
+                    Text(L10n.widgetPrivacyPromise(lang))
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(.primary.opacity(0.85))
+                }
+                .padding(.horizontal, 9)
+                .padding(.vertical, 6)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .fill(Color.primary.opacity(0.05))
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(Color.blue.opacity(0.08))
                 )
 
-                // Detailed explanation
-                Text(L10n.widgetPermissionDesc(lang))
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-                    .lineSpacing(3)
-
-                Text(L10n.widgetPrivacyPromise(lang))
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.primary.opacity(0.85))
-                    .padding(8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .fill(Color.blue.opacity(0.08))
-                    )
-
-                Divider()
-
-                // Troubleshooting & Action Buttons
-                Text(L10n.widgetHowToFix(lang))
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.secondary)
-
-                HStack(spacing: 8) {
+                HStack(spacing: 10) {
                     Button {
                         WidgetDataManager.triggerPermissionPrompt()
                         viewModel.updateWidgetSnapshot()
@@ -603,50 +592,45 @@ public struct SettingsWindowView: View {
                             Image(systemName: "arrow.triangle.2.circlepath")
                             Text(L10n.retriggerPermissionBtn(lang))
                         }
+                        .font(.system(size: 11, weight: .medium))
                     }
                     .adaptiveGlassButton(prominent: true)
-
-                    Button {
-                        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_FilesAndFolders") {
-                            NSWorkspace.shared.open(url)
-                        }
-                    } label: {
-                        Text(L10n.openFilesAndFoldersBtn(lang))
-                    }
-                    .adaptiveGlassButton(prominent: false)
 
                     Button {
                         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") {
                             NSWorkspace.shared.open(url)
                         }
                     } label: {
-                        Text(L10n.openFullDiskAccessBtn(lang))
+                        HStack(spacing: 4) {
+                            Image(systemName: "lock.shield")
+                            Text(L10n.openFullDiskAccessBtn(lang))
+                        }
+                        .font(.system(size: 11))
                     }
                     .adaptiveGlassButton(prominent: false)
                 }
 
                 Text(L10n.terminalResetHint(lang))
-                    .font(.system(size: 10, design: .monospaced))
+                    .font(.system(size: 9, design: .monospaced))
                     .foregroundStyle(.tertiary)
                     .textSelection(.enabled)
             }
-            .padding(.vertical, 4)
+            .padding(.top, 2)
         }
 
-        // Group 3: Widget Sizes & Information
+        // Group 2: Widget Sizes & Information
         SettingsGroup(title: isEn ? "Widget Types & Instructions" : "小组件规格与添加方式") {
             VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 12) {
+                HStack(spacing: 10) {
                     WidgetTypeBadge(title: "Small", desc: isEn ? "Single Task & Speeds" : "焦点任务与速率", icon: "square")
-                    WidgetTypeBadge(title: "Medium", desc: isEn ? "3 Tasks & Speeds" : "多任务列表与统计", icon: "rectangle")
-                    WidgetTypeBadge(title: "Large", desc: isEn ? "6 Tasks & Overview" : "全任务面板与双环进度", icon: "square.fill")
+                    WidgetTypeBadge(title: "Medium", desc: isEn ? "3 Tasks & Speeds" : "多任务列表与带宽", icon: "rectangle")
+                    WidgetTypeBadge(title: "Large", desc: isEn ? "Dashboard" : "全功能看板", icon: "square.fill")
                 }
-                .padding(.vertical, 4)
 
                 Text(isEn
-                    ? "To add widgets: Right-click your macOS desktop or open Notification Center, click 'Edit Widgets', and select QBMenubar."
-                    : "如何添加小组件：在 macOS 桌面空白处右键点击「编辑小组件」（或打开通知中心底部点击「编辑小组件」），在小组件图库中搜索「QBMenubar」并拖拽至桌面。")
-                    .font(.system(size: 11))
+                    ? "Right-click your macOS desktop or open Notification Center, click 'Edit Widgets', and select QBMenubar."
+                    : "在桌面空白处右键点击「编辑小组件」（或在通知中心底部点击），搜索「QBMenubar」即可添加。")
+                    .font(.system(size: 10.5))
                     .foregroundStyle(.secondary)
             }
         }

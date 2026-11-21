@@ -263,7 +263,7 @@ public struct SnapshotGenerator {
             }
 
             SettingsWindowView(viewModel: viewModel, initialCategory: .widgets)
-                .frame(width: 780, height: 560)
+                .frame(width: 780, height: 580)
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -271,9 +271,9 @@ public struct SnapshotGenerator {
                 )
                 .shadow(color: .black.opacity(0.55), radius: 26, x: 0, y: 14)
         }
-        .frame(width: 840, height: 620)
+        .frame(width: 840, height: 640)
 
-        saveView(widgetsPresentation, width: 840, height: 620, to: "\(outputDir)/preview_settings_widgets.png")
+        saveView(widgetsPresentation, width: 840, height: 640, to: "\(outputDir)/preview_settings_widgets.png")
 
         // 3. Snapshot SettingsWindowView (About Pane showing AppHeroIconView squircle)
         let aboutPresentation = ZStack {
@@ -313,7 +313,9 @@ public struct SnapshotGenerator {
 
         saveView(aboutPresentation, width: 840, height: 620, to: "\(outputDir)/preview_about.png")
         
-        // 3. Snapshot PopoverContentView over macOS ambient backdrop to showcase Liquid Glass refraction
+        // 3. Snapshot PopoverContentView anchored under macOS Menu Bar Item
+        viewModel.torrents = [mockTorrent1, mockTorrent2, mockTorrent3]
+
         let popoverPresentation = ZStack {
             LinearGradient(
                 colors: [
@@ -326,30 +328,83 @@ public struct SnapshotGenerator {
             )
             .overlay {
                 Circle()
-                    .fill(Color.blue.opacity(0.28))
-                    .frame(width: 300, height: 300)
+                    .fill(Color.blue.opacity(0.32))
+                    .frame(width: 320, height: 320)
                     .blur(radius: 70)
-                    .offset(x: -90, y: -120)
+                    .offset(x: -80, y: -120)
 
                 Circle()
-                    .fill(Color.teal.opacity(0.22))
-                    .frame(width: 260, height: 260)
+                    .fill(Color.teal.opacity(0.24))
+                    .frame(width: 280, height: 280)
                     .blur(radius: 60)
-                    .offset(x: 90, y: 140)
+                    .offset(x: 80, y: 140)
             }
 
-            PopoverContentView(viewModel: viewModel)
-                .frame(width: 380, height: 550)
-                .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+            VStack(spacing: 8) {
+                // macOS Menu Bar Anchor Strip
+                HStack(spacing: 12) {
+                    HStack(spacing: 10) {
+                        Text("")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(.white)
+                        Text("qBittorrent")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+
+                    Spacer()
+
+                    // Active Menu Bar Item (Blue selection highlight)
+                    HStack(spacing: 5) {
+                        Image(systemName: "arrow.down")
+                            .font(.system(size: 9.5, weight: .bold))
+                            .foregroundStyle(.white)
+                        Text("12.0 MB/s")
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .foregroundStyle(.white)
+                        Text("85%")
+                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.9))
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        RoundedRectangle(cornerRadius: 5, style: .continuous)
+                            .fill(Color.accentColor)
+                    )
+
+                    HStack(spacing: 8) {
+                        Image(systemName: "wifi")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.white.opacity(0.8))
+                        Image(systemName: "battery.100")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.white.opacity(0.8))
+                    }
+                }
+                .padding(.horizontal, 14)
+                .frame(width: 388, height: 32)
+                .background(.ultraThinMaterial.opacity(0.85))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 13, style: .continuous)
-                        .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .strokeBorder(Color.white.opacity(0.12), lineWidth: 0.5)
                 )
-                .shadow(color: .black.opacity(0.5), radius: 22, x: 0, y: 12)
+
+                // Popover View
+                PopoverContentView(viewModel: viewModel)
+                    .frame(width: 388, height: 575)
+                    .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 13, style: .continuous)
+                            .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.5), radius: 24, x: 0, y: 14)
+            }
         }
-        .frame(width: 440, height: 610)
+        .frame(width: 450, height: 680)
         
-        saveView(popoverPresentation, width: 440, height: 610, to: "\(outputDir)/preview_popover.png")
+        saveView(popoverPresentation, width: 450, height: 640, to: "\(outputDir)/preview_popover.png")
 
         // 5. Snapshot 1280x640 GitHub Social Preview & OpenGraph Banner
         let socialPresentation = ZStack {

@@ -473,15 +473,15 @@ public struct L10n {
     }
 
     public static func retriggerPermissionBtn(_ lang: AppLanguage) -> String {
-        tr(lang, zhHans: "重新触发系统权限弹窗", zhHant: "重新觸發系統權限彈窗", en: "Re-trigger Permission Prompt")
+        tr(lang, zhHans: "重新申请权限", zhHant: "重新申請權限", en: "Re-trigger Permission")
     }
 
     public static func openFilesAndFoldersBtn(_ lang: AppLanguage) -> String {
-        tr(lang, zhHans: "打开「文件与文件夹」设置", zhHant: "開啟「檔案與資料夾」設定", en: "Open Files & Folders Settings")
+        tr(lang, zhHans: "打开「文件与文件夹」", zhHant: "開啟「檔案與資料夾」", en: "Open Files & Folders")
     }
 
     public static func openFullDiskAccessBtn(_ lang: AppLanguage) -> String {
-        tr(lang, zhHans: "打开「完全磁盘访问」设置", zhHant: "開啟「全能磁碟存取」設定", en: "Open Full Disk Access Settings")
+        tr(lang, zhHans: "完全磁盘访问设置", zhHant: "全能磁碟存取設定", en: "Full Disk Access Settings")
     }
 
     public static func terminalResetHint(_ lang: AppLanguage) -> String {

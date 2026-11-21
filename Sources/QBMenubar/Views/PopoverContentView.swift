@@ -22,59 +22,54 @@ public struct PopoverContentView: View {
 
                     if case .connected(let ping) = viewModel.connectionState {
                         Text("\(ping)ms")
-                            .font(.system(size: 9, design: .rounded))
+                            .font(.system(size: 9.5, weight: .medium, design: .rounded))
                             .foregroundStyle(.secondary)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 1)
+                            .background(Capsule().fill(Color.primary.opacity(0.06)))
                     }
                 }
 
                 Spacer()
 
                 // Actions: Add Torrent (+) / Paste from Clipboard / Settings / Refresh
-                HStack(spacing: 7) {
-                    Button {
+                HStack(spacing: 5) {
+                    PopoverHeaderIconButton(
+                        icon: "plus",
+                        color: .accentColor,
+                        tooltip: L10n.addTorrentFileTooltip(lang)
+                    ) {
                         viewModel.showAddTorrentDialog()
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(.tint)
                     }
-                    .buttonStyle(.plain)
-                    .help(L10n.addTorrentFileTooltip(lang))
 
-                    Button {
+                    PopoverHeaderIconButton(
+                        icon: "doc.on.clipboard",
+                        color: .accentColor,
+                        tooltip: L10n.addClipboardTooltip(lang)
+                    ) {
                         viewModel.addFromClipboard()
-                    } label: {
-                        Image(systemName: "doc.on.clipboard")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundStyle(.tint)
                     }
-                    .buttonStyle(.plain)
-                    .help(L10n.addClipboardTooltip(lang))
 
-                    Button {
+                    PopoverHeaderIconButton(
+                        icon: "gearshape",
+                        color: .secondary,
+                        tooltip: L10n.preferencesTooltip(lang)
+                    ) {
                         SettingsWindowController.shared.show(viewModel: viewModel)
-                    } label: {
-                        Image(systemName: "gearshape")
-                            .font(.system(size: 13))
-                            .foregroundStyle(.secondary)
                     }
-                    .buttonStyle(.plain)
-                    .help(L10n.preferencesTooltip(lang))
 
-                    Button {
+                    PopoverHeaderIconButton(
+                        icon: "arrow.clockwise",
+                        color: .secondary,
+                        tooltip: L10n.refreshTooltip(lang)
+                    ) {
                         Task { await viewModel.refresh() }
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
-                            .font(.system(size: 12))
-                            .foregroundStyle(.secondary)
                     }
-                    .buttonStyle(.plain)
-                    .help(L10n.refreshTooltip(lang))
                 }
             }
             .padding(.horizontal, 14)
-            .padding(.top, 12)
-            .padding(.bottom, 8)
+            .padding(.top, 14)
+            .padding(.bottom, 10)
 
             // Banner notification toast (if any)
             if let banner = viewModel.bannerMessage {
@@ -387,5 +382,27 @@ private struct QuickActionButton: View {
             }
             .buttonStyle(.plain)
         }
+    }
+}
+
+private struct PopoverHeaderIconButton: View {
+    let icon: String
+    let color: Color
+    let tooltip: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.system(size: 11.5, weight: .semibold))
+                .foregroundStyle(color)
+                .frame(width: 24, height: 24)
+                .background(
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(Color.primary.opacity(0.06))
+                )
+        }
+        .buttonStyle(.plain)
+        .help(tooltip)
     }
 }

@@ -1,9 +1,11 @@
 import SwiftUI
+import QBMenubarShared
 
 public enum SettingsCategory: String, CaseIterable, Identifiable {
     case general = "通用"
     case connection = "WebUI 连接"
     case menubar = "菜单栏"
+    case widgets = "小组件"
     case notifications = "通知"
     case advanced = "高级"
     case about = "关于"
@@ -15,6 +17,7 @@ public enum SettingsCategory: String, CaseIterable, Identifiable {
         case .general: return L10n.general(lang)
         case .connection: return L10n.webUIConnection(lang)
         case .menubar: return L10n.menuBar(lang)
+        case .widgets: return L10n.widgets(lang)
         case .notifications: return L10n.notifications(lang)
         case .advanced: return L10n.advanced(lang)
         case .about: return L10n.about(lang)
@@ -30,6 +33,7 @@ public enum SettingsCategory: String, CaseIterable, Identifiable {
         case .general: return "gearshape.fill"
         case .connection: return "network"
         case .menubar: return "menubar.rectangle"
+        case .widgets: return "square.grid.2x2.fill"
         case .notifications: return "bell.fill"
         case .advanced: return "slider.horizontal.3"
         case .about: return "info.circle.fill"
@@ -41,6 +45,7 @@ public enum SettingsCategory: String, CaseIterable, Identifiable {
         case .general: return Color(red: 0.16, green: 0.52, blue: 0.98) // Azure Blue
         case .connection: return Color(red: 0.08, green: 0.72, blue: 0.88) // Vivid Aqua Cyan
         case .menubar: return Color(red: 0.40, green: 0.40, blue: 0.96) // Deep Indigo Glass
+        case .widgets: return Color(red: 0.18, green: 0.78, blue: 0.45) // Vivid Emerald Green
         case .notifications: return Color(red: 1.00, green: 0.28, blue: 0.28) // Vivid Ruby Red
         case .advanced: return Color(red: 0.72, green: 0.30, blue: 0.96) // Vivid Amethyst Purple
         case .about: return Color(red: 0.55, green: 0.58, blue: 0.65) // Frosted Titanium
@@ -199,6 +204,8 @@ public struct SettingsWindowView: View {
                                 connectionPane
                             case .menubar:
                                 menubarPane
+                            case .widgets:
+                                widgetsPane
                             case .notifications:
                                 notificationsPane
                             case .advanced:
@@ -503,6 +510,144 @@ public struct SettingsWindowView: View {
                     items: ArrowTheme.allCases.map { ($0, $0.localizedTitle(lang: lang)) },
                     width: 210
                 )
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var widgetsPane: some View {
+        // Group 1: Desktop Widget Synchronization Switch
+        SettingsGroup(title: L10n.widgets(lang)) {
+            SettingsRow(
+                title: L10n.enableWidgetSync(lang),
+                subtitle: L10n.enableWidgetSyncSubtitle(lang)
+            ) {
+                Toggle("", isOn: Binding(
+                    get: { viewModel.config.enableWidgetSync },
+                    set: { newValue in
+                        viewModel.config.enableWidgetSync = newValue
+                        viewModel.config.save()
+                        if newValue {
+                            if !WidgetDataManager.checkGroupContainerPermission() {
+                                WidgetDataManager.triggerPermissionPrompt()
+                            }
+                        }
+                        viewModel.updateWidgetSnapshot()
+                    }
+                ))
+                .toggleStyle(.switch)
+            }
+        }
+
+        // Group 2: Cross-Process Shared Data & Privacy Permission
+        SettingsGroup(title: L10n.widgetPermissionSection(lang)) {
+            VStack(alignment: .leading, spacing: 14) {
+                // Status banner
+                HStack(spacing: 8) {
+                    if !viewModel.config.enableWidgetSync {
+                        Image(systemName: "pause.circle.fill")
+                            .foregroundStyle(.secondary)
+                        Text(L10n.widgetPermissionDisabled(lang))
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                    } else if WidgetDataManager.checkGroupContainerPermission() {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                        Text(L10n.widgetPermissionGranted(lang))
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(.green)
+                    } else {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                        Text(L10n.widgetPermissionBlocked(lang))
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(.orange)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(Color.primary.opacity(0.05))
+                )
+
+                // Detailed explanation
+                Text(L10n.widgetPermissionDesc(lang))
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .lineSpacing(3)
+
+                Text(L10n.widgetPrivacyPromise(lang))
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.primary.opacity(0.85))
+                    .padding(8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .fill(Color.blue.opacity(0.08))
+                    )
+
+                Divider()
+
+                // Troubleshooting & Action Buttons
+                Text(L10n.widgetHowToFix(lang))
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.secondary)
+
+                HStack(spacing: 8) {
+                    Button {
+                        WidgetDataManager.triggerPermissionPrompt()
+                        viewModel.updateWidgetSnapshot()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.triangle.2.circlepath")
+                            Text(L10n.retriggerPermissionBtn(lang))
+                        }
+                    }
+                    .adaptiveGlassButton(prominent: true)
+
+                    Button {
+                        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_FilesAndFolders") {
+                            NSWorkspace.shared.open(url)
+                        }
+                    } label: {
+                        Text(L10n.openFilesAndFoldersBtn(lang))
+                    }
+                    .adaptiveGlassButton(prominent: false)
+
+                    Button {
+                        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") {
+                            NSWorkspace.shared.open(url)
+                        }
+                    } label: {
+                        Text(L10n.openFullDiskAccessBtn(lang))
+                    }
+                    .adaptiveGlassButton(prominent: false)
+                }
+
+                Text(L10n.terminalResetHint(lang))
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(.tertiary)
+                    .textSelection(.enabled)
+            }
+            .padding(.vertical, 4)
+        }
+
+        // Group 3: Widget Sizes & Information
+        SettingsGroup(title: isEn ? "Widget Types & Instructions" : "小组件规格与添加方式") {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 12) {
+                    WidgetTypeBadge(title: "Small", desc: isEn ? "Single Task & Speeds" : "焦点任务与速率", icon: "square")
+                    WidgetTypeBadge(title: "Medium", desc: isEn ? "3 Tasks & Speeds" : "多任务列表与统计", icon: "rectangle")
+                    WidgetTypeBadge(title: "Large", desc: isEn ? "6 Tasks & Overview" : "全任务面板与双环进度", icon: "square.fill")
+                }
+                .padding(.vertical, 4)
+
+                Text(isEn
+                    ? "To add widgets: Right-click your macOS desktop or open Notification Center, click 'Edit Widgets', and select QBMenubar."
+                    : "如何添加小组件：在 macOS 桌面空白处右键点击「编辑小组件」（或打开通知中心底部点击「编辑小组件」），在小组件图库中搜索「QBMenubar」并拖拽至桌面。")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
             }
         }
     }
@@ -913,5 +1058,32 @@ public struct LiquidGlassCategoryBadge: View {
         }
         .frame(width: 22, height: 22)
         .shadow(color: category.badgeColor.opacity(isSelected ? 0.45 : 0.28), radius: 3, x: 0, y: 1.5)
+    }
+}
+
+private struct WidgetTypeBadge: View {
+    let title: String
+    let desc: String
+    let icon: String
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 14))
+                .foregroundStyle(.tint)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title)
+                    .font(.system(size: 11, weight: .semibold))
+                Text(desc)
+                    .font(.system(size: 9.5))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(8)
+        .background(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(Color.primary.opacity(0.04))
+        )
     }
 }

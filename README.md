@@ -54,6 +54,9 @@
 <p align="center">
   <img src="docs/images/preview_widgets_showcase.png" alt="QBMenubar macOS Desktop & Notification Center Widgets" width="650" />
 </p>
+<p align="center">
+  <img src="docs/images/preview_settings_widgets.png" alt="QBMenubar Widget Settings and Data Access Permissions" width="580" />
+</p>
 
 ---
 
@@ -102,6 +105,24 @@
    - **Large Widget (`.systemLarge`)**: Full download dashboard with active torrent listings, state badges, transfer rates, and instant deep-linking into QBMenubar.
    - **Zero Overhead App Group Storage**: Seamless background sync between the menu bar daemon and macOS Notification Center.
    - Native support for macOS Full Color, Tinted, and Accented modes (`widgetAccentable`).
+
+### 🧩 Desktop Widgets & Permission Guide
+
+QBMenubar supports macOS Desktop & Notification Center Widgets across three sizes (`Small`, `Medium`, `Large`). To sync live download speeds and progress between the menu bar daemon and the desktop widgets:
+
+1. **Enable in Settings**: Open QBMenubar Preferences (**⌘,**) -> **Widgets** tab -> turn on **Enable Desktop Widget Sync**.
+2. **macOS "Data from other apps" Permission**:
+   - **Why macOS prompts this**: Under macOS 15 (Sequoia) & macOS 26 (Tahoe), cross-process communication between an app and its sandboxed WidgetKit extension uses App Groups (`~/Library/Group Containers/`). Because open-source releases use ad-hoc code signing without a paid Apple commercial developer team profile, macOS flags this cross-process shared folder with a security notice: *"QBMenubar tried to access your data from other apps and was blocked."*
+   - **🔒 Zero Privacy Risk**: QBMenubar **only** writes and reads its own `widget_snapshot.json` (containing torrent names, speeds, and progress percentages). It **never** accesses your personal files or any data from other applications.
+   - **How to Grant / Recover Permission**:
+     - **Option A (In-App)**: In **Preferences -> Widgets**, click **"Re-trigger Permission Prompt"**. macOS will immediately display the system prompt where you can click **Manage** and allow access.
+     - **Option B (System Settings)**: Open **System Settings > Privacy & Security > Files & Folders** (or **Full Disk Access**), locate **QBMenubar**, and turn on the permission toggle.
+     - **Option C (Terminal Reset)**: If you previously blocked access and QBMenubar doesn't appear in System Settings, run in Terminal:
+       ```bash
+       tccutil reset All com.antigravity.QBMenubar
+       ```
+       Then re-open QBMenubar and toggle the Widget switch to receive the authorization prompt again.
+   - **Note**: The widget requires this permission to display live tasks; without permission, widgets display a *"Permission Required"* state. **The core Menu Bar app continues to operate with 100% full functionality even if widget permission is not granted.**
 
 ---
 

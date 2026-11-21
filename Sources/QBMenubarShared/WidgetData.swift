@@ -65,6 +65,9 @@ public struct WidgetData: Codable, Sendable, Equatable {
     public var pausedCount: Int
     public var totalCount: Int
     public var tasks: [WidgetTorrentTask]
+    public var syncEnabled: Bool
+    public var permissionGranted: Bool
+    public var statusMessage: String?
 
     public init(
         updatedAt: Date = Date(),
@@ -77,7 +80,10 @@ public struct WidgetData: Codable, Sendable, Equatable {
         activeSeedsCount: Int = 0,
         pausedCount: Int = 0,
         totalCount: Int = 0,
-        tasks: [WidgetTorrentTask] = []
+        tasks: [WidgetTorrentTask] = [],
+        syncEnabled: Bool = true,
+        permissionGranted: Bool = true,
+        statusMessage: String? = nil
     ) {
         self.updatedAt = updatedAt
         self.isConnected = isConnected
@@ -90,6 +96,9 @@ public struct WidgetData: Codable, Sendable, Equatable {
         self.pausedCount = pausedCount
         self.totalCount = totalCount
         self.tasks = tasks
+        self.syncEnabled = syncEnabled
+        self.permissionGranted = permissionGranted
+        self.statusMessage = statusMessage
     }
 
     public static let placeholder = WidgetData(
@@ -103,8 +112,30 @@ public struct WidgetData: Codable, Sendable, Equatable {
         activeSeedsCount: 0,
         pausedCount: 0,
         totalCount: 0,
-        tasks: []
+        tasks: [],
+        syncEnabled: true,
+        permissionGranted: true,
+        statusMessage: nil
     )
+
+    public static func disabled(permissionDenied: Bool = false) -> WidgetData {
+        WidgetData(
+            updatedAt: Date(),
+            isConnected: false,
+            dlSpeed: 0,
+            upSpeed: 0,
+            dlSpeedFormatted: "0 B/s",
+            upSpeedFormatted: "0 B/s",
+            activeDownloadsCount: 0,
+            activeSeedsCount: 0,
+            pausedCount: 0,
+            totalCount: 0,
+            tasks: [],
+            syncEnabled: !permissionDenied,
+            permissionGranted: !permissionDenied,
+            statusMessage: permissionDenied ? "需数据共享权限" : "小组件已停用"
+        )
+    }
 
     public static let sample = WidgetData(
         updatedAt: Date(),
@@ -177,6 +208,45 @@ public enum WidgetDataManager {
     public static let widgetKind = "QBMenubarWidget"
     public static let snapshotKey = "qb_widget_snapshot"
     public static let fileName = "widget_snapshot.json"
+
+    /// Checks whether the application has permission to write to and read from the App Group container.
+    public static func checkGroupContainerPermission() -> Bool {
+        guard let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) else {
+            return false
+        }
+        let probeFile = containerURL.appendingPathComponent(".probe_\(ProcessInfo.processInfo.processIdentifier).tmp")
+        do {
+            try FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)
+            try "probe".write(to: probeFile, atomically: true, encoding: .utf8)
+            try? FileManager.default.removeItem(at: probeFile)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Resets the TCC permission cache for the app and immediately attempts container access to re-trigger macOS system permission alert.
+    @discardableResult
+    public static func triggerPermissionPrompt() -> Bool {
+        // Reset TCC approval for com.antigravity.QBMenubar via tccutil
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
+        task.arguments = ["reset", "All", "com.antigravity.QBMenubar"]
+        try? task.run()
+        task.waitUntilExit()
+
+        usleep(150_000)
+
+        // Probe access to invoke macOS TCC prompt
+        if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
+            let probeFile = containerURL.appendingPathComponent(".probe_prompt.tmp")
+            try? FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)
+            try? "prompt".write(to: probeFile, atomically: true, encoding: .utf8)
+            try? FileManager.default.removeItem(at: probeFile)
+        }
+
+        return checkGroupContainerPermission()
+    }
 
     /// Saves the latest widget snapshot across all shared storage locations.
     public static func saveSnapshot(_ data: WidgetData) {

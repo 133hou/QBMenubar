@@ -89,7 +89,36 @@ public struct TorrentSmallWidgetView: View {
             Spacer(minLength: 0)
 
             // Middle: Active Task or Idle State
-            if let task = activeTask {
+            if !data.syncEnabled {
+                VStack(spacing: 4) {
+                    Image(systemName: "square.grid.2x2")
+                        .font(.system(size: 22))
+                        .foregroundStyle(.secondary)
+
+                    Text("Widget Disabled")
+                        .font(.system(size: 11, weight: .semibold))
+
+                    Text("Enable in Settings")
+                        .font(.system(size: 9))
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+            } else if !data.permissionGranted {
+                VStack(spacing: 4) {
+                    Image(systemName: "lock.shield.fill")
+                        .font(.system(size: 22))
+                        .foregroundStyle(.orange)
+
+                    Text("Permission Required")
+                        .font(.system(size: 10, weight: .semibold))
+
+                    Text("Check System Settings")
+                        .font(.system(size: 8.5))
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+            } else if let task = activeTask {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(task.name)
                         .font(.system(size: 11, weight: .semibold))
@@ -178,8 +207,53 @@ public struct TorrentMediumWidgetView: View {
     }
 
     public var body: some View {
-        HStack(spacing: 12) {
-            // Left Column: Stats & Branding
+        if !data.syncEnabled {
+            HStack(spacing: 12) {
+                VStack(spacing: 6) {
+                    QBIconBadge()
+                    Image(systemName: "square.grid.2x2")
+                        .font(.system(size: 24))
+                        .foregroundStyle(.secondary)
+                }
+                .frame(width: 50)
+
+                Divider()
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Desktop Widget Sync Disabled")
+                        .font(.system(size: 11, weight: .bold))
+                    Text("Enable widget synchronization in QBMenubar Settings > Widgets to view live tasks and transfer speeds.")
+                        .font(.system(size: 9.5))
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(2)
+        } else if !data.permissionGranted {
+            HStack(spacing: 12) {
+                VStack(spacing: 6) {
+                    QBIconBadge()
+                    Image(systemName: "lock.shield.fill")
+                        .font(.system(size: 24))
+                        .foregroundStyle(.orange)
+                }
+                .frame(width: 50)
+
+                Divider()
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Data Sharing Permission Required")
+                        .font(.system(size: 11, weight: .bold))
+                    Text("macOS blocked access to shared widget data. Open QBMenubar Settings > Widgets and click 'Re-trigger Permission Prompt'.")
+                        .font(.system(size: 9.5))
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(2)
+        } else {
+            HStack(spacing: 12) {
+                // Left Column: Stats & Branding
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 5) {
                     QBIconBadge()
@@ -297,6 +371,7 @@ public struct TorrentMediumWidgetView: View {
             .frame(maxWidth: .infinity)
         }
         .padding(2)
+        }
     }
 }
 
@@ -314,9 +389,64 @@ public struct TorrentLargeWidgetView: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            // Header
-            HStack(spacing: 6) {
+        if !data.syncEnabled {
+            VStack(spacing: 12) {
+                HStack(spacing: 6) {
+                    QBIconBadge()
+                    Text("qBittorrent Dashboard")
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                    Spacer()
+                }
+
+                Spacer()
+
+                Image(systemName: "square.grid.2x2")
+                    .font(.system(size: 36))
+                    .foregroundStyle(.secondary)
+
+                Text("Desktop Widget Sync Disabled")
+                    .font(.system(size: 14, weight: .bold))
+
+                Text("Enable widget synchronization in QBMenubar Settings > Widgets to view real-time speeds, task progress, and queue statistics on your desktop.")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 16)
+
+                Spacer()
+            }
+            .padding(4)
+        } else if !data.permissionGranted {
+            VStack(spacing: 12) {
+                HStack(spacing: 6) {
+                    QBIconBadge()
+                    Text("qBittorrent Dashboard")
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                    Spacer()
+                }
+
+                Spacer()
+
+                Image(systemName: "lock.shield.fill")
+                    .font(.system(size: 36))
+                    .foregroundStyle(.orange)
+
+                Text("Data Sharing Permission Required")
+                    .font(.system(size: 14, weight: .bold))
+
+                Text("macOS blocked cross-app access to widget data. Due to macOS 15+ security policies, please open QBMenubar Settings > Widgets to re-trigger authorization or grant access in System Settings > Privacy & Security.")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 16)
+
+                Spacer()
+            }
+            .padding(4)
+        } else {
+            VStack(alignment: .leading, spacing: 10) {
+                // Header
+                HStack(spacing: 6) {
                 QBIconBadge()
                 Text("qBittorrent Dashboard")
                     .font(.system(size: 13, weight: .bold, design: .rounded))
@@ -450,6 +580,7 @@ public struct TorrentLargeWidgetView: View {
             }
         }
         .padding(2)
+        }
     }
 }
 

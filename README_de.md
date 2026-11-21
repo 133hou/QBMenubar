@@ -54,6 +54,9 @@
 <p align="center">
   <img src="docs/images/preview_widgets_showcase.png" alt="QBMenubar macOS Schreibtisch- & Mitteilungszentrale-Widgets" width="650" />
 </p>
+<p align="center">
+  <img src="docs/images/preview_settings_widgets.png" alt="QBMenubar Widget-Einstellungen und Datenschutz-Berechtigung" width="580" />
+</p>
 
 ---
 
@@ -100,6 +103,24 @@
    - **Großes Widget (`.systemLarge`)**: Vollständiges Dashboard mit Bandbreiten-Karten, Aufgabenliste, Status-Badges und Direkt-Link zu QBMenubar.
    - **Zero-Overhead App Group-Speicher**: Nahtlose, ressourcenschonende Synchronisierung zwischen Hintergrunddienst und macOS-Widgets.
    - Volle Unterstützung für macOS Vollfarbe, Dark Mode sowie Akzent- & Tönungsmodi (`widgetAccentable`).
+
+### 🧩 Schreibtisch-Widgets & Berechtigungsleitfaden
+
+QBMenubar unterstützt macOS Schreibtisch- und Mitteilungszentrale-Widgets in drei Größen (Klein, Mittel, Groß). Zur Synchronisierung zwischen Menüleisten-App und Widgets:
+
+1. **In Einstellungen aktivieren**: Menüleistensymbol anklicken -> Einstellungen (**⌘,**) -> Reiter „**Widgets**“ -> „**Schreibtisch-Widget-Synchronisierung aktivieren**“ einschalten.
+2. **macOS-Berechtigung „Daten von anderen Apps“**:
+   - **Warum macOS diese Meldung anzeigt**: Unter macOS 15 (Sequoia) und macOS 26 (Tahoe) laufen die Menüleisten-App und das sandboxed WidgetKit-Plug-in als getrennte Prozesse und tauschen Daten über App Groups (`~/Library/Group Containers/`) aus. Da Open-Source-Builds mit lokaler Ad-hoc-Signatur (ohne kostenpflichtiges Apple-Entwicklerprofil) bereitgestellt werden, stuft macOS diesen geteilten Ordner als „Daten von anderen Apps“ ein und zeigt die Warnung: *„QBMenubar hat versucht, auf Daten anderer Apps zuzugreifen und wurde blockiert.“*
+   - **🔒 Garantierter Datenschutz**: QBMenubar liest und schreibt in diesem Ordner **ausschließlich** die Datei `widget_snapshot.json` (enthält nur Torrent-Namen, Raten und Prozentangaben). Es greift **niemals** auf persönliche Dateien oder Daten anderer Apps zu.
+   - **Berechtigung erteilen bzw. wiederherstellen**:
+     - **Option 1 (Direkt in der App)**: In „Einstellungen -> Widgets“ auf „**System-Berechtigungsdialog erneut anfordern**“ klicken. macOS blendet die Meldung sofort wieder ein; dort auf „Verwalten“ klicken und erlauben.
+     - **Option 2 (Systemeinstellungen)**: „**Systemeinstellungen > Datenschutz & Sicherheit > Dateien & Ordner**“ (oder „**Festplattenvollzugriff**“) öffnen und **QBMenubar** aktivieren.
+     - **Option 3 (Terminal-Reset)**: Falls der Zugriff zuvor abgelehnt wurde und die App nicht in der Liste erscheint, im Terminal ausführen:
+       ```bash
+       tccutil reset All com.antigravity.QBMenubar
+       ```
+       Danach QBMenubar erneut öffnen und den Widget-Schalter umlegen, um die Systemabfrage erneut zu erhalten.
+   - **Hinweis**: Widgets benötigen diese Berechtigung zur Live-Aktualisierung (sonst wird „Berechtigung erforderlich“ angezeigt). **Ohne diese Berechtigung bleiben alle Kernfunktionen in der Menüleiste zu 100 % uneingeschränkt nutzbar.**
 
 ---
 

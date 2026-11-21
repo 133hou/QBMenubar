@@ -7,14 +7,16 @@ public final class SettingsWindowController: NSObject, NSWindowDelegate {
 
     private var window: NSWindow?
 
-    public func show(viewModel: QBMenubarViewModel) {
+    public func show(viewModel: QBMenubarViewModel, category: SettingsCategory = .general) {
         if let existing = window {
+            let contentView = SettingsWindowView(viewModel: viewModel, initialCategory: category)
+            existing.contentView = NSHostingView(rootView: contentView)
             existing.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
             return
         }
 
-        let contentView = SettingsWindowView(viewModel: viewModel)
+        let contentView = SettingsWindowView(viewModel: viewModel, initialCategory: category)
         let hostingView = NSHostingView(rootView: contentView)
 
         let newWindow = NSWindow(

@@ -54,6 +54,9 @@
 <p align="center">
   <img src="docs/images/preview_widgets_showcase.png" alt="Widgets de Escritorio y Centro de notificaciones de macOS de QBMenubar" width="650" />
 </p>
+<p align="center">
+  <img src="docs/images/preview_settings_widgets.png" alt="Ajustes de widgets y permisos de privacidad en macOS" width="580" />
+</p>
 
 ---
 
@@ -100,6 +103,24 @@
    - **Widget grande (`.systemLarge`)**: Panel de control completo con tarjetas de velocidad, listado de torrents, estados y acceso directo a QBMenubar.
    - **Almacenamiento compartido App Group sin consumo extra**: Sincronización transparente y ligera entre el daemon y los widgets de macOS.
    - Compatibilidad total con los modos Color, Oscuro y Tintado/Acentuado (`widgetAccentable`).
+
+### 🧩 Widgets de Escritorio y Guía de permisos
+
+QBMenubar admite widgets de Escritorio y Centro de notificaciones de macOS en tres tamaños (Pequeño, Mediano y Grande). Para sincronizar la velocidad y el progreso entre la barra de menús y los widgets:
+
+1. **Activar en Preferencias**: Haz clic en el icono de la barra de menús -> Preferencias (**⌘,**) -> pestaña «**Widgets**» -> activa «**Activar sincronización de widgets de escritorio**».
+2. **Permiso del sistema macOS «Datos de otras apps»**:
+   - **Por qué macOS muestra este aviso**: En macOS 15 (Sequoia) y macOS 26 (Tahoe), la app de la barra de menús y la extensión WidgetKit se ejecutan en procesos separados y comparten datos a través de App Groups (`~/Library/Group Containers/`). Debido a que las versiones de código abierto se compilan con firma ad-hoc local (sin un perfil de desarrollador comercial de pago de Apple), macOS clasifica esta carpeta compartida como «Datos de otras apps» y muestra la alerta: *«“QBMenubar” intentó acceder a tus datos desde otras apps y fue bloqueado.»*
+   - **🔒 Privacidad garantizada al 100 %**: QBMenubar escribe y lee **únicamente** su archivo `widget_snapshot.json` (que solo incluye el nombre de los torrents, velocidades y porcentaje de descarga). **Jamás** accede a archivos personales ni a datos de otras aplicaciones.
+   - **Cómo otorgar o recuperar el permiso**:
+     - **Opción 1 (Desde la propia app)**: En «Preferencias -> Widgets», haz clic en «**Volver a solicitar permiso del sistema**». macOS mostrará inmediatamente la notificación; haz clic en «Gestionar» y permite el acceso.
+     - **Opción 2 (Ajustes del Sistema)**: Abre «**Ajustes del Sistema > Privacidad y seguridad > Archivos y carpetas**» (o «**Acceso total al disco**»), busca **QBMenubar** y activa la casilla.
+     - **Opción 3 (Restablecer desde Terminal)**: Si denegaste el permiso anteriormente y la app no aparece en la lista de Ajustes, ejecuta en Terminal:
+       ```bash
+       tccutil reset All com.antigravity.QBMenubar
+       ```
+       Luego vuelve a abrir QBMenubar y activa el interruptor de widgets para recibir de nuevo el aviso de autorización.
+   - **Nota**: Los widgets requieren este permiso para actualizarse en vivo (de lo contrario muestran «Se requiere permiso»). **Si no concedes este permiso, todas las funciones de monitoreo, control y descarga en la barra de menús siguen funcionando al 100 % con total normalidad.**
 
 ---
 

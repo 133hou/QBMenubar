@@ -180,6 +180,7 @@ public struct APIConfig: Codable, Equatable, Sendable {
     public var language: AppLanguage
     public var pinnedTorrentHash: String?
     public var showPinnedProgress: Bool
+    public var enableWidgetSync: Bool
 
     public static let defaultConfig = APIConfig(
         baseURL: "http://127.0.0.1:8080",
@@ -200,7 +201,8 @@ public struct APIConfig: Codable, Equatable, Sendable {
         iconSize: .normal,
         language: .zhHans,
         pinnedTorrentHash: "auto",
-        showPinnedProgress: true
+        showPinnedProgress: true,
+        enableWidgetSync: true
     )
 
     private static let userDefaultsKey = "QBMenubar.APIConfig"
@@ -224,7 +226,8 @@ public struct APIConfig: Codable, Equatable, Sendable {
         iconSize: IconSizeOption = .normal,
         language: AppLanguage = .zhHans,
         pinnedTorrentHash: String? = "auto",
-        showPinnedProgress: Bool = true
+        showPinnedProgress: Bool = true,
+        enableWidgetSync: Bool = true
     ) {
         self.baseURL = baseURL
         self.apiPrefix = apiPrefix
@@ -245,6 +248,7 @@ public struct APIConfig: Codable, Equatable, Sendable {
         self.language = language
         self.pinnedTorrentHash = pinnedTorrentHash
         self.showPinnedProgress = showPinnedProgress
+        self.enableWidgetSync = enableWidgetSync
     }
 
     public init(from decoder: Decoder) throws {
@@ -268,6 +272,7 @@ public struct APIConfig: Codable, Equatable, Sendable {
         self.language = try container.decodeIfPresent(AppLanguage.self, forKey: .language) ?? .zhHans
         self.pinnedTorrentHash = try container.decodeIfPresent(String.self, forKey: .pinnedTorrentHash) ?? "auto"
         self.showPinnedProgress = try container.decodeIfPresent(Bool.self, forKey: .showPinnedProgress) ?? true
+        self.enableWidgetSync = try container.decodeIfPresent(Bool.self, forKey: .enableWidgetSync) ?? true
     }
 
     public static func load() -> APIConfig {

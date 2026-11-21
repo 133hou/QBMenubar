@@ -30,6 +30,10 @@ public struct L10n {
         tr(lang, zhHans: "菜单栏", zhHant: "選單列", en: "Menu Bar")
     }
 
+    public static func widgets(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "小组件", zhHant: "小工具", en: "Widgets")
+    }
+
     public static func notifications(_ lang: AppLanguage) -> String {
         tr(lang, zhHans: "通知", zhHant: "通知", en: "Notifications")
     }
@@ -429,5 +433,58 @@ public struct L10n {
 
     public static func showFiles(_ lang: AppLanguage) -> String {
         tr(lang, zhHans: "查看文件", zhHant: "檢視檔案", en: "Files")
+    }
+
+    // Widgets Settings & Permissions
+    public static func enableWidgetSync(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "启用桌面小组件同步", zhHant: "啟用桌面小工具同步", en: "Enable Desktop Widget Sync")
+    }
+
+    public static func enableWidgetSyncSubtitle(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "将 qBittorrent 实时速率和下载进度同步至 macOS 桌面与通知中心小组件", zhHant: "將 qBittorrent 即時速率和下載進度同步至 macOS 桌面與通知中心小工具", en: "Synchronize qBittorrent real-time speed and torrent progress to macOS desktop and Notification Center widgets")
+    }
+
+    public static func widgetPermissionSection(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "跨进程数据共享与权限说明", zhHant: "跨行程資料共享與權限說明", en: "Cross-Process Data Sharing & Permissions")
+    }
+
+    public static func widgetPermissionGranted(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "已获得数据共享权限 (正常同步中)", zhHant: "已獲得資料共享權限 (正常同步中)", en: "Data Sharing Permission Granted (Syncing)")
+    }
+
+    public static func widgetPermissionBlocked(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "未获得权限或已被系统阻止 (小组件不可用)", zhHant: "未獲得權限或已被系統阻止 (小工具無法使用)", en: "Permission Denied or Blocked by macOS (Widgets Unavailable)")
+    }
+
+    public static func widgetPermissionDisabled(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "小组件同步已关闭", zhHant: "小工具同步已關閉", en: "Widget Sync Disabled")
+    }
+
+    public static func widgetPermissionDesc(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "由于 macOS 15+ 的系统安全机制，菜单栏主程序与小组件扩展属于独立进程，需通过 App Group 共享容器交换任务快照。开源自签名版本首次访问时，系统会提示「尝试访问来自其他 App 的数据」并可能默认拦截。", zhHant: "由於 macOS 15+ 的系統安全機制，選單列主程式與小工具屬於獨立行程，需透過 App Group 共享容器交換任務快照。開源自簽名版本首次存取時，系統會提示「嘗試存取來自其他 App 的資料」並可能預設攔截。", en: "Due to macOS 15+ security policies, the Menu Bar app and WidgetKit extension run in separate processes and share snapshots via App Groups. For open-source ad-hoc builds, macOS displays 'tried to access your data from other apps' and blocks it by default.")
+    }
+
+    public static func widgetPrivacyPromise(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "🔒 隐私保证：QBMenubar 仅在共享容器中读写一份任务快照（仅含当前任务名、速率与进度百分比），绝不读取您的个人隐私或其他任何软件的数据。", zhHant: "🔒 隱私保證：QBMenubar 僅在共享容器中讀寫一份任務快照（僅含當前任務名、速率與進度百分比），絕不讀取您的個人隱私或其他任何軟體的資料。", en: "🔒 Privacy Guarantee: QBMenubar only reads/writes a lightweight status snapshot (torrent names, speeds, progress percentage). It never accesses personal files or data from any other applications.")
+    }
+
+    public static func widgetHowToFix(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "若之前拒绝了权限或在「文件与文件夹」设置中未找到 QBMenubar：", zhHant: "若先前拒絕了權限或在「檔案與資料夾」設定中未找到 QBMenubar：", en: "If permission was denied or QBMenubar is missing in Files & Folders settings:")
+    }
+
+    public static func retriggerPermissionBtn(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "重新触发系统权限弹窗", zhHant: "重新觸發系統權限彈窗", en: "Re-trigger Permission Prompt")
+    }
+
+    public static func openFilesAndFoldersBtn(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "打开「文件与文件夹」设置", zhHant: "開啟「檔案與資料夾」設定", en: "Open Files & Folders Settings")
+    }
+
+    public static func openFullDiskAccessBtn(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "打开「完全磁盘访问」设置", zhHant: "開啟「全能磁碟存取」設定", en: "Open Full Disk Access Settings")
+    }
+
+    public static func terminalResetHint(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "提示：也可以在「终端」运行命令完全重置授权：tccutil reset All com.antigravity.QBMenubar", zhHant: "提示：亦可在「終端機」執行指令重設授權：tccutil reset All com.antigravity.QBMenubar", en: "Tip: You can also reset approval anytime in Terminal: tccutil reset All com.antigravity.QBMenubar")
     }
 }

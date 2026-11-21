@@ -494,6 +494,25 @@ public final class QBMenubarViewModel {
     // MARK: - Widget Snapshot Sync
 
     public func updateWidgetSnapshot() {
+        guard config.enableWidgetSync else {
+            let disabledSnapshot = WidgetData.disabled(permissionDenied: false)
+            WidgetDataManager.saveSnapshot(disabledSnapshot)
+            #if canImport(WidgetKit)
+            WidgetCenter.shared.reloadTimelines(ofKind: WidgetDataManager.widgetKind)
+            #endif
+            return
+        }
+
+        let hasPermission = WidgetDataManager.checkGroupContainerPermission()
+        guard hasPermission else {
+            let noPermSnapshot = WidgetData.disabled(permissionDenied: true)
+            WidgetDataManager.saveSnapshot(noPermSnapshot)
+            #if canImport(WidgetKit)
+            WidgetCenter.shared.reloadTimelines(ofKind: WidgetDataManager.widgetKind)
+            #endif
+            return
+        }
+
         let sorted = torrents.sorted { (t1, t2) -> Bool in
             if let pinned = config.pinnedTorrentHash, pinned != "auto", pinned != "none" {
                 if t1.hash.caseInsensitiveCompare(pinned) == .orderedSame { return true }
@@ -543,7 +562,10 @@ public final class QBMenubarViewModel {
             activeSeedsCount: activeUP,
             pausedCount: paused,
             totalCount: torrents.count,
-            tasks: widgetTasks
+            tasks: widgetTasks,
+            syncEnabled: true,
+            permissionGranted: true,
+            statusMessage: nil
         )
 
         WidgetDataManager.saveSnapshot(snapshot)
@@ -553,6 +575,9 @@ public final class QBMenubarViewModel {
     }
 
     public func updateWidgetSnapshotDisconnected() {
+        guard config.enableWidgetSync else { return }
+        guard WidgetDataManager.checkGroupContainerPermission() else { return }
+
         var snapshot = WidgetDataManager.loadSnapshot() ?? WidgetData.placeholder
         snapshot.isConnected = false
         snapshot.updatedAt = Date()

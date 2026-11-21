@@ -2,6 +2,14 @@ import SwiftUI
 
 public struct PopoverContentView: View {
     @Bindable var viewModel: QBMenubarViewModel
+    @AppStorage("popoverHeight") private var popoverHeight: Double = 550.0
+    @State private var dragStartHeight: Double = 550.0
+    @State private var isDraggingResize: Bool = false
+    @State private var isHoveringResize: Bool = false
+
+    private var currentHeight: CGFloat {
+        CGFloat(min(max(popoverHeight, 380.0), 920.0))
+    }
 
     private var lang: AppLanguage { viewModel.config.language }
     private var isEn: Bool { !lang.isChinese }
@@ -267,8 +275,54 @@ public struct PopoverContentView: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
             .background(.ultraThinMaterial)
+
+            // 7. Interactive Bottom Resize Handle (支持上下拖拽调整窗口高度)
+            ZStack {
+                Rectangle()
+                    .fill(Color.primary.opacity(0.06))
+                    .frame(height: 1)
+                    .frame(maxHeight: .infinity, alignment: .top)
+
+                Capsule()
+                    .fill(isDraggingResize ? Color.accentColor : (isHoveringResize ? Color.primary.opacity(0.35) : Color.primary.opacity(0.18)))
+                    .frame(width: 36, height: 4)
+                    .animation(AppMotion.micro, value: isHoveringResize)
+                    .animation(AppMotion.micro, value: isDraggingResize)
+            }
+            .frame(height: 12)
+            .frame(maxWidth: .infinity)
+            .background(.ultraThinMaterial)
+            .contentShape(Rectangle())
+            .onHover { hovering in
+                isHoveringResize = hovering
+                if hovering {
+                    NSCursor.resizeUpDown.push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
+            .gesture(
+                DragGesture(minimumDistance: 1)
+                    .onChanged { value in
+                        if !isDraggingResize {
+                            isDraggingResize = true
+                            dragStartHeight = popoverHeight
+                        }
+                        let newHeight = dragStartHeight + Double(value.translation.height)
+                        popoverHeight = min(max(newHeight, 380.0), 920.0)
+                    }
+                    .onEnded { _ in
+                        isDraggingResize = false
+                    }
+            )
+            .onTapGesture(count: 2) {
+                withAnimation(AppMotion.selection) {
+                    popoverHeight = 550.0
+                }
+            }
+            .help(L10n.tr(lang, zhHans: "拖拽调整窗口高度，双击恢复默认高度", zhHant: "拖曳調整視窗高度，按兩下恢復預設高度", en: "Drag to resize window height, double-click to reset"))
         }
-        .frame(width: 380, height: 550)
+        .frame(width: 380, height: currentHeight)
         .background(.regularMaterial)
     }
 

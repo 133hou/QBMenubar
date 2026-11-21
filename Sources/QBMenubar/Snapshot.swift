@@ -205,6 +205,9 @@ public struct SnapshotGenerator {
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
                 )
+                .overlay(alignment: .topLeading) {
+                    windowTrafficLights()
+                }
                 .shadow(color: .black.opacity(0.55), radius: 26, x: 0, y: 14)
         }
         .frame(width: 840, height: 620)
@@ -237,6 +240,9 @@ public struct SnapshotGenerator {
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
                 )
+                .overlay(alignment: .topLeading) {
+                    windowTrafficLights()
+                }
                 .shadow(color: .black.opacity(0.55), radius: 26, x: 0, y: 14)
         }
         .frame(width: 840, height: 620)
@@ -269,6 +275,9 @@ public struct SnapshotGenerator {
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
                 )
+                .overlay(alignment: .topLeading) {
+                    windowTrafficLights()
+                }
                 .shadow(color: .black.opacity(0.55), radius: 26, x: 0, y: 14)
         }
         .frame(width: 840, height: 640)
@@ -307,6 +316,9 @@ public struct SnapshotGenerator {
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
                 )
+                .overlay(alignment: .topLeading) {
+                    windowTrafficLights()
+                }
                 .shadow(color: .black.opacity(0.55), radius: 26, x: 0, y: 14)
         }
         .frame(width: 840, height: 620)
@@ -630,6 +642,16 @@ public struct SnapshotGenerator {
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
 
         saveView(classicWidgetShowcase, width: 620, height: 260, to: "\(outputDir)/preview_widgets_classic.png")
+    }
+
+    private static func windowTrafficLights() -> some View {
+        HStack(spacing: 7) {
+            Circle().fill(Color(red: 1.0, green: 0.38, blue: 0.35)).frame(width: 12, height: 12)
+            Circle().fill(Color(red: 1.0, green: 0.75, blue: 0.25)).frame(width: 12, height: 12)
+            Circle().fill(Color(red: 0.30, green: 0.85, blue: 0.40)).frame(width: 12, height: 12)
+        }
+        .padding(.leading, 14)
+        .padding(.top, 14)
     }
     
     private static func saveView<V: View>(_ view: V, width: CGFloat, height: CGFloat, to path: String) {

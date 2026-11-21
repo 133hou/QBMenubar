@@ -97,7 +97,7 @@ public struct SettingsWindowView: View {
                         .fill(Color.primary.opacity(0.06))
                 )
                 .padding(.horizontal, 12)
-                .padding(.top, 46) // Accommodate macOS traffic light buttons
+                .padding(.top, 38) // Directly below macOS traffic light buttons with native clearance
                 .padding(.bottom, 8)
 
                 // Category List
@@ -202,8 +202,7 @@ public struct SettingsWindowView: View {
                     Spacer()
                 }
                 .padding(.horizontal, 24)
-                .padding(.top, 46)
-                .padding(.bottom, 14)
+                .frame(height: 52) // Unified macOS toolbar height matching traffic lights
                 .background(.ultraThinMaterial)
 
                 Divider()
@@ -236,6 +235,7 @@ public struct SettingsWindowView: View {
             .frame(minWidth: 500, maxWidth: .infinity, minHeight: 480, maxHeight: .infinity)
             .background(.regularMaterial)
         }
+        .ignoresSafeArea()
     }
 
     // MARK: - Panes

@@ -715,7 +715,7 @@ public struct SettingsWindowView: View {
                     Text("QBMenubar")
                         .font(.system(size: 17, weight: .bold))
 
-                    Text(L10n.tr(lang, zhHans: "版本 1.3.1 (Build 2026.11)", zhHant: "版本 1.3.1 (Build 2026.11)", en: "Version 1.3.1 (Build 2026.11)"))
+                    Text(L10n.tr(lang, zhHans: "版本 1.3.2 (Build 2026.11)", zhHant: "版本 1.3.2 (Build 2026.11)", en: "Version 1.3.2 (Build 2026.11)"))
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
 

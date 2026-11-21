@@ -115,12 +115,23 @@ QBMenubar supports macOS Desktop & Notification Center Widgets across three size
    - **Why macOS prompts this**: Under macOS 15 (Sequoia) & macOS 26 (Tahoe), cross-process communication between an app and its sandboxed WidgetKit extension uses App Groups (`~/Library/Group Containers/`). Because open-source releases use ad-hoc code signing without a paid Apple commercial developer team profile, macOS flags this cross-process shared folder with a security notice: *"QBMenubar tried to access your data from other apps and was blocked."*
    - **🔒 Zero Privacy Risk**: QBMenubar **only** writes and reads its own `widget_snapshot.json` (containing torrent names, speeds, and progress percentages). It **never** accesses your personal files or any data from other applications.
    - **How to Grant Permission**:
-     - **Option A (System Settings)**: In **Preferences -> Widgets**, click **"Open Full Disk Access Settings"** (or open **System Settings > Privacy & Security > Full Disk Access**), click **`+`**, select **QBMenubar.app**, and turn on the permission toggle.
-     - **Option B (Terminal Reset)**: If you previously blocked access and want to reset permissions, run in Terminal:
+     - **System Settings**: In **Preferences -> Widgets**, click **"Open Full Disk Access Settings"** (or open **System Settings > Privacy & Security > Full Disk Access**), click **`+`**, select **QBMenubar.app**, and turn on the permission toggle.
+     - **Terminal Reset**: If you previously blocked access and want to reset permissions, run in Terminal:
        ```bash
        tccutil reset All com.antigravity.QBMenubar
        ```
    - **Note**: The widget requires Full Disk Access to display live tasks; without it, widgets display a *"Permission Required"* state. **The core Menu Bar app continues to operate with 100% full functionality even if widget permission is not granted.**
+3. **Adding Widgets to Desktop**:
+   - Right-click anywhere on your macOS desktop -> click **"Edit Widgets..."** (or open Notification Center and click **"Edit Widgets"** at the bottom).
+   - In the left sidebar or search box, search for **`QBMenubar`** or **`qBittorrent`**.
+   - Pick from **Small**, **Medium**, or **Large** widgets and drag it directly onto your desktop or Notification Center.
+
+---
+
+### 🚀 What's New in v1.3.2
+- **Native WidgetKit Extension Entry Point**: Configured `_NSExtensionMain` entry point for the SwiftPM WidgetKit binary, ensuring robust ExtensionKit launch, descriptor discovery, and placeholder precaching by macOS `chronod`.
+- **Streamlined Full Disk Access Authorization**: Clarified and unified the cross-process App Group permission flow directly to macOS Full Disk Access, preventing text clipping and layout overflows in Preferences.
+- **Clean Single-Bundle Registration**: Eliminated redundant binary registrations and ensured clean system discovery.
 
 ---
 

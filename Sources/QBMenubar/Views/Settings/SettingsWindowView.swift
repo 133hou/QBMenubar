@@ -517,7 +517,7 @@ public struct SettingsWindowView: View {
     @ViewBuilder
     private var widgetsPane: some View {
         // Group 1: Desktop Widget Synchronization & Permissions
-        SettingsGroup(title: L10n.widgets(lang)) {
+        SettingsGroup(title: isEn ? "Desktop Widget Synchronization" : "桌面小组件同步与权限") {
             SettingsRow(
                 title: L10n.enableWidgetSync(lang),
                 subtitle: L10n.enableWidgetSyncSubtitle(lang)
@@ -527,11 +527,6 @@ public struct SettingsWindowView: View {
                     set: { newValue in
                         viewModel.config.enableWidgetSync = newValue
                         viewModel.config.save()
-                        if newValue {
-                            if !WidgetDataManager.checkGroupContainerPermission() {
-                                WidgetDataManager.triggerPermissionPrompt()
-                            }
-                        }
                         viewModel.updateWidgetSnapshot()
                     }
                 ))
@@ -541,8 +536,8 @@ public struct SettingsWindowView: View {
             SettingsDivider()
 
             SettingsRow(
-                title: isEn ? "Permission Status" : "系统权限状态",
-                subtitle: isEn ? "macOS App Group cross-process sharing status" : "macOS App Group 跨进程数据共享状态"
+                title: isEn ? "Full Disk Access" : "完全磁盘访问权限",
+                subtitle: isEn ? "Required by macOS for cross-process widget data sharing" : "macOS 跨进程共享小组件数据所必需"
             ) {
                 HStack(spacing: 6) {
                     if !viewModel.config.enableWidgetSync {
@@ -564,58 +559,51 @@ public struct SettingsWindowView: View {
                 }
             }
 
-            SettingsDivider()
+            if viewModel.config.enableWidgetSync && !WidgetDataManager.checkGroupContainerPermission() {
+                SettingsDivider()
 
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 6) {
-                    Image(systemName: "checkmark.shield.fill")
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(L10n.widgetPermissionDesc(lang))
                         .font(.system(size: 11))
-                        .foregroundStyle(.blue)
-                    Text(L10n.widgetPrivacyPromise(lang))
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.primary.opacity(0.85))
-                }
-                .padding(.horizontal, 9)
-                .padding(.vertical, 6)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(
-                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                        .fill(Color.blue.opacity(0.08))
-                )
-
-                HStack(spacing: 10) {
-                    Button {
-                        WidgetDataManager.triggerPermissionPrompt()
-                        viewModel.updateWidgetSnapshot()
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "arrow.triangle.2.circlepath")
-                            Text(L10n.retriggerPermissionBtn(lang))
-                        }
-                        .font(.system(size: 11, weight: .medium))
-                    }
-                    .adaptiveGlassButton(prominent: true)
+                        .foregroundStyle(.secondary)
+                        .lineSpacing(2)
 
                     Button {
                         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") {
                             NSWorkspace.shared.open(url)
                         }
                     } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "lock.shield")
+                        HStack(spacing: 5) {
+                            Image(systemName: "lock.shield.fill")
                             Text(L10n.openFullDiskAccessBtn(lang))
                         }
-                        .font(.system(size: 11))
+                        .font(.system(size: 11.5, weight: .medium))
                     }
-                    .adaptiveGlassButton(prominent: false)
-                }
+                    .adaptiveGlassButton(prominent: true)
 
-                Text(L10n.terminalResetHint(lang))
-                    .font(.system(size: 9, design: .monospaced))
-                    .foregroundStyle(.tertiary)
-                    .textSelection(.enabled)
+                    HStack(spacing: 6) {
+                        Image(systemName: "checkmark.shield.fill")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.blue)
+                        Text(L10n.widgetPrivacyPromise(lang))
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(.primary.opacity(0.85))
+                    }
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 6)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .fill(Color.blue.opacity(0.08))
+                    )
+
+                    Text(L10n.terminalResetHint(lang))
+                        .font(.system(size: 9, design: .monospaced))
+                        .foregroundStyle(.tertiary)
+                        .textSelection(.enabled)
+                }
+                .padding(.top, 2)
             }
-            .padding(.top, 2)
         }
 
         // Group 2: Widget Sizes & Information
@@ -724,7 +712,7 @@ public struct SettingsWindowView: View {
                     Text("QBMenubar")
                         .font(.system(size: 17, weight: .bold))
 
-                    Text(L10n.tr(lang, zhHans: "版本 1.3.0 (Build 2026.11)", zhHant: "版本 1.3.0 (Build 2026.11)", en: "Version 1.3.0 (Build 2026.11)"))
+                    Text(L10n.tr(lang, zhHans: "版本 1.3.1 (Build 2026.11)", zhHant: "版本 1.3.1 (Build 2026.11)", en: "Version 1.3.1 (Build 2026.11)"))
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
 

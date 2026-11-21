@@ -445,15 +445,15 @@ public struct L10n {
     }
 
     public static func widgetPermissionSection(_ lang: AppLanguage) -> String {
-        tr(lang, zhHans: "跨进程数据共享与权限说明", zhHant: "跨行程資料共享與權限說明", en: "Cross-Process Data Sharing & Permissions")
+        tr(lang, zhHans: "桌面小组件同步与权限", zhHant: "桌面小工具同步與權限", en: "Desktop Widget Synchronization & Permissions")
     }
 
     public static func widgetPermissionGranted(_ lang: AppLanguage) -> String {
-        tr(lang, zhHans: "已获得数据共享权限 (正常同步中)", zhHant: "已獲得資料共享權限 (正常同步中)", en: "Data Sharing Permission Granted (Syncing)")
+        tr(lang, zhHans: "已授权 (正常同步中)", zhHant: "已授權 (正常同步中)", en: "Access Granted (Syncing)")
     }
 
     public static func widgetPermissionBlocked(_ lang: AppLanguage) -> String {
-        tr(lang, zhHans: "未获得权限或已被系统阻止 (小组件不可用)", zhHant: "未獲得權限或已被系統阻止 (小工具無法使用)", en: "Permission Denied or Blocked by macOS (Widgets Unavailable)")
+        tr(lang, zhHans: "需完全磁盘访问权限 (点击下方打开设置)", zhHant: "需全能磁碟存取權限 (點擊下方開啟設定)", en: "Full Disk Access Required (Click Below)")
     }
 
     public static func widgetPermissionDisabled(_ lang: AppLanguage) -> String {
@@ -461,30 +461,18 @@ public struct L10n {
     }
 
     public static func widgetPermissionDesc(_ lang: AppLanguage) -> String {
-        tr(lang, zhHans: "由于 macOS 15+ 的系统安全机制，菜单栏主程序与小组件扩展属于独立进程，需通过 App Group 共享容器交换任务快照。开源自签名版本首次访问时，系统会提示「尝试访问来自其他 App 的数据」并可能默认拦截。", zhHant: "由於 macOS 15+ 的系統安全機制，選單列主程式與小工具屬於獨立行程，需透過 App Group 共享容器交換任務快照。開源自簽名版本首次存取時，系統會提示「嘗試存取來自其他 App 的資料」並可能預設攔截。", en: "Due to macOS 15+ security policies, the Menu Bar app and WidgetKit extension run in separate processes and share snapshots via App Groups. For open-source ad-hoc builds, macOS displays 'tried to access your data from other apps' and blocks it by default.")
+        tr(lang, zhHans: "由于 macOS 系统安全机制，开源自签名版本需在「完全磁盘访问权限」中添加 QBMenubar 方可实现小组件跨进程数据同步。请点击下方按钮打开设置，点击「+」添加 QBMenubar.app 并开启开关。", zhHant: "由於 macOS 系統安全機制，開源自簽名版本需在「全能磁碟存取權限」中新增 QBMenubar 方可實現小工具跨行程資料同步。請點擊下方按鈕開啟設定，點擊「+」新增 QBMenubar.app 並開啟開關。", en: "Due to macOS security policies, open-source builds require Full Disk Access to share data with widgets. Click the button below, tap '+', add QBMenubar.app, and enable the toggle.")
     }
 
     public static func widgetPrivacyPromise(_ lang: AppLanguage) -> String {
-        tr(lang, zhHans: "🔒 隐私保证：QBMenubar 仅在共享容器中读写一份任务快照（仅含当前任务名、速率与进度百分比），绝不读取您的个人隐私或其他任何软件的数据。", zhHant: "🔒 隱私保證：QBMenubar 僅在共享容器中讀寫一份任務快照（僅含當前任務名、速率與進度百分比），絕不讀取您的個人隱私或其他任何軟體的資料。", en: "🔒 Privacy Guarantee: QBMenubar only reads/writes a lightweight status snapshot (torrent names, speeds, progress percentage). It never accesses personal files or data from any other applications.")
-    }
-
-    public static func widgetHowToFix(_ lang: AppLanguage) -> String {
-        tr(lang, zhHans: "若之前拒绝了权限或在「文件与文件夹」设置中未找到 QBMenubar：", zhHant: "若先前拒絕了權限或在「檔案與資料夾」設定中未找到 QBMenubar：", en: "If permission was denied or QBMenubar is missing in Files & Folders settings:")
-    }
-
-    public static func retriggerPermissionBtn(_ lang: AppLanguage) -> String {
-        tr(lang, zhHans: "重新申请权限", zhHant: "重新申請權限", en: "Re-trigger Permission")
-    }
-
-    public static func openFilesAndFoldersBtn(_ lang: AppLanguage) -> String {
-        tr(lang, zhHans: "打开「文件与文件夹」", zhHant: "開啟「檔案與資料夾」", en: "Open Files & Folders")
+        tr(lang, zhHans: "🔒 隐私保证：QBMenubar 仅读写一份任务快照（仅含当前任务名、速率与进度），绝不读取您的个人隐私文件或其他应用数据。", zhHant: "🔒 隱私保證：QBMenubar 僅讀寫一份任務快照（僅含當前任務名、速率與進度），絕不讀取您的個人隱私檔案或其他應用資料。", en: "🔒 Privacy Guarantee: QBMenubar only reads/writes a lightweight status snapshot. It never accesses personal files or data from any other apps.")
     }
 
     public static func openFullDiskAccessBtn(_ lang: AppLanguage) -> String {
-        tr(lang, zhHans: "完全磁盘访问设置", zhHant: "全能磁碟存取設定", en: "Full Disk Access Settings")
+        tr(lang, zhHans: "打开「完全磁盘访问权限」设置", zhHant: "開啟「全能磁碟存取」設定", en: "Open Full Disk Access Settings")
     }
 
     public static func terminalResetHint(_ lang: AppLanguage) -> String {
-        tr(lang, zhHans: "提示：也可以在「终端」运行命令完全重置授权：tccutil reset All com.antigravity.QBMenubar", zhHant: "提示：亦可在「終端機」執行指令重設授權：tccutil reset All com.antigravity.QBMenubar", en: "Tip: You can also reset approval anytime in Terminal: tccutil reset All com.antigravity.QBMenubar")
+        tr(lang, zhHans: "提示：也可以在终端运行重置命令：tccutil reset All com.antigravity.QBMenubar", zhHant: "提示：亦可在終端機執行重設指令：tccutil reset All com.antigravity.QBMenubar", en: "Tip: You can also reset permissions in Terminal: tccutil reset All com.antigravity.QBMenubar")
     }
 }

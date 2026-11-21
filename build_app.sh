@@ -48,7 +48,7 @@ cat <<EOF > "$WIDGET_CONTENTS/Info.plist"
     <key>CFBundleName</key>
     <string>QBMenubarWidget</string>
     <key>CFBundleDisplayName</key>
-    <string>qBittorrent</string>
+    <string>QBMenubar</string>
     <key>CFBundleIdentifier</key>
     <string>com.antigravity.QBMenubar.QBMenubarWidget</string>
     <key>CFBundleInfoDictionaryVersion</key>
@@ -65,15 +65,6 @@ cat <<EOF > "$WIDGET_CONTENTS/Info.plist"
     </array>
     <key>LSMinimumSystemVersion</key>
     <string>14.0</string>
-    <key>EXAppExtensionAttributes</key>
-    <dict>
-        <key>EXExtensionPointIdentifier</key>
-        <string>com.apple.widgetkit-extension</string>
-    </dict>
-    <key>UIDeviceFamily</key>
-    <array>
-        <integer>2</integer>
-    </array>
     <key>NSExtension</key>
     <dict>
         <key>NSExtensionPointIdentifier</key>
@@ -144,6 +135,37 @@ if [ -z "$SIGN_IDENTITY" ]; then
 else
     echo "==> Using code signing identity: $SIGN_IDENTITY"
 fi
+
+# Ensure clean entitlements
+cat <<EOF > "$DIR/QBMenubarWidget.entitlements"
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.app-sandbox</key>
+    <true/>
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>27F3GS56YW.group.com.antigravity.QBMenubar</string>
+        <string>group.com.antigravity.QBMenubar</string>
+    </array>
+</dict>
+</plist>
+EOF
+
+cat <<EOF > "$DIR/QBMenubar.entitlements"
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>27F3GS56YW.group.com.antigravity.QBMenubar</string>
+        <string>group.com.antigravity.QBMenubar</string>
+    </array>
+</dict>
+</plist>
+EOF
 
 echo "==> Code-signing inner binaries and app extension..."
 codesign --force --sign "$SIGN_IDENTITY" --entitlements "$DIR/QBMenubarWidget.entitlements" "$WIDGET_MACOS/QBMenubarWidget"

@@ -24,7 +24,10 @@ let package = Package(
         .executableTarget(
             name: "QBMenubarWidget",
             dependencies: ["QBMenubarShared"],
-            path: "Sources/QBMenubarWidget"
+            path: "Sources/QBMenubarWidget",
+            linkerSettings: [
+                .unsafeFlags(["-Xlinker", "-e", "-Xlinker", "_NSExtensionMain"])
+            ]
         ),
         .testTarget(
             name: "QBMenubarTests",

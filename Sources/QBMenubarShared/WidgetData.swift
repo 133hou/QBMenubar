@@ -204,25 +204,40 @@ public struct WidgetData: Codable, Sendable, Equatable {
 // MARK: - Widget Data Manager (Triple-Layer Shared Store)
 
 public enum WidgetDataManager {
-    public static let appGroupID = "group.com.antigravity.QBMenubar"
+    public static let teamIDPrefix = "27F3GS56YW."
+    public static let baseAppGroupID = "group.com.antigravity.QBMenubar"
+    public static var appGroupID: String {
+        // If container with team ID prefix exists or is accessible, prefer it
+        let teamPrefixed = teamIDPrefix + baseAppGroupID
+        if FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: teamPrefixed) != nil {
+            return teamPrefixed
+        }
+        return baseAppGroupID
+    }
+    public static let candidateAppGroupIDs = [
+        "27F3GS56YW.group.com.antigravity.QBMenubar",
+        "group.com.antigravity.QBMenubar"
+    ]
     public static let widgetKind = "QBMenubarWidget"
     public static let snapshotKey = "qb_widget_snapshot"
     public static let fileName = "widget_snapshot.json"
 
     /// Checks whether the application has permission to write to and read from the App Group container.
     public static func checkGroupContainerPermission() -> Bool {
-        guard let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) else {
-            return false
+        for groupID in candidateAppGroupIDs {
+            if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupID) {
+                let probeFile = containerURL.appendingPathComponent(".probe_\(ProcessInfo.processInfo.processIdentifier).tmp")
+                do {
+                    try FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)
+                    try "probe".write(to: probeFile, atomically: true, encoding: .utf8)
+                    try? FileManager.default.removeItem(at: probeFile)
+                    return true
+                } catch {
+                    continue
+                }
+            }
         }
-        let probeFile = containerURL.appendingPathComponent(".probe_\(ProcessInfo.processInfo.processIdentifier).tmp")
-        do {
-            try FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)
-            try "probe".write(to: probeFile, atomically: true, encoding: .utf8)
-            try? FileManager.default.removeItem(at: probeFile)
-            return true
-        } catch {
-            return false
-        }
+        return false
     }
 
     /// Resets the TCC permission cache for the app and immediately attempts container access to re-trigger macOS system permission alert.
@@ -238,11 +253,13 @@ public enum WidgetDataManager {
         usleep(150_000)
 
         // Probe access to invoke macOS TCC prompt
-        if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
-            let probeFile = containerURL.appendingPathComponent(".probe_prompt.tmp")
-            try? FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)
-            try? "prompt".write(to: probeFile, atomically: true, encoding: .utf8)
-            try? FileManager.default.removeItem(at: probeFile)
+        for groupID in candidateAppGroupIDs {
+            if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupID) {
+                let probeFile = containerURL.appendingPathComponent(".probe_prompt.tmp")
+                try? FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)
+                try? "prompt".write(to: probeFile, atomically: true, encoding: .utf8)
+                try? FileManager.default.removeItem(at: probeFile)
+            }
         }
 
         return checkGroupContainerPermission()
@@ -252,18 +269,22 @@ public enum WidgetDataManager {
     public static func saveSnapshot(_ data: WidgetData) {
         guard let encoded = try? JSONEncoder().encode(data) else { return }
 
-        // 1. App Group suite UserDefaults
-        if let userDefaults = UserDefaults(suiteName: appGroupID) {
-            userDefaults.set(encoded, forKey: snapshotKey)
+        // 1. App Group suite UserDefaults (save to all candidate groups)
+        for groupID in candidateAppGroupIDs {
+            if let userDefaults = UserDefaults(suiteName: groupID) {
+                userDefaults.set(encoded, forKey: snapshotKey)
+            }
         }
         // Also save to standard UserDefaults
         UserDefaults.standard.set(encoded, forKey: snapshotKey)
 
         // 2. App Group Container file
-        if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
-            try? FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)
-            let fileURL = containerURL.appendingPathComponent(fileName)
-            try? encoded.write(to: fileURL, options: .atomic)
+        for groupID in candidateAppGroupIDs {
+            if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupID) {
+                try? FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)
+                let fileURL = containerURL.appendingPathComponent(fileName)
+                try? encoded.write(to: fileURL, options: .atomic)
+            }
         }
 
         // 3. Application Support fallback
@@ -280,10 +301,12 @@ public enum WidgetDataManager {
         let decoder = JSONDecoder()
 
         // 1. App Group suite UserDefaults
-        if let userDefaults = UserDefaults(suiteName: appGroupID),
-           let data = userDefaults.data(forKey: snapshotKey),
-           let snapshot = try? decoder.decode(WidgetData.self, from: data) {
-            return snapshot
+        for groupID in candidateAppGroupIDs {
+            if let userDefaults = UserDefaults(suiteName: groupID),
+               let data = userDefaults.data(forKey: snapshotKey),
+               let snapshot = try? decoder.decode(WidgetData.self, from: data) {
+                return snapshot
+            }
         }
 
         // 2. Standard UserDefaults
@@ -293,11 +316,13 @@ public enum WidgetDataManager {
         }
 
         // 3. App Group Container directory file
-        if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
-            let fileURL = containerURL.appendingPathComponent(fileName)
-            if let data = try? Data(contentsOf: fileURL),
-               let snapshot = try? decoder.decode(WidgetData.self, from: data) {
-                return snapshot
+        for groupID in candidateAppGroupIDs {
+            if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupID) {
+                let fileURL = containerURL.appendingPathComponent(fileName)
+                if let data = try? Data(contentsOf: fileURL),
+                   let snapshot = try? decoder.decode(WidgetData.self, from: data) {
+                    return snapshot
+                }
             }
         }
 

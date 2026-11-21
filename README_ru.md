@@ -154,8 +154,51 @@ QBMenubar поддерживает виджеты рабочего стола и
 
 ---
 
+
+---
+
+## ⚙️ Руководство по настройке клиентов (qBittorrent и Transmission)
+
+| Клиент | Рекомендуемая настройка | Порт / Путь | Авторизация |
+|---|---|---|---|
+| **qBittorrent** | Включить WebUI (API v2) | Порт по умолчанию `8080` (напр.: `http://192.168.1.100:8080`) | Логин и Пароль |
+| **Transmission** | Включить удаленный доступ RPC | Порт по умолчанию `9091` (Путь RPC: `/transmission/rpc`) | RPC Auth и автообработка 409 CSRF |
+
+> [!TIP]
+> **Переключение клиента в 1 клик:**  
+> В Настройках (**⌘,**) на вкладке «**Подключение к WebUI**» выберите qBittorrent или Transmission, и все виджеты, графики и управление загрузками моментально адаптируются.
+
+---
+
+## ❓ Часто задаваемые вопросы (FAQ)
+
+<details>
+<summary><b>1. Можно ли подключиться к удаленному NAS, Unraid или Docker?</b></summary>
+Да. Приложение без проблем подключается к qBittorrent и Transmission на локальном Mac, Synology DSM, QNAP, Unraid, TrueNAS, в контейнерах Docker или на удаленном сервере через локальный IP, домен или HTTPS-прокси.
+</details>
+
+<details>
+<summary><b>2. Работает ли приложение без системных разрешений для виджетов?</b></summary>
+Да. Даже если вы не предоставите разрешение на доступ к виджетам рабочего стола («Данные других приложений»), весь основной функционал в строке меню (мониторинг, закрепление задач, пауза/возобновление, добавление торрентов) работает на 100%.
+</details>
+
+<details>
+<summary><b>3. Можно ли изменять высоту всплывающего окна?</b></summary>
+Да! Начиная с версии 1.3.2, вы можете перетаскивать нижний ползунок окна вверх и вниз (в диапазоне от 380pt до 920pt). Двойной щелчок мгновенно возвращает окно к стандартной высоте 550pt, а верхний край окна всегда остается ровно зафиксированным под строкой меню.
+</details>
+
+<details>
+<summary><b>4. Насколько QBMenubar легче браузерного WebUI или Electron?</b></summary>
+В отличие от постоянно открытых вкладок браузера (300 МБ–1 ГБ ОЗУ, 1–5% ЦП) или Electron-приложений, QBMenubar — это нативное приложение на Swift 6. В режиме ожидания оно потребляет всего 35–45 МБ ОЗУ и менее 0,1% ЦП.
+</details>
+
+<details>
+<summary><b>5. Как закрепить определенный торрент в строке меню?</b></summary>
+Просто нажмите на значок булавки (📌) на карточке торрента во всплывающем окне. Процент выполнения появится прямо рядом с часами в строке меню.
+</details>
+
 ## 🏷️ Поисковые ключевые слова (Keywords)
-`qbittorrent` • `qbittorrent-controller` • `qbittorrent-webui` • `qbittorrent-client` • `macos-menubar` • `menubar-app` • `menubar-extra` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid`
+`qbittorrent` • `transmission` • `qbittorrent-controller` • `transmission-remote` • `qbittorrent-webui` • `macos-menubar` • `menubar-app` • `menubar-extra` • `widgetkit` • `macos-widgets` • `desktop-widgets` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid`
 
 ---
 

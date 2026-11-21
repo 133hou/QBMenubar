@@ -7,6 +7,8 @@
 <p align="center">
   <a href="https://github.com/133hou/QBMenubar/releases"><img src="https://img.shields.io/github/v/release/133hou/QBMenubar?color=blue" alt="GitHub Release"></a>
   <a href="https://github.com/133hou/QBMenubar/releases"><img src="https://img.shields.io/github/downloads/133hou/QBMenubar/total.svg?color=success" alt="Téléchargements"></a>
+  <img src="https://img.shields.io/badge/Clients-qBittorrent%20%2B%20Transmission-blue" alt="Clients supportés">
+  <img src="https://img.shields.io/badge/Widgets-WidgetKit%20(S%2FM%2FL)-emerald" alt="macOS Widgets">
   <img src="https://img.shields.io/badge/Plateforme-macOS%2014.0%2B-lightgrey" alt="Platform">
   <img src="https://img.shields.io/badge/Swift-6.0-orange" alt="Swift 6">
   <img src="https://img.shields.io/badge/Architecture-Universal%20(Apple%20Silicon%20%2B%20Intel)-purple" alt="Apple Silicon & Intel">
@@ -154,8 +156,51 @@ Prêt à l'emploi, aucun outil de développement requis :
 
 ---
 
+
+---
+
+## ⚙️ Guide de configuration des clients (qBittorrent & Transmission)
+
+| Client | Réglage recommandé | Port / Chemin | Authentification |
+|---|---|---|---|
+| **qBittorrent** | Activer l'interface WebUI (API v2) | Port par défaut `8080` (ex: `http://192.168.1.100:8080`) | Identifiant & Mot de passe |
+| **Transmission** | Activer l'accès RPC à distance | Port par défaut `9091` (Chemin RPC: `/transmission/rpc`) | Auth RPC & Gestion automatique CSRF 409 |
+
+> [!TIP]
+> **Basculez de client en un clic :**  
+> Dans les Préférences (**⌘,**), sous l'onglet « **Connexion WebUI** », choisissez qBittorrent ou Transmission. Tout le système (barre des menus, widgets et gestion des torrents) s'adapte instantanément.
+
+---
+
+## ❓ Foire aux questions (FAQ)
+
+<details>
+<summary><b>1. Puis-je me connecter à un NAS distant, Unraid ou Docker ?</b></summary>
+Oui. QBMenubar prend en charge les instances locales et distantes sur Synology DSM, QNAP, Unraid, TrueNAS, conteneurs Docker ou VPS distant via IP LAN, domaine ou proxy inverse HTTPS.
+</details>
+
+<details>
+<summary><b>2. L'application fonctionne-t-elle sans autoriser les permissions de widgets ?</b></summary>
+Oui. Même si vous n'autorisez pas l'accès partagé aux widgets de bureau (« Données d'autres applications »), toutes les fonctionnalités de la barre des menus (surveillance, épinglage, pause/reprise, ajout de torrents) fonctionnent à 100%.
+</details>
+
+<details>
+<summary><b>3. La hauteur de la fenêtre popover peut-elle être agrandie ?</b></summary>
+Oui ! Depuis la version 1.3.2, vous pouvez faire glisser la barre d'ajustement située en bas de la fenêtre (plage de 380pt à 920pt). Un double-clic réinitialise immédiatement la hauteur à 550pt par défaut, et le haut reste parfaitement ancré sous la barre des menus.
+</details>
+
+<details>
+<summary><b>4. Quel est l'impact sur les performances par rapport à la WebUI du navigateur ?</b></summary>
+Contrairement aux onglets de navigateur ouverts en continu (300 Mo à 1 Go de RAM, 1 à 5% de CPU) ou aux wrappers Electron, QBMenubar est une application Swift 6 native. Elle ne consomme que 35 à 45 Mo de RAM et moins de 0,1% de CPU en veille.
+</details>
+
+<details>
+<summary><b>5. Comment épingler un torrent spécifique dans la barre des menus ?</b></summary>
+Cliquez simplement sur l'icône d'épingle (📌) sur la fiche du torrent dans le popover. Le pourcentage de progression en temps réel apparaîtra immédiatement à côté de l'horloge.
+</details>
+
 ## 🏷️ Mots-clés de recherche (Keywords)
-`qbittorrent` • `qbittorrent-controller` • `qbittorrent-webui` • `qbittorrent-client` • `macos-menubar` • `menubar-app` • `menubar-extra` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid`
+`qbittorrent` • `transmission` • `qbittorrent-controller` • `transmission-remote` • `qbittorrent-webui` • `macos-menubar` • `menubar-app` • `menubar-extra` • `widgetkit` • `macos-widgets` • `desktop-widgets` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid`
 
 ---
 

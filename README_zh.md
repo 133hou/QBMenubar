@@ -1,13 +1,15 @@
-# QBMenubar - 原生 macOS qBittorrent 状态栏控制中心
+# ⚡️ QBMenubar — 原生 macOS qBittorrent & Transmission 状态栏监控与桌面小组件客户端
 
 <p align="center">
-  <img src="docs/images/social_preview.png" alt="QBMenubar - 原生 macOS qBittorrent 菜单栏监控与控制器（Liquid Glass 设计）" width="800" />
+  <img src="docs/images/social_preview.png" alt="QBMenubar - 原生 macOS qBittorrent 与 Transmission 菜单栏监控与桌面小组件客户端（Liquid Glass 设计）" width="800" />
 </p>
 
 <p align="center">
   <a href="https://github.com/133hou/QBMenubar/releases"><img src="https://img.shields.io/github/v/release/133hou/QBMenubar?color=blue" alt="GitHub Release"></a>
   <a href="https://github.com/133hou/QBMenubar/releases"><img src="https://img.shields.io/github/downloads/133hou/QBMenubar/total.svg?color=success" alt="总下载量"></a>
-  <img src="https://img.shields.io/badge/平台-macOS%2014.0%2B-lightgrey" alt="Platform">
+  <img src="https://img.shields.io/badge/客户端-qBittorrent%20%2B%20Transmission-blue" alt="支持客户端">
+  <img src="https://img.shields.io/badge/小组件-WidgetKit%20(小%2F中%2F大)-emerald" alt="macOS 桌面小组件">
+  <img src="https://img.shields.io/badge/平台-macOS%2014.0%2B%20(Sonoma%2FSequoia%2FTahoe)-lightgrey" alt="Platform">
   <img src="https://img.shields.io/badge/Swift-6.0-orange" alt="Swift 6">
   <img src="https://img.shields.io/badge/架构-Universal%20(Apple%20Silicon%20%2B%20Intel)-purple" alt="Apple Silicon & Intel">
   <img src="https://img.shields.io/badge/开源协议-MIT-green" alt="MIT License">
@@ -71,9 +73,11 @@
 
 | 功能维度 | QBMenubar (原生) | 浏览器 WebUI 网页 | 官方 Qt 客户端 | Python / SwiftBar 脚本插件 |
 |---|:---:|:---:|:---:|:---:|
+| **双客户端引擎** | ✅ **qBittorrent & Transmission** | ❌ 仅限单个实例 | ❌ 仅限 qBittorrent | ⚠️ 仅限特定脚本 |
 | **状态栏常驻与交互** | ✅ 原生 Liquid Glass 弹窗 | ❌ 仅限网页窗口 | ❌ 仅限 Dock / 独立主窗 | ⚠️ 纯文本下拉菜单（无交互卡片） |
 | **菜单栏图钉任务进度** | ✅ 状态栏黑白单色徽章直显 | ❌ | ❌ | ❌ |
 | **实时动态带宽波形图** | ✅ Swift Charts 平滑物理波形 | ⚠️ 静态刷新折线 | ⚠️ 简易折线 | ❌ |
+| **可拉伸窗口高度** | ✅ 底部把手自由拖拽 (380-920pt) | ⚠️ 手动调整网页 | ⚠️ 复杂桌面窗口 | ❌ 固定纯文本 |
 | **内存占用** | 🟢 **~35 - 45 MB** | 🔴 300 MB - 1 GB+ | 🟡 150 MB - 300 MB | 🟢 ~30 MB |
 | **后台空闲 CPU** | 🟢 **< 0.1%** | 🟡 1% - 5% | 🟡 1% - 3% | 🟡 1% - 2% |
 | **远程 NAS / Docker 连接** | ✅ 本地、内网 NAS 与域名反代 | ✅ | ❌ 仅支持本机守护进程 | ⚠️ 鉴权与反代支持有限 |
@@ -178,20 +182,47 @@ open QBMenubar.app
 
 ## ⚙️ 首次使用配置步骤（1 分钟快速上手）
 
-1. **启用 qBittorrent WebUI**：
-   - 打开您的 qBittorrent（本地、NAS 或服务器均可）；
-   - 进入 **设置 (Preferences) -> Web UI**，勾选 **Web 用户界面 (远程控制)**；
-   - 默认端口一般为 `8080`，默认本地地址通常为 `http://127.0.0.1:8080`。
-2. **连接 QBMenubar**：
-   - 点击 macOS 屏幕右上角菜单栏的 QBMenubar 图标；
-   - 点击面板右上角的齿轮图标 (**⚙️**) 打开偏好设置；
-   - 填入您的 WebUI 地址、用户名和密码，点击 **测试连接**；
-   - 状态栏立即开始实时显示下载与上传速率！
+### qBittorrent 用户：
+1. **启用 WebUI**：打开 qBittorrent -> **偏好设置 (Preferences) -> Web UI**，勾选 **Web 用户界面 (远程控制)**（默认端口 `8080`）。
+2. **连接 QBMenubar**：打开 QBMenubar 设置 -> **WebUI 连接**，客户端选择 **qBittorrent**，检查地址（默认 `http://127.0.0.1:8080`、API 前缀 `/api/v2`），输入账户密码后点击 **测试连接**。
+
+### Transmission 用户：
+1. **启用远程访问**：打开 Transmission -> **偏好设置 -> 远程 (Remote)**，勾选 **启用远程访问**（默认端口 `9091`）。
+2. **连接 QBMenubar**：打开 QBMenubar 设置 -> **WebUI 连接**，将客户端类型切换为 **Transmission**，地址将自动预设为 `http://127.0.0.1:9091` 与 `/transmission/rpc`，若设置了密码请输入后点击 **测试连接** 即可！
+
+---
+
+## ❓ 常见问题与解答 (FAQ)
+
+<details>
+<summary><b>1. QBMenubar 支持同时连接或切换 qBittorrent 与 Transmission 吗？</b></summary>
+是的！QBMenubar 具备统一的服务抽象层。您只需在「设置 -> WebUI 连接」中选择 <b>qBittorrent</b> 或 <b>Transmission</b>，菜单栏实时速率、展开卡片、折线图与桌面小组件均全面无缝兼容。
+</details>
+
+<details>
+<summary><b>2. 如何连接群晖 Synology、TrueNAS、威联通 QNAP 或 Docker 中的下载器？</b></summary>
+只需在「服务器地址」一栏填入 NAS 的局域网 IP（例如 <code>http://192.168.1.100:8080</code> 或 <code>http://nas.local:9091</code>）、自定义域名或 HTTPS 反向代理地址即可。QBMenubar 原生支持反向代理子路径与基础认证。
+</details>
+
+<details>
+<summary><b>3. 如何在 macOS Sonoma、Sequoia 或 Tahoe 桌面添加小组件？</b></summary>
+在 Mac 桌面空白处右键点击<b>「编辑小组件」</b>（或在通知中心底部点击），搜索 <b>QBMenubar</b>，即可将<b>小（Small）</b>、<b>中（Medium）</b>或<b>大（Large）</b>规格的小组件拖至桌面或通知中心。您还可以在设置中自由选择<b>液态玻璃环形圈</b>或<b>经典横向胶囊条</b>样式。
+</details>
+
+<details>
+<summary><b>4. 为什么 QBMenubar 的内存占用只有 40MB，而网页端占用几百 MB？</b></summary>
+QBMenubar 采用纯原生 <b>Swift 6 + SwiftUI</b> 开发，零内嵌网页、零 Chromium/Electron 臃肿运行时，直接以原生网络协议并发调度，空闲时 CPU 占用近乎为零（<0.1%），极其节能省电。
+</details>
+
+<details>
+<summary><b>5. 菜单栏弹出的控制窗口可以拉长放大吗？</b></summary>
+完全可以！点击菜单栏弹出面板后，将鼠标移至面板<b>最底部正中央的原生拖拽把手</b>，鼠标变为上下箭头后即可在 <b>380pt ~ 920pt</b> 之间任意拖拽拉伸窗口高度。高度会自动记住，双击把手可一键平滑弹回默认 550pt 高度。
+</details>
 
 ---
 
 ## 🏷️ 搜索关键词与索引标签 (Keywords)
-`qbittorrent` • `qbittorrent-controller` • `qbittorrent-webui` • `qbittorrent-client` • `macos-menubar` • `menubar-app` • `menubar-extra` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid` • `truenas` • `docker`
+`qbittorrent` • `transmission` • `qbittorrent-controller` • `transmission-remote` • `qbittorrent-webui` • `transmission-rpc` • `macos-menubar` • `menubar-app` • `menubar-extra` • `widgetkit` • `desktop-widgets` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid` • `truenas` • `qnap` • `docker` • `apple-silicon` • `macos-tahoe` • `macos-sequoia` • `macos-sonoma`
 
 ---
 

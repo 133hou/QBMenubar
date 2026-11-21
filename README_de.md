@@ -1,4 +1,4 @@
-# QBMenubar - Nativer macOS Menüleisten-Controller für qBittorrent
+# ⚡️ QBMenubar — Nativer macOS qBittorrent & Transmission Menüleisten- & Desktop-Widget-Client
 
 <p align="center">
   <img src="docs/images/social_preview.png" alt="QBMenubar - Nativer macOS Menüleisten-Controller für qBittorrent im Liquid Glass Design" width="800" />
@@ -7,6 +7,8 @@
 <p align="center">
   <a href="https://github.com/133hou/QBMenubar/releases"><img src="https://img.shields.io/github/v/release/133hou/QBMenubar?color=blue" alt="GitHub Release"></a>
   <a href="https://github.com/133hou/QBMenubar/releases"><img src="https://img.shields.io/github/downloads/133hou/QBMenubar/total.svg?color=success" alt="Downloads"></a>
+  <img src="https://img.shields.io/badge/Clients-qBittorrent%20%2B%20Transmission-blue" alt="Unterstützte Clients">
+  <img src="https://img.shields.io/badge/Widgets-WidgetKit%20(S%2FM%2FL)-emerald" alt="macOS Widgets">
   <img src="https://img.shields.io/badge/Plattform-macOS%2014.0%2B-lightgrey" alt="Platform">
   <img src="https://img.shields.io/badge/Swift-6.0-orange" alt="Swift 6">
   <img src="https://img.shields.io/badge/Architektur-Universal%20(Apple%20Silicon%20%2B%20Intel)-purple" alt="Apple Silicon & Intel">
@@ -154,8 +156,51 @@ Kein Xcode oder Terminal nötig:
 
 ---
 
+
+---
+
+## ⚙️ Client-Konfigurationsleitfaden (qBittorrent & Transmission)
+
+| Client | Empfohlene Einstellung | Port / Pfad | Authentifizierung |
+|---|---|---|---|
+| **qBittorrent** | WebUI aktivieren (API v2) | Standard `8080` (z. B. `http://192.168.1.100:8080`) | Benutzername & Passwort |
+| **Transmission** | RPC-Fernzugriff aktivieren | Standard `9091` (RPC-Pfad: `/transmission/rpc`) | RPC-Auth & 409 CSRF-Auto-Handling |
+
+> [!TIP]
+> **Nahtloser 1-Klick-Clientwechsel:**  
+> Wählen Sie in den Einstellungen (**⌘,**) unter „**WebUI-Verbindung**“ einfach zwischen qBittorrent und Transmission. Alle Menüleistenanzeigen, Widgets und Torrent-Aktionen passen sich sofort automatisch an.
+
+---
+
+## ❓ Häufig gestellte Fragen (FAQ)
+
+<details>
+<summary><b>1. Kann ich mich mit Remote-NAS-, Docker- oder Unraid-Instanzen verbinden?</b></summary>
+Ja. Sie können qBittorrent und Transmission auf dem lokalen Mac, Synology DSM, QNAP, Unraid, TrueNAS, Docker-Containern oder entfernten VPS über LAN-IP, DynDNS-Domains oder HTTPS-Reverse-Proxys uneingeschränkt steuern.
+</details>
+
+<details>
+<summary><b>2. Funktioniert die App auch ohne Widget-Systemberechtigungen?</b></summary>
+Ja. Auch wenn Sie die optionale Berechtigung für Desktop-Widgets („Daten anderer Apps“) nicht erteilen, funktioniert die gesamte Menüleisten-App inklusive Geschwindigkeitsüberwachung, Torrent-Anheftung, Pause/Fortsetzen und Magnet-Hinzufügen zu 100%.
+</details>
+
+<details>
+<summary><b>3. Kann die Höhe des Menüleisten-Fensters angepasst werden?</b></summary>
+Ja! Seit v1.3.2 können Sie den interaktiven Ziehgriff am unteren Rand des Fensters nach oben und unten ziehen (Höhe zwischen 380pt und 920pt). Ein Doppelklick setzt die Höhe sofort auf die Standardhöhe von 550pt zurück. Die Oberkante bleibt dabei stets nahtlos unter der Menüleiste fixiert.
+</details>
+
+<details>
+<summary><b>4. Wie ressourcenschonend ist QBMenubar im Vergleich zur Browser-WebUI?</b></summary>
+Im Gegensatz zu geöffneten Browser-Tabs (300 MB–1 GB RAM, 1–5% CPU) oder Electron-Apps ist QBMenubar eine native Swift 6-App. Im Leerlauf verbraucht sie nur ca. 35–45 MB RAM und unter 0,1% CPU.
+</details>
+
+<details>
+<summary><b>5. Wie hefte ich einen bestimmten Torrent an die Menüleiste an?</b></summary>
+Klicken Sie einfach auf das Stecknadel-Symbol (📌) auf der gewünschten Torrent-Karte im Popover. Sofort wird der Live-Fortschrittsprozentsatz direkt neben der Uhr in der Menüleiste angezeigt.
+</details>
+
 ## 🏷️ Suchbegriffe (Keywords)
-`qbittorrent` • `qbittorrent-controller` • `qbittorrent-webui` • `qbittorrent-client` • `macos-menubar` • `menubar-app` • `menubar-extra` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid`
+`qbittorrent` • `transmission` • `qbittorrent-controller` • `transmission-remote` • `qbittorrent-webui` • `macos-menubar` • `menubar-app` • `menubar-extra` • `widgetkit` • `macos-widgets` • `desktop-widgets` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid`
 
 ---
 

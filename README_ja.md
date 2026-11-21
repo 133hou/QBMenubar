@@ -1,13 +1,15 @@
-# QBMenubar - macOS ネイティブ qBittorrent メニューバーコントローラー
+# ⚡️ QBMenubar — macOS ネイティブ qBittorrent & Transmission メニューバー＆デスクトップウィジェットクライアント
 
 <p align="center">
-  <img src="docs/images/social_preview.png" alt="QBMenubar - Liquid Glass デザインを採用した macOS ネイティブ qBittorrent メニューバーコントローラー" width="800" />
+  <img src="docs/images/social_preview.png" alt="QBMenubar - Liquid Glass デザインを採用した macOS ネイティブ qBittorrent & Transmission メニューバーコントローラー" width="800" />
 </p>
 
 <p align="center">
   <a href="https://github.com/133hou/QBMenubar/releases"><img src="https://img.shields.io/github/v/release/133hou/QBMenubar?color=blue" alt="GitHub Release"></a>
   <a href="https://github.com/133hou/QBMenubar/releases"><img src="https://img.shields.io/github/downloads/133hou/QBMenubar/total.svg?color=success" alt="総ダウンロード数"></a>
-  <img src="https://img.shields.io/badge/プラットフォーム-macOS%2014.0%2B-lightgrey" alt="Platform">
+  <img src="https://img.shields.io/badge/クライアント-qBittorrent%20%2B%20Transmission-blue" alt="Supported Clients">
+  <img src="https://img.shields.io/badge/ウィジェット-WidgetKit%20(S%2FM%2FL)-emerald" alt="macOS Widgets">
+  <img src="https://img.shields.io/badge/プラットフォーム-macOS%2014.0%2B%20(Sonoma%2FSequoia%2FTahoe)-lightgrey" alt="Platform">
   <img src="https://img.shields.io/badge/Swift-6.0-orange" alt="Swift 6">
   <img src="https://img.shields.io/badge/アーキテクチャ-Universal%20(Apple%20Silicon%20%2B%20Intel)-purple" alt="Apple Silicon & Intel">
   <img src="https://img.shields.io/badge/ライセンス-MIT-green" alt="MIT License">
@@ -153,8 +155,51 @@ Xcode や開発環境不要ですぐに使えます：
 
 ---
 
+
+---
+
+## ⚙️ クライアント設定ガイド (qBittorrent & Transmission)
+
+| クライアント | 推奨設定 | ポート / パス | 認証 |
+|---|---|---|---|
+| **qBittorrent** | WebUI を有効化 (API v2) | デフォルト `8080` (例: `http://192.168.1.100:8080`) | ユーザー名 & パスワード |
+| **Transmission** | RPC リモートアクセスを有効化 | デフォルト `9091` (パス: `/transmission/rpc`) | RPC 認証 & 409 CSRF 自動処理 |
+
+> [!TIP]
+> **ワンクリックでクライアント切り替え:**  
+> 設定画面 (**⌘,**) の「**WebUI 接続**」で「qBittorrent」または「Transmission」を選択するだけで、すべてのメニューバー速度表示、ウィジェット、タスク管理が自動的に適応します。
+
+---
+
+## ❓ よくある質問 (FAQ)
+
+<details>
+<summary><b>1. リモート NAS、Unraid、Docker 上のクライアントに接続できますか？</b></summary>
+はい。ローカル Mac はもちろん、Synology DSM、QNAP、Unraid、TrueNAS、Docker コンテナ、リモート VPS 上で稼働する qBittorrent / Transmission に、LAN IP、DDNS ドメイン、HTTPS リバースプロキシ経由で完全に接続できます。
+</details>
+
+<details>
+<summary><b>2. ウィジェットのシステム権限を許可しなくてもアプリは使えますか？</b></summary>
+はい。デスクトップウィジェットの同期権限（「他のアプリのデータ」）を許可しなくても、メニューバー常駐本体の速度監視、タスクピン留め、一時停止/再開、マグネット追加などすべての機能は 100% 完全に動作します。
+</details>
+
+<details>
+<summary><b>3. メニューバーのポップオーバーウィンドウの高さを調整できますか？</b></summary>
+はい！v1.3.2 より、ポップオーバー下部のインタラクティブなハンドルバーを上下にドラッグすることで、380pt から 920pt まで自由に高さを調整できます。ダブルクリックするとデフォルトの 550pt に瞬時に復帰します。またウィンドウ上端は常にメニューバー直下に美しく固定されます。
+</details>
+
+<details>
+<summary><b>4. ブラウザ WebUI や Electron アプリと比較してどれくらい軽快ですか？</b></summary>
+ブラウザの常時オープンタブ（300MB〜1GB、CPU 1〜5%）や Electron ラッパーと異なり、QBMenubar は純粋な Swift 6 ネイティブバイナリです。アイドル時メモリは約 35〜45MB、CPU 負荷は 0.1% 未満で、MacBook のバッテリーをほとんど消費しません。
+</details>
+
+<details>
+<summary><b>5. 特定のダウンロードタスクをメニューバーにピン留めするには？</b></summary>
+ポップオーバー内のタスクカードにあるピン留めアイコン（📌）をクリックするだけで、メニューバーの時計横にリアルタイム速度と進捗率（例: `↓ 12.0 MB/s 85%`）が常時表示されます。
+</details>
+
 ## 🏷️ 検索キーワード (Keywords)
-`qbittorrent` • `qbittorrent-controller` • `qbittorrent-webui` • `qbittorrent-client` • `macos-menubar` • `menubar-app` • `menubar-extra` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid`
+`qbittorrent` • `transmission` • `qbittorrent-controller` • `transmission-remote` • `qbittorrent-webui` • `macos-menubar` • `menubar-app` • `menubar-extra` • `widgetkit` • `macos-widgets` • `desktop-widgets` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid`
 
 ---
 

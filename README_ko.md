@@ -1,4 +1,4 @@
-# QBMenubar - macOS 네이티브 qBittorrent 메뉴 막대 컨트롤러
+# ⚡️ QBMenubar — macOS 네이티브 qBittorrent & Transmission 메뉴 막대 및 데스크톱 위젯 클라이언트
 
 <p align="center">
   <img src="docs/images/social_preview.png" alt="QBMenubar - Liquid Glass 디자인이 적용된 macOS 네이티브 qBittorrent 메뉴 막대 컨트롤러" width="800" />
@@ -7,6 +7,8 @@
 <p align="center">
   <a href="https://github.com/133hou/QBMenubar/releases"><img src="https://img.shields.io/github/v/release/133hou/QBMenubar?color=blue" alt="GitHub Release"></a>
   <a href="https://github.com/133hou/QBMenubar/releases"><img src="https://img.shields.io/github/downloads/133hou/QBMenubar/total.svg?color=success" alt="총 다운로드"></a>
+  <img src="https://img.shields.io/badge/지원%20클라이언트-qBittorrent%20%2B%20Transmission-blue" alt="Supported Clients">
+  <img src="https://img.shields.io/badge/위젯-WidgetKit%20(S%2FM%2FL)-emerald" alt="macOS Widgets">
   <img src="https://img.shields.io/badge/플랫폼-macOS%2014.0%2B-lightgrey" alt="Platform">
   <img src="https://img.shields.io/badge/Swift-6.0-orange" alt="Swift 6">
   <img src="https://img.shields.io/badge/아키텍처-Universal%20(Apple%20Silicon%20%2B%20Intel)-purple" alt="Apple Silicon & Intel">
@@ -154,8 +156,51 @@ QBMenubar는 macOS 데스크탑 및 알림 센터 위젯(Small, Medium, Large 3�
 
 ---
 
+
+---
+
+## ⚙️ 클라이언트 연결 가이드 (qBittorrent & Transmission)
+
+| 클라이언트 | 권장 설정 | 포트 / 경로 | 인증 방식 |
+|---|---|---|---|
+| **qBittorrent** | WebUI 활성화 (API v2) | 기본 `8080` (예: `http://192.168.1.100:8080`) | 사용자 이름 & 비밀번호 |
+| **Transmission** | RPC 원격 액세스 허용 | 기본 `9091` (RPC 경로: `/transmission/rpc`) | RPC 인증 & 409 CSRF 자동 처리 |
+
+> [!TIP]
+> **원클릭 클라이언트 전환:**  
+> 환경설정(**⌘,**)의 「**WebUI 연결**」에서 qBittorrent 또는 Transmission을 선택하기만 하면 모든 메뉴 막대 속도 표시, 데스크톱 위젯, 토렌트 관리가 즉시 자동 전환됩니다.
+
+---
+
+## ❓ 자주 묻는 질문 (FAQ)
+
+<details>
+<summary><b>1. 원격 NAS, Unraid, Docker 상의 클라이언트에 연결할 수 있나요?</b></summary>
+네, 로컬 Mac뿐만 아니라 Synology DSM, QNAP, Unraid, TrueNAS, Docker 컨테이너, 원격 VPS에서 실행 중인 qBittorrent 및 Transmission에 내부 IP, DDNS 도메인, HTTPS 역방향 프록시를 통해 완벽하게 연결할 수 있습니다.
+</details>
+
+<details>
+<summary><b>2. 위젯 시스템 권한을 승인하지 않아도 앱을 사용할 수 있나요?</b></summary>
+네, 데스크톱 위젯 동기화 권한(「다른 앱의 데이터」)을 승인하지 않더라도 메뉴 막대 본체의 실시간 속도 모니터링, 작업 핀 고정, 일시정지/재개, 마그넷 다운로드 등 모든 핵심 기능은 100% 정상 작동합니다.
+</details>
+
+<details>
+<summary><b>3. 메뉴 막대 팝오버 창의 높이를 조절할 수 있나요?</b></summary>
+네! v1.3.2부터 팝오버 하단의 인터랙티브 핸들 바를 위아래로 드래그하여 380pt에서 920pt까지 자유롭게 높이를 조절할 수 있습니다. 더블 클릭하면 기본값 550pt로 즉시 복귀하며 상단은 항상 메뉴 막대 바로 아래에 완벽히 고정됩니다.
+</details>
+
+<details>
+<summary><b>4. 브라우저 WebUI나 일렉트론 앱보다 얼마나 가볍나요?</b></summary>
+브라우저 탭(300MB~1GB RAM, CPU 1~5%)이나 일렉트론 래퍼와 달리, QBMenubar는 순수 Swift 6 네이티브 바이너리입니다. 대기 중 RAM 소비는 약 35~45MB, CPU 사용률은 0.1% 미만으로 배터리를 거의 소모하지 않습니다.
+</details>
+
+<details>
+<summary><b>5. 메뉴 막대에 특정 다운로드 작업을 핀 고정하려면 어떻게 하나요?</b></summary>
+팝오버 창 내의 토렌트 카드에서 핀 아이콘(📌)을 클릭하기만 하면 메뉴 막대 시계 옆에 실시간 다운로드 속도와 진척률(예: `↓ 12.0 MB/s 85%`)이 상시 표시됩니다.
+</details>
+
 ## 🏷️ 검색 키워드 (Keywords)
-`qbittorrent` • `qbittorrent-controller` • `qbittorrent-webui` • `qbittorrent-client` • `macos-menubar` • `menubar-app` • `menubar-extra` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid`
+`qbittorrent` • `transmission` • `qbittorrent-controller` • `transmission-remote` • `qbittorrent-webui` • `macos-menubar` • `menubar-app` • `menubar-extra` • `widgetkit` • `macos-widgets` • `desktop-widgets` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid`
 
 ---
 

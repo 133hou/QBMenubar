@@ -7,6 +7,8 @@
 <p align="center">
   <a href="https://github.com/133hou/QBMenubar/releases"><img src="https://img.shields.io/github/v/release/133hou/QBMenubar?color=blue" alt="GitHub Release"></a>
   <a href="https://github.com/133hou/QBMenubar/releases"><img src="https://img.shields.io/github/downloads/133hou/QBMenubar/total.svg?color=success" alt="Descargas"></a>
+  <img src="https://img.shields.io/badge/Clientes-qBittorrent%20%2B%20Transmission-blue" alt="Clientes compatibles">
+  <img src="https://img.shields.io/badge/Widgets-WidgetKit%20(S%2FM%2FL)-emerald" alt="macOS Widgets">
   <img src="https://img.shields.io/badge/Plataforma-macOS%2014.0%2B-lightgrey" alt="Platform">
   <img src="https://img.shields.io/badge/Swift-6.0-orange" alt="Swift 6">
   <img src="https://img.shields.io/badge/Arquitectura-Universal%20(Apple%20Silicon%20%2B%20Intel)-purple" alt="Apple Silicon & Intel">
@@ -154,8 +156,51 @@ Listo para usar, no requiere terminal ni Xcode:
 
 ---
 
+
+---
+
+## ⚙️ Guía de configuración de clientes (qBittorrent y Transmission)
+
+| Cliente | Configuración recomendada | Puerto / Ruta | Autenticación |
+|---|---|---|---|
+| **qBittorrent** | Habilitar WebUI (API v2) | Puerto predeterminado `8080` (ej: `http://192.168.1.100:8080`) | Usuario y Contraseña |
+| **Transmission** | Habilitar acceso remoto RPC | Puerto predeterminado `9091` (Ruta RPC: `/transmission/rpc`) | Auth RPC y Gestión automática CSRF 409 |
+
+> [!TIP]
+> **Cambio de cliente en un clic:**  
+> En Configuración (**⌘,**), bajo «**Conexión WebUI**», seleccione qBittorrent o Transmission para cambiar al instante todo el monitoreo y gestión de descargas.
+
+---
+
+## ❓ Preguntas frecuentes (FAQ)
+
+<details>
+<summary><b>1. ¿Puedo conectarme a clientes remotos en NAS, Unraid o Docker?</b></summary>
+Sí. Funciona perfectamente con instancias locales y remotas en Synology DSM, QNAP, Unraid, TrueNAS, Docker o VPS a través de IP LAN, dominio o proxy inverso HTTPS.
+</details>
+
+<details>
+<summary><b>2. ¿La aplicación funciona sin los permisos de widgets de escritorio?</b></summary>
+Sí. Si decide no otorgar permisos a los widgets («Datos de otras aplicaciones»), todas las funciones de la barra de menús (monitoreo, anclaje de tareas, pausa/reanudación y adición de torrents) seguirán funcionando al 100%.
+</details>
+
+<details>
+<summary><b>3. ¿Se puede cambiar la altura de la ventana emergente?</b></summary>
+¡Sí! Desde la v1.3.2, puede arrastrar el tirador inferior hacia arriba o hacia abajo (de 380pt a 920pt). Hacer doble clic restablece la altura predeterminada de 550pt, manteniendo la parte superior anclada justo debajo de la barra de menús.
+</details>
+
+<details>
+<summary><b>4. ¿Cuánto consume en comparación con la interfaz web o Electron?</b></summary>
+A diferencia de pestañas abiertas en el navegador (300 MB a 1 GB de RAM, 1-5% de CPU) o aplicaciones Electron, QBMenubar es una app nativa Swift 6. En reposo consume solo ~35-45 MB de RAM y menos de 0.1% de CPU.
+</details>
+
+<details>
+<summary><b>5. ¿Cómo anclar una descarga a la barra de menús?</b></summary>
+Solo haga clic en el icono de chincheta (📌) en la tarjeta del torrent en la ventana emergente. El progreso en vivo aparecerá de inmediato junto al reloj.
+</details>
+
 ## 🏷️ Palabras clave de búsqueda (Keywords)
-`qbittorrent` • `qbittorrent-controller` • `qbittorrent-webui` • `qbittorrent-client` • `macos-menubar` • `menubar-app` • `menubar-extra` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid`
+`qbittorrent` • `transmission` • `qbittorrent-controller` • `transmission-remote` • `qbittorrent-webui` • `macos-menubar` • `menubar-app` • `menubar-extra` • `widgetkit` • `macos-widgets` • `desktop-widgets` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid`
 
 ---
 

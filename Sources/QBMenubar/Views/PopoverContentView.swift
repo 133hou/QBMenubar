@@ -6,6 +6,8 @@ public struct PopoverContentView: View {
     @State private var dragStartHeight: Double = 550.0
     @State private var isDraggingResize: Bool = false
     @State private var isHoveringResize: Bool = false
+    @State private var hostWindow: NSWindow? = nil
+    @State private var dragAnchorTopY: CGFloat = 0.0
 
     private var currentHeight: CGFloat {
         CGFloat(min(max(popoverHeight, 380.0), 920.0))
@@ -307,23 +309,64 @@ public struct PopoverContentView: View {
                         if !isDraggingResize {
                             isDraggingResize = true
                             dragStartHeight = popoverHeight
+                            if let win = hostWindow {
+                                dragAnchorTopY = win.frame.maxY
+                            }
                         }
-                        let newHeight = dragStartHeight + Double(value.translation.height)
-                        popoverHeight = min(max(newHeight, 380.0), 920.0)
+
+                        var maxLimit: Double = 920.0
+                        if let win = hostWindow, let screen = win.screen {
+                            let topY = dragAnchorTopY > 0 ? dragAnchorTopY : win.frame.maxY
+                            let available = Double(topY - screen.visibleFrame.minY - 16.0)
+                            if available > 380.0 {
+                                maxLimit = min(available, 920.0)
+                            }
+                        }
+
+                        let targetHeight = min(max(dragStartHeight + Double(value.translation.height), 380.0), maxLimit)
+                        popoverHeight = targetHeight
+
+                        if let win = hostWindow, dragAnchorTopY > 0 {
+                            var frame = win.frame
+                            frame.origin.y = dragAnchorTopY - CGFloat(targetHeight)
+                            frame.size.height = CGFloat(targetHeight)
+                            win.setFrame(frame, display: true)
+                        }
                     }
                     .onEnded { _ in
                         isDraggingResize = false
+                        if let win = hostWindow, dragAnchorTopY > 0 {
+                            var frame = win.frame
+                            frame.origin.y = dragAnchorTopY - CGFloat(popoverHeight)
+                            frame.size.height = CGFloat(popoverHeight)
+                            win.setFrame(frame, display: true)
+                        }
                     }
             )
             .onTapGesture(count: 2) {
                 withAnimation(AppMotion.selection) {
-                    popoverHeight = 550.0
+                    let targetHeight: CGFloat = 550.0
+                    popoverHeight = targetHeight
+                    if let win = hostWindow {
+                        let top = dragAnchorTopY > 0 ? dragAnchorTopY : win.frame.maxY
+                        var frame = win.frame
+                        frame.origin.y = top - targetHeight
+                        frame.size.height = targetHeight
+                        win.setFrame(frame, display: true)
+                    }
                 }
             }
             .help(L10n.tr(lang, zhHans: "拖拽调整窗口高度，双击恢复默认高度", zhHant: "拖曳調整視窗高度，按兩下恢復預設高度", en: "Drag to resize window height, double-click to reset"))
         }
-        .frame(width: 380, height: currentHeight)
+        .frame(width: 380, height: currentHeight, alignment: .top)
         .background(.regularMaterial)
+        .background(
+            PopoverWindowAccessor { window in
+                if self.hostWindow !== window {
+                    self.hostWindow = window
+                }
+            }
+        )
     }
 
     private var connectionColor: Color {
@@ -458,5 +501,34 @@ private struct PopoverHeaderIconButton: View {
         }
         .buttonStyle(.plain)
         .help(tooltip)
+    }
+}
+
+// MARK: - AppKit Window Top-Pinning Observer
+final class PopoverWindowObserverView: NSView {
+    var onWindowAvailable: ((NSWindow) -> Void)?
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        if let win = window {
+            onWindowAvailable?(win)
+        }
+    }
+}
+
+struct PopoverWindowAccessor: NSViewRepresentable {
+    let onWindow: (NSWindow) -> Void
+
+    func makeNSView(context: Context) -> PopoverWindowObserverView {
+        let view = PopoverWindowObserverView()
+        view.onWindowAvailable = onWindow
+        return view
+    }
+
+    func updateNSView(_ nsView: PopoverWindowObserverView, context: Context) {
+        nsView.onWindowAvailable = onWindow
+        if let win = nsView.window {
+            onWindow(win)
+        }
     }
 }

@@ -1,13 +1,15 @@
-# QBMenubar - Native macOS Menu Bar Controller for qBittorrent
+# ⚡️ QBMenubar — Native macOS Menu Bar & Desktop Widget Client for qBittorrent & Transmission
 
 <p align="center">
-  <img src="docs/images/social_preview.png" alt="QBMenubar - Native macOS Menu Bar Controller for qBittorrent with Liquid Glass Design" width="800" />
+  <img src="docs/images/social_preview.png" alt="QBMenubar - Native macOS Menu Bar & Desktop Widget Client for qBittorrent and Transmission with Liquid Glass Design" width="800" />
 </p>
 
 <p align="center">
   <a href="https://github.com/133hou/QBMenubar/releases"><img src="https://img.shields.io/github/v/release/133hou/QBMenubar?color=blue" alt="GitHub Release"></a>
   <a href="https://github.com/133hou/QBMenubar/releases"><img src="https://img.shields.io/github/downloads/133hou/QBMenubar/total.svg?color=success" alt="Downloads"></a>
-  <img src="https://img.shields.io/badge/Platform-macOS%2014.0%2B-lightgrey" alt="Platform">
+  <img src="https://img.shields.io/badge/Clients-qBittorrent%20%2B%20Transmission-blue" alt="Supported Clients">
+  <img src="https://img.shields.io/badge/Widgets-WidgetKit%20(S%2FM%2FL)-emerald" alt="macOS Widgets">
+  <img src="https://img.shields.io/badge/Platform-macOS%2014.0%2B%20(Sonoma%2FSequoia%2FTahoe)-lightgrey" alt="Platform">
   <img src="https://img.shields.io/badge/Swift-6.0-orange" alt="Swift 6">
   <img src="https://img.shields.io/badge/Architecture-Universal%20(Apple%20Silicon%20%2B%20Intel)-purple" alt="Apple Silicon & Intel">
   <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License">
@@ -71,9 +73,11 @@
 
 | Feature | QBMenubar (Native) | WebUI in Browser | Official Qt Desktop Client | Python / ScriptBar Plugins |
 |---|:---:|:---:|:---:|:---:|
+| **Dual-Client Engine** | ✅ **qBittorrent & Transmission** | ❌ (Single instance) | ❌ qBittorrent only | ⚠️ Single client |
 | **Menu Bar Resident** | ✅ Native Liquid Glass | ❌ (Window only) | ❌ (Dock/Window only) | ⚠️ Text only (No UI) |
 | **Pinned Torrent Progress** | ✅ Direct status bar badge | ❌ | ❌ | ❌ |
 | **Real-time Speed Waveform** | ✅ Swift Charts smooth wave | ⚠️ Static graph | ⚠️ Basic graph | ❌ |
+| **Stretchable Window Height** | ✅ Interactive resize (380-920pt) | ⚠️ Manual window | ⚠️ Complex window | ❌ Fixed text |
 | **Memory Consumption** | 🟢 **~35 - 45 MB** | 🔴 300 MB - 1 GB+ | 🟡 150 MB - 300 MB | 🟢 ~30 MB |
 | **CPU Idle Usage** | 🟢 **< 0.1%** | 🟡 1% - 5% | 🟡 1% - 3% | 🟡 1% - 2% |
 | **Remote NAS & Docker Support**| ✅ Local, LAN, NAS & HTTPS | ✅ | ❌ Local instance only | ⚠️ Limited auth |
@@ -177,20 +181,47 @@ open QBMenubar.app
 
 ## ⚙️ Configuration (1-Minute Quick Start)
 
-1. **Enable qBittorrent WebUI**:
-   - Open qBittorrent (on your Mac, NAS, Docker, or remote server).
-   - Go to **Preferences -> Web UI** and check **Web User Interface (Remote control)**.
-   - Default local URL is typically `http://127.0.0.1:8080`.
-2. **Connect QBMenubar**:
-   - Click the QBMenubar icon in your macOS status bar.
-   - Click the gear icon (**⚙️**) in the top right to open Preferences.
-   - Enter your WebUI Address, Username, and Password, then click **Test Connection**.
-   - Your menu bar will immediately display live speeds and torrent metrics!
+### For qBittorrent Users:
+1. **Enable WebUI**: In qBittorrent, open **Preferences -> Web UI** and check **Web User Interface (Remote control)** (default port `8080`).
+2. **Connect in QBMenubar**: Open QBMenubar Settings -> **WebUI Connection**, choose **qBittorrent**, verify `http://127.0.0.1:8080` and `/api/v2`, enter credentials, and click **Test Connection**.
+
+### For Transmission Users:
+1. **Enable RPC Remote Control**: In Transmission, open **Preferences -> Remote** and check **Enable remote access** (default port `9091`).
+2. **Connect in QBMenubar**: Open QBMenubar Settings -> **WebUI Connection**, switch **Client Type** to **Transmission**. It automatically presets `http://127.0.0.1:9091` and `/transmission/rpc`. Enter credentials if enabled, and click **Test Connection**!
+
+---
+
+## ❓ Frequently Asked Questions (FAQ)
+
+<details>
+<summary><b>1. Can I use QBMenubar with both qBittorrent and Transmission?</b></summary>
+Yes! QBMenubar features a unified client abstraction architecture. Simply select either <b>qBittorrent</b> or <b>Transmission</b> in <b>Settings -> WebUI Connection</b>. All status bar speeds, popover cards, speed waveforms, and desktop widgets seamlessly support both backends.
+</details>
+
+<details>
+<summary><b>2. How do I monitor a remote Synology, TrueNAS, Unraid, or Docker container?</b></summary>
+Enter your remote device's IP address (e.g. <code>http://192.168.1.100:8080</code> or <code>http://nas.local:9091</code>), domain name, or HTTPS reverse proxy URL in the Server Address field. QBMenubar works flawlessly across LAN, VPN (Tailscale, WireGuard), and WAN reverse proxies with subpaths.
+</details>
+
+<details>
+<summary><b>3. How do I add Desktop Widgets in macOS Sonoma, Sequoia, and Tahoe?</b></summary>
+Right-click any empty space on your macOS desktop (or open Notification Center and click <b>Edit Widgets</b> at the bottom), search for <b>QBMenubar</b>, and drag your preferred widget size (<b>Small</b>, <b>Medium</b>, or <b>Large</b>) onto your desktop. You can choose between the <b>Liquid Glass circular ring</b> and <b>classic linear capsule bar</b> in Preferences.
+</details>
+
+<details>
+<summary><b>4. Why does QBMenubar use under 40 MB of RAM while browser tabs use hundreds of MB?</b></summary>
+QBMenubar is 100% natively compiled in pure <b>Swift 6 and SwiftUI</b> with zero web view engines, zero Chromium runtimes, and zero JavaScript overhead. It communicates with your backend via lightweight JSON/REST/RPC requests, using virtually zero CPU (<0.1%) when idle.
+</details>
+
+<details>
+<summary><b>5. Can I resize or stretch the menu bar popover window?</b></summary>
+Yes! Grab the subtle capsule handle at the very bottom center of the popover window and drag it up or down to adjust the height anywhere between <b>380pt and 920pt</b>. Your custom height is remembered automatically, and double-clicking the handle snaps it back to the default height.
+</details>
 
 ---
 
 ## 🏷️ Keywords & Search Topics
-`qbittorrent` • `qbittorrent-controller` • `qbittorrent-webui` • `qbittorrent-client` • `macos-menubar` • `menubar-app` • `menubar-extra` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid` • `truenas` • `docker`
+`qbittorrent` • `transmission` • `qbittorrent-controller` • `transmission-remote` • `qbittorrent-webui` • `transmission-rpc` • `macos-menubar` • `menubar-app` • `menubar-extra` • `widgetkit` • `desktop-widgets` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid` • `truenas` • `qnap` • `docker` • `apple-silicon` • `macos-tahoe` • `macos-sequoia` • `macos-sonoma`
 
 ---
 

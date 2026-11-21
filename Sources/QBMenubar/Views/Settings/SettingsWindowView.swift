@@ -182,7 +182,9 @@ public struct SettingsWindowView: View {
             .frame(width: 220)
             .background(.ultraThinMaterial)
 
-            Divider()
+            Rectangle()
+                .fill(Color(nsColor: .separatorColor).opacity(0.8))
+                .frame(width: 1)
 
             // Detail Area
             VStack(spacing: 0) {
@@ -235,6 +237,7 @@ public struct SettingsWindowView: View {
             .frame(minWidth: 500, maxWidth: .infinity, minHeight: 480, maxHeight: .infinity)
             .background(.regularMaterial)
         }
+        .background(.regularMaterial)
         .ignoresSafeArea()
     }
 

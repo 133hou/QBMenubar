@@ -32,7 +32,7 @@ public final class SettingsWindowController: NSObject, NSWindowDelegate {
         newWindow.toolbar = nil
         newWindow.isReleasedWhenClosed = false
         newWindow.isOpaque = false
-        newWindow.backgroundColor = .clear
+        newWindow.backgroundColor = NSColor.windowBackgroundColor
         newWindow.contentView = hostingView
         newWindow.minSize = NSSize(width: 720, height: 480)
         newWindow.center()

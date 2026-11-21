@@ -565,7 +565,8 @@ public final class QBMenubarViewModel {
             tasks: widgetTasks,
             syncEnabled: true,
             permissionGranted: true,
-            statusMessage: nil
+            statusMessage: nil,
+            progressStyle: config.widgetProgressStyle
         )
 
         WidgetDataManager.saveSnapshot(snapshot)

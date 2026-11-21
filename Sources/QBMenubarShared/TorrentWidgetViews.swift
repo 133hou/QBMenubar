@@ -60,6 +60,180 @@ public struct ProgressBarView: View {
     }
 }
 
+// MARK: - Arrow Head Shape
+
+public struct ArrowHead: Shape {
+    public init() {}
+
+    public func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let w = rect.width
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.minX + w * 0.25, y: rect.midY))
+        path.closeSubpath()
+        return path
+    }
+}
+
+// MARK: - Liquid Glass Circular Progress View
+
+public struct LiquidGlassCircularProgressView: View {
+    public let progress: Double
+    public let size: CGFloat
+    public let lineWidth: CGFloat
+    public let iconName: String?
+    public let centerText: String?
+    public let tintColor: Color
+    public let showArrow: Bool
+
+    public init(
+        progress: Double,
+        size: CGFloat = 58,
+        lineWidth: CGFloat? = nil,
+        iconName: String? = "arrow.down",
+        centerText: String? = nil,
+        tintColor: Color = Color.blue,
+        showArrow: Bool = true
+    ) {
+        self.progress = max(0.0, min(1.0, progress))
+        self.size = size
+        self.lineWidth = lineWidth ?? max(3.2, size * 0.10)
+        self.iconName = iconName
+        self.centerText = centerText
+        self.tintColor = tintColor
+        self.showArrow = showArrow
+    }
+
+    public var body: some View {
+        let radius = (size - lineWidth) / 2
+        let angle = Angle.degrees(progress * 360.0 - 90.0)
+        let arrowSize: CGFloat = lineWidth * 1.6
+
+        ZStack {
+            // 1. Frosted Glass Background Track
+            Circle()
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.14),
+                            Color.white.opacity(0.04)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                )
+                .frame(width: size - lineWidth, height: size - lineWidth)
+
+            // Inner & outer subtle specular rim
+            Circle()
+                .stroke(Color.white.opacity(0.08), lineWidth: 0.6)
+                .frame(width: size, height: size)
+            Circle()
+                .stroke(Color.black.opacity(0.35), lineWidth: 0.6)
+                .frame(width: max(0, size - lineWidth * 2), height: max(0, size - lineWidth * 2))
+
+            // 2. Active Liquid Glass Progress Arc
+            if progress > 0.005 {
+                Circle()
+                    .trim(from: 0.0, to: progress)
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                tintColor.opacity(0.7),
+                                tintColor,
+                                .white
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        style: StrokeStyle(lineWidth: lineWidth, lineCap: (showArrow && progress > 0.05) ? .butt : .round)
+                    )
+                    .rotationEffect(.degrees(-90))
+                    .frame(width: size - lineWidth, height: size - lineWidth)
+                    .shadow(color: tintColor.opacity(0.45), radius: lineWidth * 0.5)
+            }
+
+            // 3. Directional Arrow Head at the Progress Tip
+            if showArrow && progress > 0.04 && progress < 0.995 {
+                let center = CGPoint(x: size / 2, y: size / 2)
+                let x = center.x + radius * cos(CGFloat(angle.radians))
+                let y = center.y + radius * sin(CGFloat(angle.radians))
+                let tangentAngle = angle + Angle.degrees(90)
+
+                ArrowHead()
+                    .fill(Color.white)
+                    .frame(width: arrowSize, height: arrowSize * 0.95)
+                    .rotationEffect(tangentAngle)
+                    .position(x: x, y: y)
+                    .shadow(color: tintColor.opacity(0.6), radius: 2)
+            }
+
+            // 4. Center Floating Liquid Glass Squircle Button
+            let innerSize = size * 0.52
+            ZStack {
+                // Glass Base
+                RoundedRectangle(cornerRadius: innerSize * 0.28, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.20),
+                                Color.white.opacity(0.06)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: innerSize, height: innerSize)
+                    .background(
+                        RoundedRectangle(cornerRadius: innerSize * 0.28, style: .continuous)
+                            .fill(Color.black.opacity(0.35))
+                    )
+                    .shadow(color: Color.black.opacity(0.35), radius: 4, y: 2)
+
+                // Glass Specular Rim Border
+                RoundedRectangle(cornerRadius: innerSize * 0.28, style: .continuous)
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.7),
+                                Color.white.opacity(0.12),
+                                Color.white.opacity(0.05),
+                                Color.white.opacity(0.35)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: max(0.8, innerSize * 0.035)
+                    )
+                    .frame(width: innerSize, height: innerSize)
+
+                // Center Icon or Text
+                if let centerText = centerText {
+                    Text(centerText)
+                        .font(.system(size: innerSize * 0.40, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color.white)
+                        .shadow(color: Color.black.opacity(0.3), radius: 1, y: 1)
+                } else if let iconName = iconName {
+                    Image(systemName: iconName)
+                        .font(.system(size: innerSize * 0.44, weight: .bold))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.white, Color.white.opacity(0.85)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .shadow(color: Color.black.opacity(0.3), radius: 1, y: 1)
+                }
+            }
+        }
+        .frame(width: size + 4, height: size + 4)
+    }
+}
+
 // MARK: - Small Widget View
 
 public struct TorrentSmallWidgetView: View {
@@ -119,36 +293,73 @@ public struct TorrentSmallWidgetView: View {
                 }
                 .frame(maxWidth: .infinity)
             } else if let task = activeTask {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(task.name)
-                        .font(.system(size: 11, weight: .semibold))
-                        .lineLimit(1)
-                        .truncationMode(.middle)
+                if data.progressStyle == .circularGlass {
+                    VStack(spacing: 3) {
+                        LiquidGlassCircularProgressView(
+                            progress: task.progress,
+                            size: 54,
+                            lineWidth: 5.5,
+                            iconName: task.isDownloading ? "arrow.down" : (task.isSeeding ? "arrow.up" : "pause.fill"),
+                            tintColor: task.isDownloading ? Color.blue : (task.isSeeding ? Color.green : Color.orange),
+                            showArrow: true
+                        )
+                        .widgetAccentable()
 
-                    ProgressBarView(progress: task.progress, height: 5)
+                        Text(task.name)
+                            .font(.system(size: 10, weight: .semibold))
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                            .padding(.top, 1)
 
-                    HStack(alignment: .firstTextBaseline) {
-                        Text("\(task.progressPercent)%")
-                            .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .widgetAccentable()
+                        HStack(spacing: 5) {
+                            Text("\(task.progressPercent)%")
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                .foregroundStyle(task.isDownloading ? Color.blue : (task.isSeeding ? Color.green : Color.primary))
+                                .widgetAccentable()
 
-                        Spacer()
+                            Text(task.speedFormatted)
+                                .font(.system(size: 9.5, weight: .medium, design: .monospaced))
 
-                        Text(task.speedFormatted)
-                            .font(.system(size: 10, weight: .medium, design: .monospaced))
+                            if task.isDownloading && !task.etaFormatted.isEmpty {
+                                Text("• \(task.etaFormatted)")
+                                    .font(.system(size: 8.5))
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
+                    .frame(maxWidth: .infinity)
+                } else {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(task.name)
+                            .font(.system(size: 11, weight: .semibold))
+                            .lineLimit(1)
+                            .truncationMode(.middle)
 
-                    HStack {
-                        Text("\(task.completedFormatted) / \(task.sizeFormatted)")
-                            .font(.system(size: 9))
-                            .foregroundStyle(.secondary)
+                        ProgressBarView(progress: task.progress, height: 5)
 
-                        Spacer()
+                        HStack(alignment: .firstTextBaseline) {
+                            Text("\(task.progressPercent)%")
+                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                .widgetAccentable()
 
-                        if task.isDownloading && !task.etaFormatted.isEmpty {
-                            Text("⏱ \(task.etaFormatted)")
+                            Spacer()
+
+                            Text(task.speedFormatted)
+                                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                        }
+
+                        HStack {
+                            Text("\(task.completedFormatted) / \(task.sizeFormatted)")
                                 .font(.system(size: 9))
                                 .foregroundStyle(.secondary)
+
+                            Spacer()
+
+                            if task.isDownloading && !task.etaFormatted.isEmpty {
+                                Text("⏱ \(task.etaFormatted)")
+                                    .font(.system(size: 9))
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                 }
@@ -332,36 +543,82 @@ public struct TorrentMediumWidgetView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     ForEach(displayTasks) { task in
-                        VStack(alignment: .leading, spacing: 3) {
-                            HStack(alignment: .firstTextBaseline) {
-                                Text(task.name)
-                                    .font(.system(size: 11, weight: .semibold))
-                                    .lineLimit(1)
-                                    .truncationMode(.middle)
+                        if data.progressStyle == .circularGlass {
+                            HStack(spacing: 8) {
+                                LiquidGlassCircularProgressView(
+                                    progress: task.progress,
+                                    size: 28,
+                                    lineWidth: 3.2,
+                                    iconName: task.isDownloading ? "arrow.down" : (task.isSeeding ? "arrow.up" : "pause.fill"),
+                                    tintColor: task.isDownloading ? Color.blue : (task.isSeeding ? Color.green : Color.orange),
+                                    showArrow: true
+                                )
+                                .widgetAccentable()
 
-                                Spacer()
+                                VStack(alignment: .leading, spacing: 2) {
+                                    HStack(alignment: .firstTextBaseline) {
+                                        Text(task.name)
+                                            .font(.system(size: 10.5, weight: .semibold))
+                                            .lineLimit(1)
+                                            .truncationMode(.middle)
 
-                                Text("\(task.progressPercent)%")
-                                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                                    .widgetAccentable()
+                                        Spacer()
+
+                                        Text("\(task.progressPercent)%")
+                                            .font(.system(size: 10.5, weight: .bold, design: .rounded))
+                                            .widgetAccentable()
+                                    }
+
+                                    HStack {
+                                        Text(task.speedFormatted)
+                                            .font(.system(size: 8.5, weight: .medium, design: .monospaced))
+
+                                        if task.isDownloading && !task.etaFormatted.isEmpty {
+                                            Text("• \(task.etaFormatted)")
+                                                .font(.system(size: 8.5))
+                                                .foregroundStyle(.secondary)
+                                        }
+
+                                        Spacer()
+
+                                        Text("\(task.completedFormatted)/\(task.sizeFormatted)")
+                                            .font(.system(size: 8.5))
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
                             }
+                        } else {
+                            VStack(alignment: .leading, spacing: 3) {
+                                HStack(alignment: .firstTextBaseline) {
+                                    Text(task.name)
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .lineLimit(1)
+                                        .truncationMode(.middle)
 
-                            ProgressBarView(progress: task.progress, height: 4.5)
+                                    Spacer()
 
-                            HStack {
-                                Text("\(task.completedFormatted) / \(task.sizeFormatted)")
-                                    .font(.system(size: 8.5))
-                                    .foregroundStyle(.secondary)
+                                    Text("\(task.progressPercent)%")
+                                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                                        .widgetAccentable()
+                                }
 
-                                Spacer()
+                                ProgressBarView(progress: task.progress, height: 4.5)
 
-                                Text(task.speedFormatted)
-                                    .font(.system(size: 8.5, weight: .medium, design: .monospaced))
-
-                                if task.isDownloading && !task.etaFormatted.isEmpty {
-                                    Text("• \(task.etaFormatted)")
+                                HStack {
+                                    Text("\(task.completedFormatted) / \(task.sizeFormatted)")
                                         .font(.system(size: 8.5))
                                         .foregroundStyle(.secondary)
+
+                                    Spacer()
+
+                                    Text(task.speedFormatted)
+                                        .font(.system(size: 8.5, weight: .medium, design: .monospaced))
+
+                                    if task.isDownloading && !task.etaFormatted.isEmpty {
+                                        Text("• \(task.etaFormatted)")
+                                            .font(.system(size: 8.5))
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
                             }
                         }
@@ -530,36 +787,82 @@ public struct TorrentLargeWidgetView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     ForEach(displayTasks) { task in
-                        VStack(alignment: .leading, spacing: 3) {
-                            HStack {
-                                Text(task.name)
-                                    .font(.system(size: 11, weight: .semibold))
-                                    .lineLimit(1)
-                                    .truncationMode(.middle)
+                        if data.progressStyle == .circularGlass {
+                            HStack(spacing: 9) {
+                                LiquidGlassCircularProgressView(
+                                    progress: task.progress,
+                                    size: 30,
+                                    lineWidth: 3.3,
+                                    iconName: task.isDownloading ? "arrow.down" : (task.isSeeding ? "arrow.up" : "pause.fill"),
+                                    tintColor: task.isDownloading ? Color.blue : (task.isSeeding ? Color.green : Color.orange),
+                                    showArrow: true
+                                )
+                                .widgetAccentable()
 
-                                Spacer()
+                                VStack(alignment: .leading, spacing: 3) {
+                                    HStack {
+                                        Text(task.name)
+                                            .font(.system(size: 11, weight: .semibold))
+                                            .lineLimit(1)
+                                            .truncationMode(.middle)
 
-                                Text("\(task.progressPercent)%")
-                                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                                    .widgetAccentable()
+                                        Spacer()
+
+                                        Text("\(task.progressPercent)%")
+                                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                                            .widgetAccentable()
+                                    }
+
+                                    HStack {
+                                        Text("\(task.completedFormatted) / \(task.sizeFormatted)")
+                                            .font(.system(size: 9))
+                                            .foregroundStyle(.secondary)
+
+                                        Spacer()
+
+                                        Text(task.speedFormatted)
+                                            .font(.system(size: 9, weight: .medium, design: .monospaced))
+
+                                        if task.isDownloading && !task.etaFormatted.isEmpty {
+                                            Text("• ETA: \(task.etaFormatted)")
+                                                .font(.system(size: 9))
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                }
                             }
+                        } else {
+                            VStack(alignment: .leading, spacing: 3) {
+                                HStack {
+                                    Text(task.name)
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .lineLimit(1)
+                                        .truncationMode(.middle)
 
-                            ProgressBarView(progress: task.progress, height: 4.5)
+                                    Spacer()
 
-                            HStack {
-                                Text("\(task.completedFormatted) / \(task.sizeFormatted)")
-                                    .font(.system(size: 9))
-                                    .foregroundStyle(.secondary)
+                                    Text("\(task.progressPercent)%")
+                                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                                        .widgetAccentable()
+                                }
 
-                                Spacer()
+                                ProgressBarView(progress: task.progress, height: 4.5)
 
-                                Text(task.speedFormatted)
-                                    .font(.system(size: 9, weight: .medium, design: .monospaced))
-
-                                if task.isDownloading && !task.etaFormatted.isEmpty {
-                                    Text("• ETA: \(task.etaFormatted)")
+                                HStack {
+                                    Text("\(task.completedFormatted) / \(task.sizeFormatted)")
                                         .font(.system(size: 9))
                                         .foregroundStyle(.secondary)
+
+                                    Spacer()
+
+                                    Text(task.speedFormatted)
+                                        .font(.system(size: 9, weight: .medium, design: .monospaced))
+
+                                    if task.isDownloading && !task.etaFormatted.isEmpty {
+                                        Text("• ETA: \(task.etaFormatted)")
+                                            .font(.system(size: 9))
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
                             }
                         }

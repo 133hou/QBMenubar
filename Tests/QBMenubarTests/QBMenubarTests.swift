@@ -149,6 +149,35 @@ struct WidgetDataTests {
         #expect(decoded.dlSpeedFormatted == sample.dlSpeedFormatted)
         #expect(decoded.tasks.first?.name == sample.tasks.first?.name)
         #expect(decoded.tasks.first?.progressPercent == 74)
+        #expect(decoded.progressStyle == .circularGlass)
+
+        // Test with linear style
+        var linearData = sample
+        linearData.progressStyle = .linear
+        let linearEncoded = try JSONEncoder().encode(linearData)
+        let linearDecoded = try JSONDecoder().decode(WidgetData.self, from: linearEncoded)
+        #expect(linearDecoded.progressStyle == .linear)
+
+        // Test backward compatibility fallback with missing progressStyle
+        let legacyJSON = """
+        {
+            "updatedAt": 0,
+            "isConnected": true,
+            "dlSpeed": 1000,
+            "upSpeed": 500,
+            "dlSpeedFormatted": "1 KB/s",
+            "upSpeedFormatted": "500 B/s",
+            "activeDownloadsCount": 1,
+            "activeSeedsCount": 0,
+            "pausedCount": 0,
+            "totalCount": 1,
+            "tasks": [],
+            "syncEnabled": true,
+            "permissionGranted": true
+        }
+        """.data(using: .utf8)!
+        let legacyDecoded = try JSONDecoder().decode(WidgetData.self, from: legacyJSON)
+        #expect(legacyDecoded.progressStyle == .circularGlass)
     }
 
     @Test func testWidgetDataManagerSaveAndLoad() {

@@ -610,7 +610,28 @@ public struct SettingsWindowView: View {
             }
         }
 
-        // Group 2: Widget Sizes & Information
+        // Group 2: Widget Progress Style Option
+        SettingsGroup(title: isEn ? "Widget Progress Style" : "小组件进度条样式") {
+            SettingsRow(
+                title: isEn ? "Progress Indicator Style" : "进度指示器样式",
+                subtitle: isEn ? "Choose between Liquid Glass circular ring or classic linear capsule bar" : "可选择液态玻璃环形圈或经典横向胶囊进度条"
+            ) {
+                GlassMenuPicker(
+                    selection: Binding(
+                        get: { viewModel.config.widgetProgressStyle },
+                        set: { newStyle in
+                            viewModel.config.widgetProgressStyle = newStyle
+                            viewModel.config.save()
+                            viewModel.updateWidgetSnapshot()
+                        }
+                    ),
+                    items: WidgetProgressStyle.allCases.map { ($0, $0.localizedTitle(isEn: isEn)) },
+                    width: 220
+                )
+            }
+        }
+
+        // Group 3: Widget Sizes & Information
         SettingsGroup(
             title: isEn ? "Widget Types & Instructions" : "小组件规格与添加方式",
             footer: isEn

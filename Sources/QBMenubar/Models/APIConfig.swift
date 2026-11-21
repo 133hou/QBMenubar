@@ -1,4 +1,5 @@
 import Foundation
+import QBMenubarShared
 
 public enum AppLanguage: String, Codable, CaseIterable, Identifiable, Sendable {
     case zhHans = "简体中文"
@@ -181,6 +182,7 @@ public struct APIConfig: Codable, Equatable, Sendable {
     public var pinnedTorrentHash: String?
     public var showPinnedProgress: Bool
     public var enableWidgetSync: Bool
+    public var widgetProgressStyle: WidgetProgressStyle
 
     public static let defaultConfig = APIConfig(
         baseURL: "http://127.0.0.1:8080",
@@ -202,7 +204,8 @@ public struct APIConfig: Codable, Equatable, Sendable {
         language: .zhHans,
         pinnedTorrentHash: "auto",
         showPinnedProgress: true,
-        enableWidgetSync: true
+        enableWidgetSync: true,
+        widgetProgressStyle: .circularGlass
     )
 
     private static let userDefaultsKey = "QBMenubar.APIConfig"
@@ -227,7 +230,8 @@ public struct APIConfig: Codable, Equatable, Sendable {
         language: AppLanguage = .zhHans,
         pinnedTorrentHash: String? = "auto",
         showPinnedProgress: Bool = true,
-        enableWidgetSync: Bool = true
+        enableWidgetSync: Bool = true,
+        widgetProgressStyle: WidgetProgressStyle = .circularGlass
     ) {
         self.baseURL = baseURL
         self.apiPrefix = apiPrefix
@@ -249,6 +253,7 @@ public struct APIConfig: Codable, Equatable, Sendable {
         self.pinnedTorrentHash = pinnedTorrentHash
         self.showPinnedProgress = showPinnedProgress
         self.enableWidgetSync = enableWidgetSync
+        self.widgetProgressStyle = widgetProgressStyle
     }
 
     public init(from decoder: Decoder) throws {
@@ -273,6 +278,7 @@ public struct APIConfig: Codable, Equatable, Sendable {
         self.pinnedTorrentHash = try container.decodeIfPresent(String.self, forKey: .pinnedTorrentHash) ?? "auto"
         self.showPinnedProgress = try container.decodeIfPresent(Bool.self, forKey: .showPinnedProgress) ?? true
         self.enableWidgetSync = try container.decodeIfPresent(Bool.self, forKey: .enableWidgetSync) ?? true
+        self.widgetProgressStyle = try container.decodeIfPresent(WidgetProgressStyle.self, forKey: .widgetProgressStyle) ?? .circularGlass
     }
 
     public static func load() -> APIConfig {

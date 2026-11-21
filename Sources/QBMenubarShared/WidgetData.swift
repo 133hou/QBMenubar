@@ -51,6 +51,24 @@ public struct WidgetTorrentTask: Codable, Identifiable, Sendable, Equatable {
     }
 }
 
+// MARK: - Widget Progress Style
+
+public enum WidgetProgressStyle: String, Codable, CaseIterable, Identifiable, Sendable {
+    case circularGlass = "circularGlass"
+    case linear = "linear"
+
+    public var id: String { rawValue }
+
+    public func localizedTitle(isEn: Bool) -> String {
+        switch self {
+        case .circularGlass:
+            return isEn ? "Liquid Glass Ring (Directional)" : "液态玻璃环形圈 (流光箭头)"
+        case .linear:
+            return isEn ? "Linear Capsule Bar (Classic)" : "经典横向胶囊条 (线性)"
+        }
+    }
+}
+
 // MARK: - Widget Data Snapshot
 
 public struct WidgetData: Codable, Sendable, Equatable {
@@ -68,6 +86,7 @@ public struct WidgetData: Codable, Sendable, Equatable {
     public var syncEnabled: Bool
     public var permissionGranted: Bool
     public var statusMessage: String?
+    public var progressStyle: WidgetProgressStyle
 
     public init(
         updatedAt: Date = Date(),
@@ -83,7 +102,8 @@ public struct WidgetData: Codable, Sendable, Equatable {
         tasks: [WidgetTorrentTask] = [],
         syncEnabled: Bool = true,
         permissionGranted: Bool = true,
-        statusMessage: String? = nil
+        statusMessage: String? = nil,
+        progressStyle: WidgetProgressStyle = .circularGlass
     ) {
         self.updatedAt = updatedAt
         self.isConnected = isConnected
@@ -99,6 +119,32 @@ public struct WidgetData: Codable, Sendable, Equatable {
         self.syncEnabled = syncEnabled
         self.permissionGranted = permissionGranted
         self.statusMessage = statusMessage
+        self.progressStyle = progressStyle
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case updatedAt, isConnected, dlSpeed, upSpeed, dlSpeedFormatted, upSpeedFormatted
+        case activeDownloadsCount, activeSeedsCount, pausedCount, totalCount, tasks
+        case syncEnabled, permissionGranted, statusMessage, progressStyle
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+        self.isConnected = try container.decode(Bool.self, forKey: .isConnected)
+        self.dlSpeed = try container.decode(Int64.self, forKey: .dlSpeed)
+        self.upSpeed = try container.decode(Int64.self, forKey: .upSpeed)
+        self.dlSpeedFormatted = try container.decode(String.self, forKey: .dlSpeedFormatted)
+        self.upSpeedFormatted = try container.decode(String.self, forKey: .upSpeedFormatted)
+        self.activeDownloadsCount = try container.decode(Int.self, forKey: .activeDownloadsCount)
+        self.activeSeedsCount = try container.decode(Int.self, forKey: .activeSeedsCount)
+        self.pausedCount = try container.decode(Int.self, forKey: .pausedCount)
+        self.totalCount = try container.decode(Int.self, forKey: .totalCount)
+        self.tasks = try container.decode([WidgetTorrentTask].self, forKey: .tasks)
+        self.syncEnabled = try container.decode(Bool.self, forKey: .syncEnabled)
+        self.permissionGranted = try container.decode(Bool.self, forKey: .permissionGranted)
+        self.statusMessage = try? container.decode(String.self, forKey: .statusMessage)
+        self.progressStyle = (try? container.decode(WidgetProgressStyle.self, forKey: .progressStyle)) ?? .circularGlass
     }
 
     public static let placeholder = WidgetData(
@@ -115,7 +161,8 @@ public struct WidgetData: Codable, Sendable, Equatable {
         tasks: [],
         syncEnabled: true,
         permissionGranted: true,
-        statusMessage: nil
+        statusMessage: nil,
+        progressStyle: .circularGlass
     )
 
     public static func disabled(permissionDenied: Bool = false) -> WidgetData {
@@ -133,7 +180,8 @@ public struct WidgetData: Codable, Sendable, Equatable {
             tasks: [],
             syncEnabled: !permissionDenied,
             permissionGranted: !permissionDenied,
-            statusMessage: permissionDenied ? "需数据共享权限" : "小组件已停用"
+            statusMessage: permissionDenied ? "需数据共享权限" : "小组件已停用",
+            progressStyle: .circularGlass
         )
     }
 
@@ -197,7 +245,11 @@ public struct WidgetData: Codable, Sendable, Equatable {
                 isSeeding: true,
                 isPaused: false
             )
-        ]
+        ],
+        syncEnabled: true,
+        permissionGranted: true,
+        statusMessage: nil,
+        progressStyle: .circularGlass
     )
 }
 

@@ -25,6 +25,12 @@ struct QBMenubarApp: App {
     var body: some Scene {
         MenuBarExtra {
             PopoverContentView(viewModel: viewModel)
+                .onOpenURL { url in
+                    NSApp.activate(ignoringOtherApps: true)
+                    if url.host == "torrent", let hash = url.pathComponents.dropFirst().first {
+                        viewModel.expandedTorrentHash = hash
+                    }
+                }
         } label: {
             MenuBarHeaderView(viewModel: viewModel)
         }

@@ -51,6 +51,10 @@
   <img src="docs/images/preview_settings.png" alt="QBMenubar macOS 系統設定風格偏好設定視窗" width="480" />
 </p>
 
+<p align="center">
+  <img src="docs/images/preview_widgets_showcase.png" alt="QBMenubar macOS 桌面與通知中心小工具" width="650" />
+</p>
+
 ---
 
 ## 📊 深度比較：為什麼選擇 QBMenubar？
@@ -64,6 +68,7 @@
 | **背景閒置 CPU** | 🟢 **< 0.1%** | 🟡 1% - 5% | 🟡 1% - 3% | 🟡 1% - 2% |
 | **遠端 NAS / Docker 連線** | ✅ 本地、內網 NAS 與網域反代 | ✅ | ❌ 僅支援本機行程 | ⚠️ 鑑權與反代支援有限 |
 | **互動式檔案樹穿透展開** | ✅ 原生卡片層級展開與單檔案進度 | ⚠️ 複雜表格多次點擊 | ⚠️ 密集表格 | ❌ |
+| **桌面與通知中心小工具 (WidgetKit)** | ✅ 支援小/中/大三種尺寸 | ❌ | ❌ | ❌ |
 | **macOS 系統通知推播** | ✅ 任務下載完成原生通知 | ⚠️ 需瀏覽器權限常駐 | ⚠️ 舊式彈窗 | ❌ |
 
 ---
@@ -92,6 +97,12 @@
    - 內建**連通性測試器**：一鍵探測延遲（Ping）與 qBittorrent 伺服端版本。
    - 支援 macOS 原生系統通知（任務開始下載與下載完成提醒）。
    - 完整 9 種語言本地化支援（繁體中文、簡體中文、English、日本語、한국어、Deutsch、Français、Español、Русский）。
+5. **macOS 桌面與通知中心小工具 (WidgetKit)**：
+   - **小號組件 (.systemSmall)**：單任務焦點進度卡片，直觀顯示最活躍任務進度條、當前速度與剩餘時間 (ETA)。
+   - **中號組件 (.systemMedium)**：雙欄佈局，左側顯示全域即時上傳下載頻寬與任務計數，右側列出前 2-3 個活躍下載任務進度。
+   - **大號組件 (.systemLarge)**：全功能任務看板，包含多任務進度、狀態標籤、傳輸統計與一鍵跳轉。
+   - **零開銷 App Group 共享儲存**：主應用與小組件處理程序間極速低耗同步。
+   - 完美適配 macOS 全彩、深色以及著色/高亮模式 (`widgetAccentable`)。
 
 ---
 

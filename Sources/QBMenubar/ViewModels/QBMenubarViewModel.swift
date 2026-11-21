@@ -1,6 +1,10 @@
 import Foundation
 import SwiftUI
 import AppKit
+import QBMenubarShared
+#if canImport(WidgetKit)
+import WidgetKit
+#endif
 
 public enum ConnectionState: Equatable, Sendable {
     case disconnected
@@ -65,6 +69,11 @@ public final class QBMenubarViewModel {
     public var selectedTab: FilterTab = .all
     public var isSettingsPresented: Bool = false
     public var bannerMessage: String? = nil
+
+    public var isConnected: Bool {
+        if case .connected = connectionState { return true }
+        return false
+    }
 
     public var service: QBittorrentService
     @ObservationIgnored
@@ -158,13 +167,18 @@ public final class QBMenubarViewModel {
             if let expandedHash = expandedTorrentHash {
                 await fetchFiles(for: expandedHash)
             }
+
+            // Sync snapshot for macOS Desktop & Notification Center Widget
+            updateWidgetSnapshot()
         } catch {
             // When request fails (e.g. cookie expired), attempt re-auth once
             if let _ = try? await service.login(), let (_, ping) = try? await service.testConnection() {
                 connectionState = .connected(ping: ping)
+                updateWidgetSnapshot()
             } else {
                 let errorMsg = error.localizedDescription
                 connectionState = .error(errorMsg)
+                updateWidgetSnapshotDisconnected()
             }
         }
     }
@@ -475,5 +489,80 @@ public final class QBMenubarViewModel {
                 self.bannerMessage = nil
             }
         }
+    }
+
+    // MARK: - Widget Snapshot Sync
+
+    public func updateWidgetSnapshot() {
+        let sorted = torrents.sorted { (t1, t2) -> Bool in
+            if let pinned = config.pinnedTorrentHash, pinned != "auto", pinned != "none" {
+                if t1.hash.caseInsensitiveCompare(pinned) == .orderedSame { return true }
+                if t2.hash.caseInsensitiveCompare(pinned) == .orderedSame { return false }
+            }
+            if t1.isDownloading != t2.isDownloading {
+                return t1.isDownloading && !t2.isDownloading
+            }
+            if t1.dlspeed != t2.dlspeed {
+                return t1.dlspeed > t2.dlspeed
+            }
+            return t1.progress > t2.progress
+        }
+
+        let widgetTasks: [WidgetTorrentTask] = sorted.prefix(10).map { t in
+            let speedStr = t.isDownloading ? t.formattedDLSpeed : (t.isSeeding ? t.formattedUPSpeed : "0 B/s")
+            return WidgetTorrentTask(
+                id: t.hash,
+                name: t.name,
+                progress: t.progress,
+                progressPercent: Int(t.progress * 100),
+                dlspeed: t.dlspeed,
+                upspeed: t.upspeed,
+                speedFormatted: speedStr,
+                sizeFormatted: t.formattedSize,
+                completedFormatted: t.formattedCompletedSize,
+                etaFormatted: t.formattedETA,
+                state: t.state,
+                isDownloading: t.isDownloading,
+                isSeeding: t.isSeeding,
+                isPaused: t.isPaused
+            )
+        }
+
+        let activeDL = torrents.filter { $0.isDownloading }.count
+        let activeUP = torrents.filter { $0.isSeeding }.count
+        let paused = torrents.filter { $0.isPaused }.count
+
+        let snapshot = WidgetData(
+            updatedAt: Date(),
+            isConnected: isConnected,
+            dlSpeed: transferInfo.dlInfoSpeed,
+            upSpeed: transferInfo.upInfoSpeed,
+            dlSpeedFormatted: transferInfo.formattedDLSpeed,
+            upSpeedFormatted: transferInfo.formattedUPSpeed,
+            activeDownloadsCount: activeDL,
+            activeSeedsCount: activeUP,
+            pausedCount: paused,
+            totalCount: torrents.count,
+            tasks: widgetTasks
+        )
+
+        WidgetDataManager.saveSnapshot(snapshot)
+        #if canImport(WidgetKit)
+        WidgetCenter.shared.reloadTimelines(ofKind: WidgetDataManager.widgetKind)
+        #endif
+    }
+
+    public func updateWidgetSnapshotDisconnected() {
+        var snapshot = WidgetDataManager.loadSnapshot() ?? WidgetData.placeholder
+        snapshot.isConnected = false
+        snapshot.updatedAt = Date()
+        snapshot.dlSpeed = 0
+        snapshot.upSpeed = 0
+        snapshot.dlSpeedFormatted = "0 B/s"
+        snapshot.upSpeedFormatted = "0 B/s"
+        WidgetDataManager.saveSnapshot(snapshot)
+        #if canImport(WidgetKit)
+        WidgetCenter.shared.reloadTimelines(ofKind: WidgetDataManager.widgetKind)
+        #endif
     }
 }

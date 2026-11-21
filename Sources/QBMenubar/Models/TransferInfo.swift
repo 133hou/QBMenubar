@@ -32,4 +32,14 @@ public struct TransferInfo: Codable, Sendable, Equatable {
         self.connectionStatus = connectionStatus
         self.dhtNodes = dhtNodes
     }
+
+    public var formattedDLSpeed: String {
+        if dlInfoSpeed <= 0 { return "0 B/s" }
+        return ByteCountFormatter.string(fromByteCount: dlInfoSpeed, countStyle: .file) + "/s"
+    }
+
+    public var formattedUPSpeed: String {
+        if upInfoSpeed <= 0 { return "0 B/s" }
+        return ByteCountFormatter.string(fromByteCount: upInfoSpeed, countStyle: .file) + "/s"
+    }
 }

@@ -51,6 +51,10 @@
   <img src="docs/images/preview_settings.png" alt="QBMenubar macOS System Settings Style Preferences Window" width="480" />
 </p>
 
+<p align="center">
+  <img src="docs/images/preview_widgets_showcase.png" alt="QBMenubar macOS Desktop & Notification Center Widgets" width="650" />
+</p>
+
 ---
 
 ## 📊 Feature Comparison: Why QBMenubar?
@@ -64,6 +68,7 @@
 | **CPU Idle Usage** | 🟢 **< 0.1%** | 🟡 1% - 5% | 🟡 1% - 3% | 🟡 1% - 2% |
 | **Remote NAS & Docker Support**| ✅ Local, LAN, NAS & HTTPS | ✅ | ❌ Local instance only | ⚠️ Limited auth |
 | **Expandable File Tree Preview**| ✅ Interactive list | ⚠️ Multi-click table | ⚠️ Cluttered table | ❌ |
+| **Desktop & Notification Center Widgets**| ✅ Small, Medium & Large (WidgetKit) | ❌ | ❌ | ❌ |
 | **macOS Native System Notifications**| ✅ Download complete | ⚠️ Browser permission | ⚠️ Legacy alert | ❌ |
 
 ---
@@ -91,6 +96,12 @@
    - Comprehensive multi-language localization (English, 简体中文, 繁體中文, 日本語, 한국어, Deutsch, Français, Español, Русский).
    - In-app **Connectivity Diagnostic Tool** with real-time ping latency and qBittorrent version detection.
    - Full reverse proxy, subpath prefix (`/api/v2`), and localhost bypass support.
+5. **macOS Desktop & Notification Center Widgets (WidgetKit)**:
+   - **Small Widget (`.systemSmall`)**: Glanceable single-task progress card featuring hero active torrent progress, live download/upload speeds, and remaining ETA.
+   - **Medium Widget (`.systemMedium`)**: Split-panel layout displaying global real-time bandwidth metrics alongside top downloading tasks with progress bars.
+   - **Large Widget (`.systemLarge`)**: Full download dashboard with active torrent listings, state badges, transfer rates, and instant deep-linking into QBMenubar.
+   - **Zero Overhead App Group Storage**: Seamless background sync between the menu bar daemon and macOS Notification Center.
+   - Native support for macOS Full Color, Tinted, and Accented modes (`widgetAccentable`).
 
 ---
 

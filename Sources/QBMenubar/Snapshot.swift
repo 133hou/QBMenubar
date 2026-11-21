@@ -1,9 +1,11 @@
 import SwiftUI
 import AppKit
+import QBMenubarShared
 
 @MainActor
 public struct SnapshotGenerator {
     public static func generateSnapshots(outputDir: String) {
+        try? FileManager.default.createDirectory(atPath: outputDir, withIntermediateDirectories: true)
         let viewModel = QBMenubarViewModel(isMock: true)
         viewModel.isMock = true
         viewModel.config.language = .en // Ensure UI renders in clean English
@@ -423,6 +425,72 @@ public struct SnapshotGenerator {
         .frame(width: 1280, height: 640)
 
         saveView(socialPresentation, width: 1280, height: 640, to: "\(outputDir)/social_preview.png")
+
+        // MARK: - Widgets Showcase Previews
+        let smallCard = ZStack {
+            WidgetBackgroundView()
+            TorrentSmallWidgetView(data: .sample)
+                .padding(14)
+        }
+        .frame(width: 155, height: 155)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.18), lineWidth: 0.8)
+        )
+        .shadow(color: .black.opacity(0.35), radius: 14, x: 0, y: 8)
+        .padding(20)
+
+        saveView(smallCard, width: 195, height: 195, to: "\(outputDir)/preview_widget_small.png")
+
+        let mediumCard = ZStack {
+            WidgetBackgroundView()
+            TorrentMediumWidgetView(data: .sample)
+                .padding(14)
+        }
+        .frame(width: 324, height: 155)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.18), lineWidth: 0.8)
+        )
+        .shadow(color: .black.opacity(0.35), radius: 14, x: 0, y: 8)
+        .padding(20)
+
+        saveView(mediumCard, width: 364, height: 195, to: "\(outputDir)/preview_widget_medium.png")
+
+        let largeCard = ZStack {
+            WidgetBackgroundView()
+            TorrentLargeWidgetView(data: .sample)
+                .padding(16)
+        }
+        .frame(width: 324, height: 324)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.18), lineWidth: 0.8)
+        )
+        .shadow(color: .black.opacity(0.35), radius: 14, x: 0, y: 8)
+        .padding(20)
+
+        saveView(largeCard, width: 364, height: 364, to: "\(outputDir)/preview_widget_large.png")
+
+        let widgetShowcase = ZStack {
+            LinearGradient(
+                colors: [Color(red: 0.08, green: 0.10, blue: 0.16), Color(red: 0.03, green: 0.04, blue: 0.08)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            HStack(spacing: 24) {
+                smallCard
+                mediumCard
+            }
+        }
+        .frame(width: 620, height: 260)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+
+        saveView(widgetShowcase, width: 620, height: 260, to: "\(outputDir)/preview_widgets_showcase.png")
     }
     
     private static func saveView<V: View>(_ view: V, width: CGFloat, height: CGFloat, to path: String) {

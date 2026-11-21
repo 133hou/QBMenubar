@@ -1,6 +1,7 @@
 import Testing
 import Foundation
 @testable import QBMenubar
+@testable import QBMenubarShared
 
 @Suite("Bencode Parser Tests")
 struct BencodeParserTests {
@@ -134,5 +135,60 @@ struct TorrentModelTests {
         #expect(torrent.name == "ArchLinux-2026.iso")
         #expect(torrent.progress == 0.75)
         #expect(torrent.dlspeed == 5_242_880)
+    }
+}
+
+@Suite("Widget Data & Storage Tests")
+struct WidgetDataTests {
+    @Test func testWidgetDataSerialization() throws {
+        let sample = WidgetData.sample
+        let encoded = try JSONEncoder().encode(sample)
+        let decoded = try JSONDecoder().decode(WidgetData.self, from: encoded)
+
+        #expect(decoded.tasks.count == sample.tasks.count)
+        #expect(decoded.dlSpeedFormatted == sample.dlSpeedFormatted)
+        #expect(decoded.tasks.first?.name == sample.tasks.first?.name)
+        #expect(decoded.tasks.first?.progressPercent == 74)
+    }
+
+    @Test func testWidgetDataManagerSaveAndLoad() {
+        let testData = WidgetData(
+            updatedAt: Date(),
+            isConnected: true,
+            dlSpeed: 99_999,
+            upSpeed: 11_111,
+            dlSpeedFormatted: "99.9 KB/s",
+            upSpeedFormatted: "11.1 KB/s",
+            activeDownloadsCount: 5,
+            activeSeedsCount: 3,
+            pausedCount: 1,
+            totalCount: 9,
+            tasks: [
+                WidgetTorrentTask(
+                    id: "unit_test_hash",
+                    name: "Test ISO Task",
+                    progress: 0.85,
+                    progressPercent: 85,
+                    dlspeed: 99_999,
+                    upspeed: 0,
+                    speedFormatted: "99.9 KB/s",
+                    sizeFormatted: "1.0 GB",
+                    completedFormatted: "850 MB",
+                    etaFormatted: "15s",
+                    state: "downloading",
+                    isDownloading: true,
+                    isSeeding: false,
+                    isPaused: false
+                )
+            ]
+        )
+
+        WidgetDataManager.saveSnapshot(testData)
+        let loaded = WidgetDataManager.loadSnapshot()
+
+        #expect(loaded != nil)
+        #expect(loaded?.dlSpeedFormatted == "99.9 KB/s")
+        #expect(loaded?.tasks.first?.name == "Test ISO Task")
+        #expect(loaded?.tasks.first?.progressPercent == 85)
     }
 }

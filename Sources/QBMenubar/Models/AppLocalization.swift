@@ -93,12 +93,20 @@ public struct L10n {
         tr(lang, zhHans: "网络连接", zhHant: "網路連線", en: "Network Connection")
     }
 
+    public static func clientTypeTitle(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "客户端类型", zhHant: "客戶端類型", en: "Torrent Client")
+    }
+
+    public static func clientTypeSubtitle(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "选择后台下载服务类型 (支持 qBittorrent 与 Transmission)", zhHant: "選擇後台下載服務類型 (支援 qBittorrent 與 Transmission)", en: "Choose your background BitTorrent client (supports qBittorrent & Transmission)")
+    }
+
     public static func serverAddress(_ lang: AppLanguage) -> String {
         tr(lang, zhHans: "服务器地址", zhHant: "伺服器位址", en: "Server Address")
     }
 
     public static func serverAddressSubtitle(_ lang: AppLanguage) -> String {
-        tr(lang, zhHans: "qBittorrent WebUI 访问地址 (支持本地、NAS 或域名)", zhHant: "qBittorrent WebUI 訪問位址 (支援本機、NAS 或網域)", en: "qBittorrent WebUI URL (supports localhost, LAN IP, NAS, or domain)")
+        tr(lang, zhHans: "WebUI 访问地址 (支持本地、NAS 或域名)", zhHant: "WebUI 訪問位址 (支援本機、NAS 或網域)", en: "WebUI URL (supports localhost, LAN IP, NAS, or domain)")
     }
 
     public static func apiPathPrefix(_ lang: AppLanguage) -> String {

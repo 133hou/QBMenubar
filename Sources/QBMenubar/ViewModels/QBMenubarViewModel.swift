@@ -52,7 +52,11 @@ public final class QBMenubarViewModel {
         didSet {
             config.save()
             Task {
-                await service.updateConfig(config)
+                if config.clientType != oldValue.clientType {
+                    self.service = TorrentServiceFactory.create(for: config)
+                } else {
+                    await service.updateConfig(config)
+                }
                 await refresh()
             }
         }
@@ -75,7 +79,7 @@ public final class QBMenubarViewModel {
         return false
     }
 
-    public var service: QBittorrentService
+    public var service: any TorrentClientService
     @ObservationIgnored
     private var pollingTask: Task<Void, Never>?
     @ObservationIgnored
@@ -91,7 +95,7 @@ public final class QBMenubarViewModel {
         self.isMock = isMock
         let loadedConfig = APIConfig.load()
         self.config = loadedConfig
-        self.service = QBittorrentService(config: loadedConfig)
+        self.service = TorrentServiceFactory.create(for: loadedConfig)
         if !isMock {
             startPolling()
         }
@@ -411,7 +415,13 @@ public final class QBMenubarViewModel {
     }
 
     public func openWebUI() {
-        guard let url = URL(string: config.normalizedBaseURL) else { return }
+        let targetURLString: String
+        if config.clientType == .transmission {
+            targetURLString = config.normalizedBaseURL + "/transmission/web/"
+        } else {
+            targetURLString = config.normalizedBaseURL
+        }
+        guard let url = URL(string: targetURLString) else { return }
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.activates = true
         // Use non-blocking asynchronous LaunchServices API to eliminate main-thread UI hitching

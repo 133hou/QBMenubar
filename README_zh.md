@@ -25,7 +25,7 @@
   <a href="README_ru.md">Русский</a>
 </p>
 
-**QBMenubar** 是一款基于 **Swift 6 + SwiftUI + MenuBarExtra (.window)** 纯原生开发的 macOS 状态栏控制应用。融合现代 **Liquid Glass（液态玻璃）** 半透明材质与 **Apple Motion Feel** 原生物理弹簧动效，为您提供近乎零资源开销（CPU < 0.1%，内存 ~40MB）的 qBittorrent 实时速率监控、图钉任务进度直显与远程 NAS WebUI 深度管理体验。
+**QBMenubar** 是一款基于 **Swift 6 + SwiftUI + MenuBarExtra (.window)** 纯原生开发的 macOS 状态栏控制应用。融合现代 **Liquid Glass（液态玻璃）** 半透明材质与 **Apple Motion Feel** 原生物理弹簧动效，为您提供近乎零资源开销（CPU < 0.1%，内存 ~40MB）的 qBittorrent 与 Transmission 双客户端实时速率监控、图钉任务进度直显与远程 NAS WebUI 深度管理体验。
 
 <p align="center">
   <img src="docs/images/preview_menubar.png" alt="QBMenubar 菜单栏实时速率监控与图钉进度胶囊预览" width="650" />
@@ -137,6 +137,7 @@ QBMenubar 原生支持 macOS 桌面与通知中心小组件（提供 Small、Med
 ---
 
 ### 🚀 v1.3.2 更新亮点
+- **新增 Transmission 客户端原生支持**：架构抽象解耦，原生对接 Transmission JSON-RPC 协议（自动处理 409 CSRF Session-Id 握手与 Basic Auth 鉴权）。现已完美支持 qBittorrent 与 Transmission 双客户端无缝切换，桌面小组件、速度折线图与添加任务完全通用。
 - **设置侧边栏高透液态玻璃光学透镜**：复刻原生 macOS Tahoe 水晶液态玻璃透镜质感，具备上下凹面物理折射阴影、边缘棱镜色彩色散与平滑弹簧滑行动画（原经典纯色高亮样式完整保留，可在通用设置中自由切换）。
 - **小组件液态玻璃环形进度圈**：新增带流光导向箭头的环形进度仪表盘与中央悬浮玻璃圆角状态指示器（经典横向胶囊进度条 100% 保留，可在偏好设置 -> 小组件中按需切换）。
 - **原生 WidgetKit 扩展入口点适配**：链接器正式补齐 `_NSExtensionMain` 符号入口，使系统 `chronod` 与通知中心能够稳定拉起插件并预载 Small、Medium、Large 桌面小组件占位图与描述符。

@@ -128,6 +128,7 @@ QBMenubar admite widgets de Escritorio y Centro de notificaciones de macOS en tr
 ---
 
 ### 🚀 Novedades de la versión 1.3.2
+- **Compatibilidad nativa con cliente Transmission**: Arquitectura de servicios desacoplada con soporte nativo para el protocolo JSON-RPC de Transmission (gestión automática de negociación 409 CSRF Session-Id y autenticación Basic Auth). Cambio fluido entre qBittorrent y Transmission con compatibilidad total en widgets de escritorio, gráficos de velocidad y gestión de tareas.
 - **Lente óptica Liquid Glass en la barra lateral de Ajustes**: Lente de cristal transparente estilo macOS Tahoe con sombras de refracción física meniscal, dispersión prismática de borde y animaciones de resorte fluidas (el estilo clásico de color sólido sigue disponible y configurable).
 - **Anillo de progreso circular Liquid Glass para widgets**: Nuevo dial circular de progreso con flecha direccional e icono flotante de cristal (la barra clásica lineal se mantiene al 100 % y se puede alternar en Ajustes).
 - **Punto de entrada nativo de WidgetKit optimizado**: Símbolo `_NSExtensionMain` enlazado correctamente para asegurar la detección por parte de `chronod` y el Centro de notificaciones.

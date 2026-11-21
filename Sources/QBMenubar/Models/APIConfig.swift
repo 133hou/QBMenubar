@@ -179,7 +179,44 @@ public enum SidebarSelectionStyle: String, Codable, CaseIterable, Identifiable, 
     }
 }
 
+public enum ClientType: String, Codable, CaseIterable, Identifiable, Sendable {
+    case qbittorrent = "qBittorrent"
+    case transmission = "Transmission"
+
+    public var id: String { rawValue }
+
+    public func localizedTitle(lang: AppLanguage) -> String {
+        rawValue
+    }
+
+    public func localizedTitle(isEn: Bool) -> String {
+        rawValue
+    }
+
+    public var defaultPort: Int {
+        switch self {
+        case .qbittorrent: return 8080
+        case .transmission: return 9091
+        }
+    }
+
+    public var defaultBaseURL: String {
+        switch self {
+        case .qbittorrent: return "http://127.0.0.1:8080"
+        case .transmission: return "http://127.0.0.1:9091"
+        }
+    }
+
+    public var defaultApiPrefix: String {
+        switch self {
+        case .qbittorrent: return "/api/v2"
+        case .transmission: return "/transmission/rpc"
+        }
+    }
+}
+
 public struct APIConfig: Codable, Equatable, Sendable {
+    public var clientType: ClientType
     public var baseURL: String
     public var apiPrefix: String
     public var username: String
@@ -204,6 +241,7 @@ public struct APIConfig: Codable, Equatable, Sendable {
     public var sidebarSelectionStyle: SidebarSelectionStyle
 
     public static let defaultConfig = APIConfig(
+        clientType: .qbittorrent,
         baseURL: "http://127.0.0.1:8080",
         apiPrefix: "/api/v2",
         username: "admin",
@@ -231,6 +269,7 @@ public struct APIConfig: Codable, Equatable, Sendable {
     private static let userDefaultsKey = "QBMenubar.APIConfig"
 
     public init(
+        clientType: ClientType = .qbittorrent,
         baseURL: String = "http://127.0.0.1:8080",
         apiPrefix: String = "/api/v2",
         username: String = "admin",
@@ -254,6 +293,7 @@ public struct APIConfig: Codable, Equatable, Sendable {
         widgetProgressStyle: WidgetProgressStyle = .circularGlass,
         sidebarSelectionStyle: SidebarSelectionStyle = .liquidGlass
     ) {
+        self.clientType = clientType
         self.baseURL = baseURL
         self.apiPrefix = apiPrefix
         self.username = username
@@ -280,6 +320,7 @@ public struct APIConfig: Codable, Equatable, Sendable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.clientType = try container.decodeIfPresent(ClientType.self, forKey: .clientType) ?? .qbittorrent
         self.baseURL = try container.decodeIfPresent(String.self, forKey: .baseURL) ?? "http://127.0.0.1:8080"
         self.apiPrefix = try container.decodeIfPresent(String.self, forKey: .apiPrefix) ?? "/api/v2"
         self.username = try container.decodeIfPresent(String.self, forKey: .username) ?? "admin"
@@ -338,7 +379,10 @@ public struct APIConfig: Codable, Equatable, Sendable {
             cleanPrefix.removeLast()
         }
 
-        var cleanPath = path
+        var cleanPath = path.trimmingCharacters(in: .whitespacesAndNewlines)
+        if cleanPath.isEmpty {
+            return URL(string: normalizedBaseURL + cleanPrefix)
+        }
         if !cleanPath.hasPrefix("/") {
             cleanPath = "/" + cleanPath
         }

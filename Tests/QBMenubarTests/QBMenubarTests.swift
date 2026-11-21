@@ -119,6 +119,8 @@ struct LocalizationTests {
             #expect(!L10n.pauseAll(lang).isEmpty)
             #expect(!L10n.resumeAll(lang).isEmpty)
             #expect(!L10n.altSpeeds(lang).isEmpty)
+            #expect(!L10n.clientTypeTitle(lang).isEmpty)
+            #expect(!L10n.clientTypeSubtitle(lang).isEmpty)
             #expect(!L10n.sidebarSelectionStyleTitle(lang).isEmpty)
             #expect(!L10n.sidebarSelectionStyleSubtitle(lang).isEmpty)
             #expect(!L10n.sidebarStyleLiquidGlass(lang).isEmpty)
@@ -253,5 +255,59 @@ struct WidgetDataTests {
         #expect(loaded?.dlSpeedFormatted == "99.9 KB/s")
         #expect(loaded?.tasks.first?.name == "Test ISO Task")
         #expect(loaded?.tasks.first?.progressPercent == 85)
+    }
+}
+
+@Suite("Client Type & Backend Service Tests")
+struct ClientTypeTests {
+    @Test func testClientTypeDefaults() {
+        #expect(ClientType.qbittorrent.defaultPort == 8080)
+        #expect(ClientType.transmission.defaultPort == 9091)
+        #expect(ClientType.qbittorrent.defaultApiPrefix == "/api/v2")
+        #expect(ClientType.transmission.defaultApiPrefix == "/transmission/rpc")
+        #expect(ClientType.qbittorrent.defaultBaseURL == "http://127.0.0.1:8080")
+        #expect(ClientType.transmission.defaultBaseURL == "http://127.0.0.1:9091")
+    }
+
+    @Test func testClientTypeEncodingAndDecoding() throws {
+        var config = APIConfig.defaultConfig
+        #expect(config.clientType == .qbittorrent)
+
+        config.clientType = .transmission
+        config.baseURL = "http://127.0.0.1:9091"
+        config.apiPrefix = "/transmission/rpc"
+
+        let encoded = try JSONEncoder().encode(config)
+        let decoded = try JSONDecoder().decode(APIConfig.self, from: encoded)
+
+        #expect(decoded.clientType == .transmission)
+        #expect(decoded.baseURL == "http://127.0.0.1:9091")
+        #expect(decoded.apiPrefix == "/transmission/rpc")
+        #expect(decoded.endpointURL(for: "")?.absoluteString == "http://127.0.0.1:9091/transmission/rpc")
+    }
+
+    @Test func testClientTypeFallbackFromLegacyJSON() throws {
+        let legacyJSON = """
+        {
+            "baseURL": "http://192.168.1.50:8080",
+            "apiPrefix": "/api/v2",
+            "username": "admin",
+            "password": ""
+        }
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(APIConfig.self, from: legacyJSON)
+        #expect(decoded.clientType == .qbittorrent)
+        #expect(decoded.baseURL == "http://192.168.1.50:8080")
+    }
+
+    @Test func testTorrentServiceFactory() {
+        let qbConfig = APIConfig(clientType: .qbittorrent)
+        let qbService = TorrentServiceFactory.create(for: qbConfig)
+        #expect(qbService is QBittorrentService)
+
+        let trConfig = APIConfig(clientType: .transmission)
+        let trService = TorrentServiceFactory.create(for: trConfig)
+        #expect(trService is TransmissionService)
     }
 }

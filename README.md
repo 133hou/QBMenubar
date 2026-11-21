@@ -25,7 +25,7 @@
   <a href="README_ru.md">Русский</a>
 </p>
 
-**QBMenubar** is a lightweight, ultra-responsive native macOS Menu Bar controller for **qBittorrent**, engineered with **Swift 6 + SwiftUI + MenuBarExtra (.window)**. It brings the cutting-edge **Liquid Glass** translucent aesthetics and **Apple Motion Feel** spring physics directly to your Mac's status bar — giving you zero-overhead monitoring and remote management for local clients, home NAS, or cloud seedboxes.
+**QBMenubar** is a lightweight, ultra-responsive native macOS Menu Bar controller for **qBittorrent & Transmission**, engineered with **Swift 6 + SwiftUI + MenuBarExtra (.window)**. It brings the cutting-edge **Liquid Glass** translucent aesthetics and **Apple Motion Feel** spring physics directly to your Mac's status bar — giving you zero-overhead monitoring and remote management for local clients, home NAS, or cloud seedboxes.
 
 <p align="center">
   <img src="docs/images/preview_menubar.png" alt="QBMenubar macOS Menu Bar Speed Monitor and Pinned Progress Badge" width="650" />
@@ -136,6 +136,7 @@ QBMenubar supports macOS Desktop & Notification Center Widgets across three size
 ---
 
 ### 🚀 What's New in v1.3.2
+- **Native Transmission Client Support**: Fully decoupled service architecture natively supporting Transmission JSON-RPC (with automatic 409 CSRF Session-Id handshake and Basic Auth). Seamlessly switch between qBittorrent and Transmission with 100% feature parity across desktop widgets, speed graphs, and task management.
 - **Liquid Glass Optical Selection Lens in Settings**: Crystal clear optical glass lens with 3D meniscus refraction shadows, prismatic chromatic dispersion, and seamless spring motion matching native macOS Tahoe feel (classic solid style switchable and preserved in General Settings).
 - **Liquid Glass Circular Progress Ring for Widgets**: Directional flow arrow tip, frosted glass track, and central floating squircle status indicator (classic linear capsule progress bar 100% preserved and selectable in Preferences -> Widgets).
 - **Native WidgetKit Extension Entry Point**: Configured `_NSExtensionMain` entry point for the SwiftPM WidgetKit binary, ensuring robust ExtensionKit launch, descriptor discovery, and placeholder precaching by macOS `chronod`.

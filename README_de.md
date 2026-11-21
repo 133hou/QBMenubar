@@ -128,6 +128,7 @@ QBMenubar unterstützt macOS Schreibtisch- und Mitteilungszentrale-Widgets in dr
 ---
 
 ### 🚀 Was ist neu in v1.3.2
+- **Native Transmission-Client-Unterstützung**: Vollständig entkoppelte Dienstarchitektur mit nativer Unterstützung des Transmission JSON-RPC-Protokolls (einschließlich automatischem 409-CSRF-Session-Id-Handshake und Basic Auth). Nahtloser Wechsel zwischen qBittorrent und Transmission mit vollständiger Funktionsparität für Desktop-Widgets, Geschwindigkeitsdiagramme und Aufgabenverwaltung.
 - **Optische Liquid-Glass-Auswahllinse in den Einstellungen**: Glasklare optische Linse im Stil von macOS Tahoe mit realistischen Meniskus-Brechungsschatten, prismatischer chromatischen Dispersion und geschmeidigen Apple-Spring-Animationen (klassischer Volltonstil bleibt in den Einstellungen wählbar).
 - **Liquid-Glass-Kreisring-Fortschrittsanzeige für Widgets**: Neue kreisförmige Fortschrittsanzeige mit Richtungspfeil und zentralem Glassymbol (klassischer linearer Kapselbalken bleibt vollständig erhalten und umschaltbar).
 - **Optimierter WidgetKit-Einstiegspunkt**: `_NSExtensionMain` für SwiftPM-Builds sauber verknüpft, wodurch die Erkennung durch `chronod` und das Notification Center zuverlässig funktioniert.

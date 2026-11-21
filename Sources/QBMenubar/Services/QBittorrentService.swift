@@ -1,6 +1,6 @@
 import Foundation
 
-public actor QBittorrentService {
+public actor QBittorrentService: TorrentClientService {
     private var config: APIConfig
     private let session: URLSession
 

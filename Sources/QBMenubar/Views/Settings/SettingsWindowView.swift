@@ -291,11 +291,48 @@ public struct SettingsWindowView: View {
     private var connectionPane: some View {
         SettingsGroup(title: L10n.networkConnectionGroup(lang)) {
             SettingsRow(
+                title: L10n.clientTypeTitle(lang),
+                subtitle: L10n.clientTypeSubtitle(lang)
+            ) {
+                GlassMenuPicker(
+                    selection: Binding(
+                        get: { viewModel.config.clientType },
+                        set: { newType in
+                            let oldType = viewModel.config.clientType
+                            viewModel.config.clientType = newType
+                            if oldType != newType {
+                                if newType == .transmission {
+                                    if viewModel.config.baseURL == "http://127.0.0.1:8080" {
+                                        viewModel.config.baseURL = "http://127.0.0.1:9091"
+                                    }
+                                    if viewModel.config.apiPrefix == "/api/v2" {
+                                        viewModel.config.apiPrefix = "/transmission/rpc"
+                                    }
+                                } else if newType == .qbittorrent {
+                                    if viewModel.config.baseURL == "http://127.0.0.1:9091" {
+                                        viewModel.config.baseURL = "http://127.0.0.1:8080"
+                                    }
+                                    if viewModel.config.apiPrefix == "/transmission/rpc" {
+                                        viewModel.config.apiPrefix = "/api/v2"
+                                    }
+                                }
+                            }
+                            viewModel.config.save()
+                        }
+                    ),
+                    items: ClientType.allCases.map { ($0, $0.localizedTitle(lang: lang)) },
+                    width: 220
+                )
+            }
+
+            SettingsDivider()
+
+            SettingsRow(
                 title: L10n.serverAddress(lang),
                 subtitle: L10n.serverAddressSubtitle(lang)
             ) {
                 GlassTextField(
-                    placeholder: "http://127.0.0.1:8080",
+                    placeholder: viewModel.config.clientType == .transmission ? "http://127.0.0.1:9091" : "http://127.0.0.1:8080",
                     text: $viewModel.config.baseURL,
                     isMonospaced: true,
                     width: 220
@@ -309,7 +346,7 @@ public struct SettingsWindowView: View {
                 subtitle: L10n.apiPathPrefixSubtitle(lang)
             ) {
                 GlassTextField(
-                    placeholder: "/api/v2",
+                    placeholder: viewModel.config.clientType == .transmission ? "/transmission/rpc" : "/api/v2",
                     text: $viewModel.config.apiPrefix,
                     isMonospaced: true,
                     width: 220
@@ -822,7 +859,7 @@ public struct SettingsWindowView: View {
             // WebUI Quick Access
             SettingsGroup(title: L10n.webManagementGroup(lang)) {
                 SettingsRow(
-                    title: "qBittorrent WebUI",
+                    title: "\(viewModel.config.clientType.rawValue) WebUI",
                     subtitle: L10n.webManagementSubtitle(lang)
                 ) {
                     Button {
@@ -913,7 +950,7 @@ public struct SettingsWindowView: View {
     private func runTestConnection() {
         testState = .testing
         Task {
-            let testService = QBittorrentService(config: viewModel.config)
+            let testService = TorrentServiceFactory.create(for: viewModel.config)
             do {
                 _ = try await testService.login()
                 let (version, ping) = try await testService.testConnection()

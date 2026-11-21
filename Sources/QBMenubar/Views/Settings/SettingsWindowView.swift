@@ -124,12 +124,11 @@ public struct SettingsWindowView: View {
                                 .padding(.vertical, 6)
                                 .contentShape(Rectangle())
                                 .background(
-                                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                        .fill(
-                                            selectedCategory == category
-                                                ? Color.accentColor
-                                                : (hoveredCategory == category ? Color.primary.opacity(0.08) : Color.clear)
-                                        )
+                                    LiquidGlassSidebarSelection(
+                                        isSelected: selectedCategory == category,
+                                        isHovered: hoveredCategory == category,
+                                        style: viewModel.config.sidebarSelectionStyle
+                                    )
                                 )
                             }
                             .buttonStyle(.plain)
@@ -249,6 +248,25 @@ public struct SettingsWindowView: View {
                     viewModel.openWebUI()
                 }
                 .adaptiveGlassButton(prominent: false)
+            }
+
+            SettingsDivider()
+
+            SettingsRow(
+                title: isEn ? "Sidebar Selection Style" : "侧边栏高亮风格",
+                subtitle: isEn ? "Choose between Liquid Glass lens with specular reflection or classic solid accent fill" : "可选择液态玻璃透镜 (高光流光) 或经典系统纯色高亮"
+            ) {
+                GlassMenuPicker(
+                    selection: Binding(
+                        get: { viewModel.config.sidebarSelectionStyle },
+                        set: { newStyle in
+                            viewModel.config.sidebarSelectionStyle = newStyle
+                            viewModel.config.save()
+                        }
+                    ),
+                    items: SidebarSelectionStyle.allCases.map { ($0, $0.localizedTitle(isEn: isEn)) },
+                    width: 220
+                )
             }
         }
     }
@@ -1092,5 +1110,93 @@ private struct WidgetTypeBadge: View {
             RoundedRectangle(cornerRadius: 6, style: .continuous)
                 .fill(Color.primary.opacity(0.04))
         )
+    }
+}
+
+public struct LiquidGlassSidebarSelection: View {
+    public let isSelected: Bool
+    public let isHovered: Bool
+    public var style: SidebarSelectionStyle = .liquidGlass
+
+    public init(isSelected: Bool, isHovered: Bool, style: SidebarSelectionStyle = .liquidGlass) {
+        self.isSelected = isSelected
+        self.isHovered = isHovered
+        self.style = style
+    }
+
+    public var body: some View {
+        ZStack {
+            if isSelected {
+                switch style {
+                case .liquidGlass:
+                    ZStack {
+                        // 1. Frosted Material Base (on macOS 26+, native glassEffect; fallback: ultraThinMaterial)
+                        if #available(macOS 26.0, *) {
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(Color.accentColor.opacity(0.18))
+                                .glassEffect(.regular.tint(Color.accentColor).interactive(), in: .rect(cornerRadius: 8))
+                        } else {
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                        }
+
+                        // 2. Liquid Glass Tint Gradient (deep vibrant accent)
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color.accentColor.opacity(0.85),
+                                        Color.accentColor.opacity(0.65)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+
+                        // 3. Upper Specular Gloss Reflection (simulating glass curvature)
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.38),
+                                        Color.white.opacity(0.0)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .center
+                                )
+                            )
+
+                        // 4. Specular Highlight Rim Border
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.75),
+                                        Color.white.opacity(0.22),
+                                        Color.white.opacity(0.06),
+                                        Color.white.opacity(0.32)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 0.75
+                            )
+                    }
+                    .shadow(color: Color.accentColor.opacity(0.40), radius: 6, x: 0, y: 2)
+
+                case .classic:
+                    // Original Solid Accent Color Fill (100% preserved)
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(Color.accentColor)
+                }
+            } else if isHovered {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Color.primary.opacity(0.08))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .strokeBorder(Color.white.opacity(0.10), lineWidth: 0.5)
+                    )
+            }
+        }
     }
 }

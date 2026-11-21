@@ -514,9 +514,15 @@ public struct SnapshotGenerator {
         saveView(socialPresentation, width: 1280, height: 640, to: "\(outputDir)/social_preview.png")
 
         // MARK: - Widgets Showcase Previews
+        var circularData = WidgetData.sample
+        circularData.progressStyle = .circularGlass
+
+        var linearData = WidgetData.sample
+        linearData.progressStyle = .linear
+
         let smallCard = ZStack {
             WidgetBackgroundView()
-            TorrentSmallWidgetView(data: .sample)
+            TorrentSmallWidgetView(data: circularData)
                 .padding(14)
         }
         .frame(width: 155, height: 155)
@@ -532,7 +538,7 @@ public struct SnapshotGenerator {
 
         let mediumCard = ZStack {
             WidgetBackgroundView()
-            TorrentMediumWidgetView(data: .sample)
+            TorrentMediumWidgetView(data: circularData)
                 .padding(14)
         }
         .frame(width: 324, height: 155)
@@ -548,7 +554,7 @@ public struct SnapshotGenerator {
 
         let largeCard = ZStack {
             WidgetBackgroundView()
-            TorrentLargeWidgetView(data: .sample)
+            TorrentLargeWidgetView(data: circularData)
                 .padding(16)
         }
         .frame(width: 324, height: 324)
@@ -578,6 +584,52 @@ public struct SnapshotGenerator {
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
 
         saveView(widgetShowcase, width: 620, height: 260, to: "\(outputDir)/preview_widgets_showcase.png")
+
+        // MARK: - Classic Linear Style Widgets Showcase (Preserved)
+        let smallClassicCard = ZStack {
+            WidgetBackgroundView()
+            TorrentSmallWidgetView(data: linearData)
+                .padding(14)
+        }
+        .frame(width: 155, height: 155)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.18), lineWidth: 0.8)
+        )
+        .shadow(color: .black.opacity(0.35), radius: 14, x: 0, y: 8)
+        .padding(20)
+
+        let mediumClassicCard = ZStack {
+            WidgetBackgroundView()
+            TorrentMediumWidgetView(data: linearData)
+                .padding(14)
+        }
+        .frame(width: 324, height: 155)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.18), lineWidth: 0.8)
+        )
+        .shadow(color: .black.opacity(0.35), radius: 14, x: 0, y: 8)
+        .padding(20)
+
+        let classicWidgetShowcase = ZStack {
+            LinearGradient(
+                colors: [Color(red: 0.08, green: 0.10, blue: 0.16), Color(red: 0.03, green: 0.04, blue: 0.08)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            HStack(spacing: 24) {
+                smallClassicCard
+                mediumClassicCard
+            }
+        }
+        .frame(width: 620, height: 260)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+
+        saveView(classicWidgetShowcase, width: 620, height: 260, to: "\(outputDir)/preview_widgets_classic.png")
     }
     
     private static func saveView<V: View>(_ view: V, width: CGFloat, height: CGFloat, to path: String) {

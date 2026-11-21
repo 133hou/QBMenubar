@@ -48,12 +48,19 @@
 <p align="center">
   <img src="docs/images/preview_popover.png" alt="QBMenubar Liquid Glass 主弹窗、动态带宽波形图与种子列表" width="380" />
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="docs/images/preview_settings.png" alt="QBMenubar macOS 系统设置风格偏好设置窗口" width="480" />
+  <img src="docs/images/preview_settings.png" alt="QBMenubar macOS 系统设置风格偏好设置窗口与液态玻璃选中透镜" width="480" />
 </p>
 
 <p align="center">
-  <img src="docs/images/preview_widgets_showcase.png" alt="QBMenubar macOS 桌面与通知中心小组件" width="650" />
+  <em>液态玻璃环形圈样式 (流光导向箭头)：</em><br />
+  <img src="docs/images/preview_widgets_showcase.png" alt="QBMenubar macOS 桌面与通知中心小组件 - 液态玻璃环形圈样式" width="650" />
 </p>
+
+<p align="center">
+  <em>经典横向胶囊进度条样式 (完整保留)：</em><br />
+  <img src="docs/images/preview_widgets_classic.png" alt="QBMenubar macOS 桌面与通知中心小组件 - 经典横向胶囊进度条样式" width="650" />
+</p>
+
 <p align="center">
   <img src="docs/images/preview_settings_widgets.png" alt="QBMenubar 小组件设置与跨应用数据权限说明" width="580" />
 </p>

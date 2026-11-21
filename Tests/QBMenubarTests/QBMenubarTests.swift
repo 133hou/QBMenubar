@@ -68,6 +68,29 @@ struct APIConfigTests {
         #expect(url?.absoluteString == "http://127.0.0.1:8080/api/v2/torrents/info")
     }
 
+    @Test func testSidebarSelectionStyle() throws {
+        let defaultConfig = APIConfig.defaultConfig
+        #expect(defaultConfig.sidebarSelectionStyle == .liquidGlass)
+
+        var classicConfig = defaultConfig
+        classicConfig.sidebarSelectionStyle = .classic
+        let encoded = try JSONEncoder().encode(classicConfig)
+        let decoded = try JSONDecoder().decode(APIConfig.self, from: encoded)
+        #expect(decoded.sidebarSelectionStyle == .classic)
+
+        // Test fallback when decoding older JSON without sidebarSelectionStyle
+        let legacyJSON = """
+        {
+            "baseURL": "http://127.0.0.1:8080",
+            "apiPrefix": "/api/v2",
+            "username": "admin",
+            "password": ""
+        }
+        """.data(using: .utf8)!
+        let legacyDecoded = try JSONDecoder().decode(APIConfig.self, from: legacyJSON)
+        #expect(legacyDecoded.sidebarSelectionStyle == .liquidGlass)
+    }
+
     @Test func testFormatSpeed() {
         #expect(APIConfig.formatSpeed(0) == "0 KB/s")
         #expect(APIConfig.formatSpeed(512 * 1024) == "512 KB/s")

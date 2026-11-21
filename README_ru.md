@@ -52,7 +52,10 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/preview_widgets_showcase.png" alt="Виджеты рабочего стола и Центра уведомлений macOS от QBMenubar" width="650" />
+  <img src="docs/images/preview_widgets_showcase.png" alt="Liquid Glass Widget Showcase" width="650" />
+</p>
+<p align="center">
+  <img src="docs/images/preview_widgets_classic.png" alt="Classic Linear Widget Showcase" width="650" />
 </p>
 <p align="center">
   <img src="docs/images/preview_settings_widgets.png" alt="Настройки виджетов и системные разрешения на доступ к данным" width="580" />

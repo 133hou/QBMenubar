@@ -48,12 +48,19 @@
 <p align="center">
   <img src="docs/images/preview_popover.png" alt="QBMenubar Liquid Glass Popover Panel with Speed Chart and Torrent List" width="380" />
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="docs/images/preview_settings.png" alt="QBMenubar macOS System Settings Style Preferences Window" width="480" />
+  <img src="docs/images/preview_settings.png" alt="QBMenubar macOS System Settings Style Preferences Window with Liquid Glass Selection" width="480" />
 </p>
 
 <p align="center">
-  <img src="docs/images/preview_widgets_showcase.png" alt="QBMenubar macOS Desktop & Notification Center Widgets" width="650" />
+  <em>Liquid Glass Circular Ring Style (New):</em><br />
+  <img src="docs/images/preview_widgets_showcase.png" alt="QBMenubar macOS Desktop & Notification Center Widgets - Liquid Glass Circular Ring" width="650" />
 </p>
+
+<p align="center">
+  <em>Classic Linear Capsule Bar Style (Preserved):</em><br />
+  <img src="docs/images/preview_widgets_classic.png" alt="QBMenubar macOS Desktop & Notification Center Widgets - Classic Linear Capsule Bar" width="650" />
+</p>
+
 <p align="center">
   <img src="docs/images/preview_settings_widgets.png" alt="QBMenubar Widget Settings and Data Access Permissions" width="580" />
 </p>

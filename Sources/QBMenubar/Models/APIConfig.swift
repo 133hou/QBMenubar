@@ -161,6 +161,22 @@ public enum IconSizeOption: String, Codable, CaseIterable, Identifiable, Sendabl
     }
 }
 
+public enum SidebarSelectionStyle: String, Codable, CaseIterable, Identifiable, Sendable {
+    case liquidGlass = "liquidGlass"
+    case classic = "classic"
+
+    public var id: String { rawValue }
+
+    public func localizedTitle(isEn: Bool) -> String {
+        switch self {
+        case .liquidGlass:
+            return isEn ? "Liquid Glass Lens (Specular Reflection)" : "液态玻璃透镜 (高光流光)"
+        case .classic:
+            return isEn ? "Classic Accent Fill (Flat Solid)" : "经典系统高亮 (纯色)"
+        }
+    }
+}
+
 public struct APIConfig: Codable, Equatable, Sendable {
     public var baseURL: String
     public var apiPrefix: String
@@ -183,6 +199,7 @@ public struct APIConfig: Codable, Equatable, Sendable {
     public var showPinnedProgress: Bool
     public var enableWidgetSync: Bool
     public var widgetProgressStyle: WidgetProgressStyle
+    public var sidebarSelectionStyle: SidebarSelectionStyle
 
     public static let defaultConfig = APIConfig(
         baseURL: "http://127.0.0.1:8080",
@@ -205,7 +222,8 @@ public struct APIConfig: Codable, Equatable, Sendable {
         pinnedTorrentHash: "auto",
         showPinnedProgress: true,
         enableWidgetSync: true,
-        widgetProgressStyle: .circularGlass
+        widgetProgressStyle: .circularGlass,
+        sidebarSelectionStyle: .liquidGlass
     )
 
     private static let userDefaultsKey = "QBMenubar.APIConfig"
@@ -231,7 +249,8 @@ public struct APIConfig: Codable, Equatable, Sendable {
         pinnedTorrentHash: String? = "auto",
         showPinnedProgress: Bool = true,
         enableWidgetSync: Bool = true,
-        widgetProgressStyle: WidgetProgressStyle = .circularGlass
+        widgetProgressStyle: WidgetProgressStyle = .circularGlass,
+        sidebarSelectionStyle: SidebarSelectionStyle = .liquidGlass
     ) {
         self.baseURL = baseURL
         self.apiPrefix = apiPrefix
@@ -254,6 +273,7 @@ public struct APIConfig: Codable, Equatable, Sendable {
         self.showPinnedProgress = showPinnedProgress
         self.enableWidgetSync = enableWidgetSync
         self.widgetProgressStyle = widgetProgressStyle
+        self.sidebarSelectionStyle = sidebarSelectionStyle
     }
 
     public init(from decoder: Decoder) throws {
@@ -279,6 +299,7 @@ public struct APIConfig: Codable, Equatable, Sendable {
         self.showPinnedProgress = try container.decodeIfPresent(Bool.self, forKey: .showPinnedProgress) ?? true
         self.enableWidgetSync = try container.decodeIfPresent(Bool.self, forKey: .enableWidgetSync) ?? true
         self.widgetProgressStyle = try container.decodeIfPresent(WidgetProgressStyle.self, forKey: .widgetProgressStyle) ?? .circularGlass
+        self.sidebarSelectionStyle = try container.decodeIfPresent(SidebarSelectionStyle.self, forKey: .sidebarSelectionStyle) ?? .liquidGlass
     }
 
     public static func load() -> APIConfig {

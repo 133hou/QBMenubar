@@ -52,7 +52,10 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/preview_widgets_showcase.png" alt="QBMenubar macOS 데스크탑 및 알림 센터 위젯" width="650" />
+  <img src="docs/images/preview_widgets_showcase.png" alt="Liquid Glass Widget Showcase" width="650" />
+</p>
+<p align="center">
+  <img src="docs/images/preview_widgets_classic.png" alt="Classic Linear Widget Showcase" width="650" />
 </p>
 <p align="center">
   <img src="docs/images/preview_settings_widgets.png" alt="QBMenubar 위젯 설정 및 데이터 접근 권한 안내" width="580" />

@@ -52,7 +52,10 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/preview_widgets_showcase.png" alt="QBMenubar macOS Schreibtisch- & Mitteilungszentrale-Widgets" width="650" />
+  <img src="docs/images/preview_widgets_showcase.png" alt="Liquid Glass Widget Showcase" width="650" />
+</p>
+<p align="center">
+  <img src="docs/images/preview_widgets_classic.png" alt="Classic Linear Widget Showcase" width="650" />
 </p>
 <p align="center">
   <img src="docs/images/preview_settings_widgets.png" alt="QBMenubar Widget-Einstellungen und Datenschutz-Berechtigung" width="580" />

@@ -52,7 +52,10 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/preview_widgets_showcase.png" alt="QBMenubar macOS 桌面與通知中心小工具" width="650" />
+  <img src="docs/images/preview_widgets_showcase.png" alt="QBMenubar macOS 桌面與通知中心小工具 - 液態玻璃環形圈樣式" width="650" />
+</p>
+<p align="center">
+  <img src="docs/images/preview_widgets_classic.png" alt="QBMenubar macOS 桌面與通知中心小工具 - 經典橫向膠囊進度條樣式" width="650" />
 </p>
 <p align="center">
   <img src="docs/images/preview_settings_widgets.png" alt="QBMenubar 小工具設定與跨應用資料權限說明" width="580" />

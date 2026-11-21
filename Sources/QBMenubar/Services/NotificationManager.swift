@@ -10,6 +10,7 @@ public final class NotificationManager: NSObject, UNUserNotificationCenterDelega
     }
 
     public func requestAuthorization() {
+        guard Bundle.main.bundleIdentifier != nil else { return }
         UNUserNotificationCenter.current().delegate = self
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if let error = error {

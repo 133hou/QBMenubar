@@ -65,6 +65,15 @@ cat <<EOF > "$WIDGET_CONTENTS/Info.plist"
     </array>
     <key>LSMinimumSystemVersion</key>
     <string>14.0</string>
+    <key>EXAppExtensionAttributes</key>
+    <dict>
+        <key>EXExtensionPointIdentifier</key>
+        <string>com.apple.widgetkit-extension</string>
+    </dict>
+    <key>UIDeviceFamily</key>
+    <array>
+        <integer>2</integer>
+    </array>
     <key>NSExtension</key>
     <dict>
         <key>NSExtensionPointIdentifier</key>
@@ -124,11 +133,25 @@ cat <<EOF > "$CONTENTS_DIR/Info.plist"
 </plist>
 EOF
 
-echo "==> Code-signing QBMenubarWidget.appex with Sandbox and App Group..."
-codesign --force --sign - --entitlements "$DIR/QBMenubarWidget.entitlements" "$WIDGET_APPEX"
+# Detect available code signing certificate in Keychain
+SIGN_IDENTITY=$(security find-identity -v -p codesigning | grep "Apple Development" | head -n 1 | awk -F '"' '{print $2}')
+if [ -z "$SIGN_IDENTITY" ]; then
+    SIGN_IDENTITY=$(security find-identity -v -p codesigning | grep "Developer ID Application" | head -n 1 | awk -F '"' '{print $2}')
+fi
+if [ -z "$SIGN_IDENTITY" ]; then
+    echo "==> Notice: No Apple Development or Developer ID certificate found; falling back to ad-hoc (-)"
+    SIGN_IDENTITY="-"
+else
+    echo "==> Using code signing identity: $SIGN_IDENTITY"
+fi
 
-echo "==> Code-signing QBMenubar.app..."
-codesign --force --sign - --entitlements "$DIR/QBMenubar.entitlements" "$APP_DIR"
+echo "==> Code-signing inner binaries and app extension..."
+codesign --force --sign "$SIGN_IDENTITY" --entitlements "$DIR/QBMenubarWidget.entitlements" "$WIDGET_MACOS/QBMenubarWidget"
+codesign --force --sign "$SIGN_IDENTITY" --entitlements "$DIR/QBMenubarWidget.entitlements" "$WIDGET_APPEX"
+
+echo "==> Code-signing main executable and app bundle..."
+codesign --force --sign "$SIGN_IDENTITY" --entitlements "$DIR/QBMenubar.entitlements" "$MACOS_DIR/QBMenubar"
+codesign --force --sign "$SIGN_IDENTITY" --entitlements "$DIR/QBMenubar.entitlements" "$APP_DIR"
 
 echo "==> QBMenubar.app with QBMenubarWidget successfully created and code-signed!"
 echo "Location: $APP_DIR"

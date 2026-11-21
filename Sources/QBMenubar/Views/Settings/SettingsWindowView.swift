@@ -562,18 +562,19 @@ public struct SettingsWindowView: View {
             if viewModel.config.enableWidgetSync && !WidgetDataManager.checkGroupContainerPermission() {
                 SettingsDivider()
 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 10) {
                     Text(L10n.widgetPermissionDesc(lang))
                         .font(.system(size: 11))
                         .foregroundStyle(.secondary)
-                        .lineSpacing(2)
+                        .lineSpacing(2.5)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     Button {
                         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") {
                             NSWorkspace.shared.open(url)
                         }
                     } label: {
-                        HStack(spacing: 5) {
+                        HStack(spacing: 6) {
                             Image(systemName: "lock.shield.fill")
                             Text(L10n.openFullDiskAccessBtn(lang))
                         }
@@ -588,6 +589,7 @@ public struct SettingsWindowView: View {
                         Text(L10n.widgetPrivacyPromise(lang))
                             .font(.system(size: 10, weight: .medium))
                             .foregroundStyle(.primary.opacity(0.85))
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                     .padding(.horizontal, 9)
                     .padding(.vertical, 6)
@@ -601,26 +603,27 @@ public struct SettingsWindowView: View {
                         .font(.system(size: 9, design: .monospaced))
                         .foregroundStyle(.tertiary)
                         .textSelection(.enabled)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(.top, 2)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
             }
         }
 
         // Group 2: Widget Sizes & Information
-        SettingsGroup(title: isEn ? "Widget Types & Instructions" : "小组件规格与添加方式") {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 10) {
-                    WidgetTypeBadge(title: "Small", desc: isEn ? "Single Task & Speeds" : "焦点任务与速率", icon: "square")
-                    WidgetTypeBadge(title: "Medium", desc: isEn ? "3 Tasks & Speeds" : "多任务列表与带宽", icon: "rectangle")
-                    WidgetTypeBadge(title: "Large", desc: isEn ? "Dashboard" : "全功能看板", icon: "square.fill")
-                }
-
-                Text(isEn
-                    ? "Right-click your macOS desktop or open Notification Center, click 'Edit Widgets', and select QBMenubar."
-                    : "在桌面空白处右键点击「编辑小组件」（或在通知中心底部点击），搜索「QBMenubar」即可添加。")
-                    .font(.system(size: 10.5))
-                    .foregroundStyle(.secondary)
+        SettingsGroup(
+            title: isEn ? "Widget Types & Instructions" : "小组件规格与添加方式",
+            footer: isEn
+                ? "Right-click your macOS desktop or open Notification Center, click 'Edit Widgets', and select QBMenubar."
+                : "在桌面空白处右键点击「编辑小组件」（或在通知中心底部点击），搜索「QBMenubar」即可添加。"
+        ) {
+            HStack(spacing: 10) {
+                WidgetTypeBadge(title: "Small", desc: isEn ? "Single Task & Speeds" : "焦点任务与速率", icon: "square")
+                WidgetTypeBadge(title: "Medium", desc: isEn ? "3 Tasks & Speeds" : "多任务列表与带宽", icon: "rectangle")
+                WidgetTypeBadge(title: "Large", desc: isEn ? "Dashboard" : "全功能看板", icon: "square.fill")
             }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
         }
     }
 
@@ -873,10 +876,11 @@ public struct SettingsWindowView: View {
 
 struct SettingsGroup<Content: View>: View {
     let title: String
+    var footer: String? = nil
     @ViewBuilder let content: Content
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             Text(title)
                 .font(.system(size: 12, weight: .bold))
                 .foregroundStyle(.secondary)
@@ -886,6 +890,16 @@ struct SettingsGroup<Content: View>: View {
                 content
             }
             .glassCard(cornerRadius: 10, padding: 0, isInteractive: false)
+
+            if let footer = footer {
+                Text(footer)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .lineSpacing(2)
+                    .padding(.leading, 4)
+                    .padding(.top, 2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
     }
 }

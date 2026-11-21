@@ -136,6 +136,8 @@ QBMenubar supports macOS Desktop & Notification Center Widgets across three size
 ---
 
 ### 🚀 What's New in v1.3.2
+- **Liquid Glass Optical Selection Lens in Settings**: Crystal clear optical glass lens with 3D meniscus refraction shadows, prismatic chromatic dispersion, and seamless spring motion matching native macOS Tahoe feel (classic solid style switchable and preserved in General Settings).
+- **Liquid Glass Circular Progress Ring for Widgets**: Directional flow arrow tip, frosted glass track, and central floating squircle status indicator (classic linear capsule progress bar 100% preserved and selectable in Preferences -> Widgets).
 - **Native WidgetKit Extension Entry Point**: Configured `_NSExtensionMain` entry point for the SwiftPM WidgetKit binary, ensuring robust ExtensionKit launch, descriptor discovery, and placeholder precaching by macOS `chronod`.
 - **Streamlined Full Disk Access Authorization**: Clarified and unified the cross-process App Group permission flow directly to macOS Full Disk Access, preventing text clipping and layout overflows in Preferences.
 - **Clean Single-Bundle Registration**: Eliminated redundant binary registrations and ensured clean system discovery.

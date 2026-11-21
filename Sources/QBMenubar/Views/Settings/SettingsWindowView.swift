@@ -269,8 +269,8 @@ public struct SettingsWindowView: View {
             SettingsDivider()
 
             SettingsRow(
-                title: isEn ? "Sidebar Selection Style" : "侧边栏高亮风格",
-                subtitle: isEn ? "Choose between Liquid Glass lens with specular reflection or classic solid accent fill" : "可选择液态玻璃透镜 (高光流光) 或经典系统纯色高亮"
+                title: L10n.sidebarSelectionStyleTitle(lang),
+                subtitle: L10n.sidebarSelectionStyleSubtitle(lang)
             ) {
                 GlassMenuPicker(
                     selection: Binding(
@@ -280,7 +280,7 @@ public struct SettingsWindowView: View {
                             viewModel.config.save()
                         }
                     ),
-                    items: SidebarSelectionStyle.allCases.map { ($0, $0.localizedTitle(isEn: isEn)) },
+                    items: SidebarSelectionStyle.allCases.map { ($0, $0.localizedTitle(lang: lang)) },
                     width: 220
                 )
             }
@@ -395,7 +395,7 @@ public struct SettingsWindowView: View {
     @ViewBuilder
     private var menubarPane: some View {
         // Live Preview of Menu Bar Appearance
-        SettingsGroup(title: isEn ? "Live Appearance Preview" : "实时效果预览") {
+        SettingsGroup(title: L10n.liveAppearancePreview(lang)) {
             HStack(spacing: 12) {
                 Spacer()
 
@@ -551,7 +551,7 @@ public struct SettingsWindowView: View {
     @ViewBuilder
     private var widgetsPane: some View {
         // Group 1: Desktop Widget Synchronization & Permissions
-        SettingsGroup(title: isEn ? "Desktop Widget Synchronization" : "桌面小组件同步与权限") {
+        SettingsGroup(title: L10n.widgetPermissionSection(lang)) {
             SettingsRow(
                 title: L10n.enableWidgetSync(lang),
                 subtitle: L10n.enableWidgetSyncSubtitle(lang)
@@ -570,8 +570,8 @@ public struct SettingsWindowView: View {
             SettingsDivider()
 
             SettingsRow(
-                title: isEn ? "Full Disk Access" : "完全磁盘访问权限",
-                subtitle: isEn ? "Required by macOS for cross-process widget data sharing" : "macOS 跨进程共享小组件数据所必需"
+                title: L10n.fullDiskAccessTitle(lang),
+                subtitle: L10n.fullDiskAccessSubtitle(lang)
             ) {
                 HStack(spacing: 6) {
                     if !viewModel.config.enableWidgetSync {
@@ -645,10 +645,10 @@ public struct SettingsWindowView: View {
         }
 
         // Group 2: Widget Progress Style Option
-        SettingsGroup(title: isEn ? "Widget Progress Style" : "小组件进度条样式") {
+        SettingsGroup(title: L10n.widgetProgressStyleSection(lang)) {
             SettingsRow(
-                title: isEn ? "Progress Indicator Style" : "进度指示器样式",
-                subtitle: isEn ? "Choose between Liquid Glass circular ring or classic linear capsule bar" : "可选择液态玻璃环形圈或经典横向胶囊进度条"
+                title: L10n.widgetProgressIndicatorTitle(lang),
+                subtitle: L10n.widgetProgressIndicatorSubtitle(lang)
             ) {
                 GlassMenuPicker(
                     selection: Binding(
@@ -659,7 +659,7 @@ public struct SettingsWindowView: View {
                             viewModel.updateWidgetSnapshot()
                         }
                     ),
-                    items: WidgetProgressStyle.allCases.map { ($0, $0.localizedTitle(isEn: isEn)) },
+                    items: WidgetProgressStyle.allCases.map { ($0, $0.localizedTitle(lang: lang)) },
                     width: 220
                 )
             }
@@ -667,15 +667,13 @@ public struct SettingsWindowView: View {
 
         // Group 3: Widget Sizes & Information
         SettingsGroup(
-            title: isEn ? "Widget Types & Instructions" : "小组件规格与添加方式",
-            footer: isEn
-                ? "Right-click your macOS desktop or open Notification Center, click 'Edit Widgets', and select QBMenubar."
-                : "在桌面空白处右键点击「编辑小组件」（或在通知中心底部点击），搜索「QBMenubar」即可添加。"
+            title: L10n.widgetTypesSection(lang),
+            footer: L10n.widgetInstructionsFooter(lang)
         ) {
             HStack(spacing: 10) {
-                WidgetTypeBadge(title: "Small", desc: isEn ? "Single Task & Speeds" : "焦点任务与速率", icon: "square")
-                WidgetTypeBadge(title: "Medium", desc: isEn ? "3 Tasks & Speeds" : "多任务列表与带宽", icon: "rectangle")
-                WidgetTypeBadge(title: "Large", desc: isEn ? "Dashboard" : "全功能看板", icon: "square.fill")
+                WidgetTypeBadge(title: "Small", desc: L10n.widgetBadgeSmallDesc(lang), icon: "square")
+                WidgetTypeBadge(title: "Medium", desc: L10n.widgetBadgeMediumDesc(lang), icon: "rectangle")
+                WidgetTypeBadge(title: "Large", desc: L10n.widgetBadgeLargeDesc(lang), icon: "square.fill")
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)

@@ -127,6 +127,15 @@ QBMenubar unterstützt macOS Schreibtisch- und Mitteilungszentrale-Widgets in dr
 
 ---
 
+### 🚀 Was ist neu in v1.3.2
+- **Optische Liquid-Glass-Auswahllinse in den Einstellungen**: Glasklare optische Linse im Stil von macOS Tahoe mit realistischen Meniskus-Brechungsschatten, prismatischer chromatischen Dispersion und geschmeidigen Apple-Spring-Animationen (klassischer Volltonstil bleibt in den Einstellungen wählbar).
+- **Liquid-Glass-Kreisring-Fortschrittsanzeige für Widgets**: Neue kreisförmige Fortschrittsanzeige mit Richtungspfeil und zentralem Glassymbol (klassischer linearer Kapselbalken bleibt vollständig erhalten und umschaltbar).
+- **Optimierter WidgetKit-Einstiegspunkt**: `_NSExtensionMain` für SwiftPM-Builds sauber verknüpft, wodurch die Erkennung durch `chronod` und das Notification Center zuverlässig funktioniert.
+- **Vereinfachte Festplattenvollzugriff-Autorisierung**: Layoutüberläufe und Textbeschneidungen in den Einstellungen behoben.
+- **Single-Bundle-Registrierung**: Konflikte bei der Bundle-Registrierung beseitigt.
+
+---
+
 ## 📥 Installation
 
 ### Option 1: Vorkompilierte App herunterladen (Empfohlen)

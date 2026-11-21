@@ -475,4 +475,74 @@ public struct L10n {
     public static func terminalResetHint(_ lang: AppLanguage) -> String {
         tr(lang, zhHans: "提示：也可以在终端运行重置命令：tccutil reset All com.antigravity.QBMenubar", zhHant: "提示：亦可在終端機執行重設指令：tccutil reset All com.antigravity.QBMenubar", en: "Tip: You can also reset permissions in Terminal: tccutil reset All com.antigravity.QBMenubar")
     }
+
+    // Appearance & Style
+    public static func sidebarSelectionStyleTitle(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "侧边栏高亮风格", zhHant: "側邊欄高亮風格", en: "Sidebar Selection Style")
+    }
+
+    public static func sidebarSelectionStyleSubtitle(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "可选择液态玻璃透镜 (高光流光) 或经典系统纯色高亮", zhHant: "可選擇液態玻璃透鏡 (高光流光) 或經典系統純色高亮", en: "Choose between Liquid Glass lens with specular reflection or classic solid accent fill")
+    }
+
+    public static func sidebarStyleLiquidGlass(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "液态玻璃透镜 (高光流光)", zhHant: "液態玻璃透鏡 (高光流光)", en: "Liquid Glass Lens (Specular Reflection)")
+    }
+
+    public static func sidebarStyleClassic(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "经典系统高亮 (纯色)", zhHant: "經典系統高亮 (純色)", en: "Classic Accent Fill (Flat Solid)")
+    }
+
+    // Widget Progress Style
+    public static func widgetProgressStyleSection(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "小组件进度条样式", zhHant: "小工具進度條樣式", en: "Widget Progress Style")
+    }
+
+    public static func widgetProgressIndicatorTitle(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "进度指示器样式", zhHant: "進度指示器樣式", en: "Progress Indicator Style")
+    }
+
+    public static func widgetProgressIndicatorSubtitle(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "可选择液态玻璃环形圈或经典横向胶囊进度条", zhHant: "可選擇液態玻璃環形圈或經典橫向膠囊進度條", en: "Choose between Liquid Glass circular ring or classic linear capsule bar")
+    }
+
+    public static func widgetStyleCircularGlass(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "液态玻璃环形圈 (流光箭头)", zhHant: "液態玻璃環形圈 (流光箭頭)", en: "Liquid Glass Ring (Directional Arrow)")
+    }
+
+    public static func widgetStyleLinear(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "经典横向胶囊条 (线性)", zhHant: "經典橫向膠囊條 (線性)", en: "Linear Capsule Bar (Classic)")
+    }
+
+    public static func widgetTypesSection(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "小组件规格与添加方式", zhHant: "小工具規格與加入方式", en: "Widget Types & Instructions")
+    }
+
+    public static func widgetInstructionsFooter(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "在桌面空白处右键点击「编辑小组件」（或在通知中心底部点击），搜索「QBMenubar」即可添加。", zhHant: "在桌面空白處按右鍵「編輯小工具」（或在通知中心底部點擊），搜尋「QBMenubar」即可加入。", en: "Right-click your macOS desktop or open Notification Center, click 'Edit Widgets', and select QBMenubar.")
+    }
+
+    public static func widgetBadgeSmallDesc(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "焦点任务与速率", zhHant: "焦點任務與速率", en: "Single Task & Speeds")
+    }
+
+    public static func widgetBadgeMediumDesc(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "多任务列表与带宽", zhHant: "多任務列表與頻寬", en: "3 Tasks & Speeds")
+    }
+
+    public static func widgetBadgeLargeDesc(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "全功能看板", zhHant: "全功能儀表板", en: "Dashboard")
+    }
+
+    public static func fullDiskAccessTitle(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "完全磁盘访问权限", zhHant: "全能磁碟存取權限", en: "Full Disk Access")
+    }
+
+    public static func fullDiskAccessSubtitle(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "macOS 跨进程共享小组件数据所必需", zhHant: "macOS 跨行程共享小工具資料所必需", en: "Required by macOS for cross-process widget data sharing")
+    }
+
+    public static func liveAppearancePreview(_ lang: AppLanguage) -> String {
+        tr(lang, zhHans: "实时效果预览", zhHant: "即時效果預覽", en: "Live Appearance Preview")
+    }
 }

@@ -127,6 +127,15 @@ QBMenubar admite widgets de Escritorio y Centro de notificaciones de macOS en tr
 
 ---
 
+### 🚀 Novedades de la versión 1.3.2
+- **Lente óptica Liquid Glass en la barra lateral de Ajustes**: Lente de cristal transparente estilo macOS Tahoe con sombras de refracción física meniscal, dispersión prismática de borde y animaciones de resorte fluidas (el estilo clásico de color sólido sigue disponible y configurable).
+- **Anillo de progreso circular Liquid Glass para widgets**: Nuevo dial circular de progreso con flecha direccional e icono flotante de cristal (la barra clásica lineal se mantiene al 100 % y se puede alternar en Ajustes).
+- **Punto de entrada nativo de WidgetKit optimizado**: Símbolo `_NSExtensionMain` enlazado correctamente para asegurar la detección por parte de `chronod` y el Centro de notificaciones.
+- **Autorización simplificada de Acceso total al disco**: Corrección de desbordamientos de diseño y textos cortados en los ajustes.
+- **Registro de paquete único**: Eliminación de conflictos de registro de paquetes redundantes.
+
+---
+
 ## 📥 Descarga e Instalación
 
 ### Opción 1: Descarga directa de la aplicación (Recomendado)

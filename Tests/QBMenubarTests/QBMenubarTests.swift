@@ -119,6 +119,17 @@ struct LocalizationTests {
             #expect(!L10n.pauseAll(lang).isEmpty)
             #expect(!L10n.resumeAll(lang).isEmpty)
             #expect(!L10n.altSpeeds(lang).isEmpty)
+            #expect(!L10n.sidebarSelectionStyleTitle(lang).isEmpty)
+            #expect(!L10n.sidebarSelectionStyleSubtitle(lang).isEmpty)
+            #expect(!L10n.sidebarStyleLiquidGlass(lang).isEmpty)
+            #expect(!L10n.sidebarStyleClassic(lang).isEmpty)
+            #expect(!L10n.widgetProgressStyleSection(lang).isEmpty)
+            #expect(!L10n.widgetProgressIndicatorTitle(lang).isEmpty)
+            #expect(!L10n.widgetProgressIndicatorSubtitle(lang).isEmpty)
+            #expect(!L10n.widgetStyleCircularGlass(lang).isEmpty)
+            #expect(!L10n.widgetStyleLinear(lang).isEmpty)
+            #expect(!L10n.fullDiskAccessTitle(lang).isEmpty)
+            #expect(!L10n.liveAppearancePreview(lang).isEmpty)
         }
     }
 

@@ -167,13 +167,15 @@ public enum SidebarSelectionStyle: String, Codable, CaseIterable, Identifiable, 
 
     public var id: String { rawValue }
 
-    public func localizedTitle(isEn: Bool) -> String {
+    public func localizedTitle(lang: AppLanguage) -> String {
         switch self {
-        case .liquidGlass:
-            return isEn ? "Liquid Glass Lens (Specular Reflection)" : "液态玻璃透镜 (高光流光)"
-        case .classic:
-            return isEn ? "Classic Accent Fill (Flat Solid)" : "经典系统高亮 (纯色)"
+        case .liquidGlass: return L10n.sidebarStyleLiquidGlass(lang)
+        case .classic: return L10n.sidebarStyleClassic(lang)
         }
+    }
+
+    public func localizedTitle(isEn: Bool) -> String {
+        localizedTitle(lang: isEn ? .en : .zhHans)
     }
 }
 
@@ -363,5 +365,14 @@ public struct APIConfig: Codable, Equatable, Sendable {
 
     public static func formatBytes(_ bytes: Int64) -> String {
         ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+    }
+}
+
+extension WidgetProgressStyle {
+    public func localizedTitle(lang: AppLanguage) -> String {
+        switch self {
+        case .circularGlass: return L10n.widgetStyleCircularGlass(lang)
+        case .linear: return L10n.widgetStyleLinear(lang)
+        }
     }
 }

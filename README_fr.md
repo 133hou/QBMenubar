@@ -127,6 +127,15 @@ QBMenubar prend en charge les widgets Bureau et Centre de notifications macOS en
 
 ---
 
+### 🚀 Nouveautés de la v1.3.2
+- **Lentille optique Liquid Glass pour la barre latérale des réglages** : Lentille en verre pur haute transparence style macOS Tahoe avec ombres de réfraction physique méniscale, dispersion chromatique prismatique et animations de ressort fluides (le style classique en couleur pleine reste disponible et sélectionnable).
+- **Anneau de progression circulaire Liquid Glass pour les widgets** : Nouvel affichage circulaire avec flèche directionnelle et icône en verre flottante (la barre capsule classique linéaire est 100 % conservée et commutable dans les préférences).
+- **Point d'entrée WidgetKit natif optimisé** : Symbole `_NSExtensionMain` intégré pour garantir le chargement fiable des widgets par `chronod` et le Centre de notifications.
+- **Autorisation simplifiée pour l'Accès complet au disque** : Résolution des dépassements de mise en page et coupures de texte dans les réglages.
+- **Enregistrement de bundle unique** : Suppression des conflits d'enregistrement de bundles redondants.
+
+---
+
 ## 📥 Téléchargement & Installation
 
 ### Option 1 : Téléchargement direct (Recommandé)

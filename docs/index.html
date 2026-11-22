@@ -248,6 +248,11 @@
       padding: 0;
     }
 
+    html, body {
+      overflow-x: hidden;
+      max-width: 100%;
+    }
+
     body {
       background-color: var(--bg);
       color: var(--text-primary);
@@ -256,7 +261,6 @@
       font-size: 16px;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      overflow-x: hidden;
       transition: background-color 0.35s var(--ease-apple), color 0.35s var(--ease-apple);
       position: relative;
     }
@@ -363,6 +367,8 @@
       font-weight: 700;
       font-size: 1.05rem;
       letter-spacing: -0.02em;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .brand-icon {
@@ -375,6 +381,7 @@
       justify-content: center;
       color: white;
       box-shadow: 0 2px 8px rgba(0, 113, 227, 0.4);
+      flex-shrink: 0;
     }
 
     .brand-icon svg {
@@ -405,6 +412,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-shrink: 0;
     }
 
     /* Pill Segment Control */
@@ -416,6 +424,7 @@
       border-radius: var(--radius-pill);
       padding: 3px;
       box-shadow: var(--specular);
+      flex-shrink: 0;
     }
 
     .segment-btn {
@@ -429,6 +438,8 @@
       border-radius: var(--radius-pill);
       cursor: pointer;
       transition: all 0.2s var(--ease-apple);
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .segment-btn:hover {
@@ -441,7 +452,8 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), var(--specular);
     }
 
-    .icon-btn {
+    .icon-btn,
+    .theme-toggle {
       background: var(--bg-glass-elevated);
       border: 1px solid var(--border-glass);
       border-radius: var(--radius-pill);
@@ -454,19 +466,24 @@
       cursor: pointer;
       transition: all 0.2s var(--ease-apple);
       box-shadow: var(--specular);
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
-    .icon-btn:hover {
+    .icon-btn:hover,
+    .theme-toggle:hover {
       color: var(--text-primary);
       transform: scale(1.05);
     }
 
-    .icon-btn svg {
+    .icon-btn svg,
+    .theme-toggle svg {
       width: 16px;
       height: 16px;
     }
 
-    .btn-nav-download {
+    .btn-nav-download,
+    .nav-cta {
       background: linear-gradient(135deg, #0071e3, #2997ff);
       color: #ffffff;
       font-size: 0.85rem;
@@ -478,9 +495,12 @@
       gap: 6px;
       box-shadow: 0 2px 10px rgba(0, 113, 227, 0.35);
       transition: all 0.2s var(--ease-apple);
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
-    .btn-nav-download:hover {
+    .btn-nav-download:hover,
+    .nav-cta:hover {
       transform: translateY(-1px);
       box-shadow: 0 4px 16px rgba(0, 113, 227, 0.45);
     }
@@ -494,7 +514,8 @@
       position: relative;
     }
 
-    .version-badge {
+    .version-badge,
+    .hero-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -544,7 +565,8 @@
       font-weight: 400;
     }
 
-    .hero-cta-group {
+    .hero-cta-group,
+    .hero-actions {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -654,7 +676,8 @@
     }
 
     /* Simulated macOS Menu Bar Strip */
-    .menubar-strip-frame {
+    .menubar-strip-frame,
+    .menubar-strip {
       background: var(--bg-glass-elevated);
       backdrop-filter: blur(30px) saturate(200%);
       -webkit-backdrop-filter: blur(30px) saturate(200%);
@@ -668,12 +691,16 @@
       font-size: 0.82rem;
       color: var(--text-secondary);
       font-weight: 500;
+      min-width: 0;
+      max-width: 100%;
+      overflow: hidden;
     }
 
     .menubar-left {
       display: flex;
       align-items: center;
       gap: 16px;
+      flex-shrink: 0;
     }
 
     .apple-logo-svg {
@@ -695,10 +722,13 @@
       display: flex;
       align-items: center;
       max-width: 520px;
+      min-width: 0;
+      overflow: hidden;
     }
 
     .menubar-right-preview img {
       height: 24px;
+      max-width: 100%;
       width: auto;
       object-fit: contain;
     }
@@ -713,6 +743,8 @@
       box-shadow: var(--shadow-lg);
       position: relative;
       overflow: hidden;
+      min-width: 0;
+      max-width: 100%;
     }
 
     html[data-theme="light"] .desktop-stage {
@@ -724,22 +756,34 @@
       grid-template-columns: 380px 1fr;
       gap: 28px;
       align-items: start;
+      min-width: 0;
+      max-width: 100%;
     }
 
-    .mockup-card {
+    .stage-content-grid > * {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .mockup-card,
+    .window-frame {
       background: var(--bg-surface);
       border-radius: var(--radius-lg);
       border: 1px solid var(--border-glass);
       box-shadow: var(--shadow-lg), var(--specular);
       overflow: hidden;
       transition: transform 0.3s var(--ease-apple);
+      min-width: 0;
+      max-width: 100%;
     }
 
-    .mockup-card:hover {
+    .mockup-card:hover,
+    .window-frame:hover {
       transform: translateY(-4px);
     }
 
-    .mockup-header {
+    .mockup-header,
+    .window-titlebar {
       padding: 10px 14px;
       background: var(--bg-glass);
       border-bottom: 1px solid var(--border-glass);
@@ -749,15 +793,32 @@
       font-size: 0.78rem;
       font-weight: 600;
       color: var(--text-secondary);
+      min-width: 0;
+      max-width: 100%;
+      gap: 8px;
     }
 
-    .mockup-tabs {
+    .window-title {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .window-shortcut {
+      flex-shrink: 0;
+    }
+
+    .mockup-tabs,
+    .window-tabs {
       display: flex;
       gap: 6px;
       background: var(--bg-glass-elevated);
       padding: 2px 4px;
       border-radius: var(--radius-pill);
       border: 1px solid var(--border-glass);
+      min-width: 0;
+      max-width: 100%;
     }
 
     .mockup-tab-btn {
@@ -859,6 +920,8 @@
       margin-bottom: 32px;
       padding-bottom: 24px;
       border-bottom: 1px solid var(--border-glass-subtle);
+      min-width: 0;
+      max-width: 100%;
     }
 
     .widget-switcher-info h3 {
@@ -873,13 +936,16 @@
       color: var(--text-secondary);
     }
 
-    .widget-toggle-pills {
+    .widget-toggle-pills,
+    .widget-style-tabs {
       display: inline-flex;
       background: var(--bg-glass-elevated);
       border: 1px solid var(--border-glass);
       border-radius: var(--radius-pill);
       padding: 4px;
       box-shadow: var(--specular);
+      min-width: 0;
+      max-width: 100%;
     }
 
     .widget-toggle-btn {
@@ -1024,14 +1090,19 @@
     /* -------------------------------------------------------------
        COMPARISON TABLE
        ------------------------------------------------------------- */
-    .comparison-table-wrapper {
+    .comparison-table-wrapper,
+    .comparison-table-wrap,
+    .comparison-card {
       background: var(--bg-glass-card);
       backdrop-filter: blur(24px) saturate(190%);
       -webkit-backdrop-filter: blur(24px) saturate(190%);
       border: 1px solid var(--border-glass);
       border-radius: var(--radius-xl);
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
       box-shadow: var(--shadow-lg), var(--specular-card);
+      min-width: 0;
+      max-width: 100%;
     }
 
     .comp-table {
@@ -1118,6 +1189,8 @@
       border-radius: var(--radius-xl);
       padding: 40px;
       box-shadow: var(--shadow-lg), var(--specular-card);
+      min-width: 0;
+      max-width: 100%;
     }
 
     .quickstart-tabs {
@@ -1126,6 +1199,8 @@
       margin-bottom: 32px;
       border-bottom: 1px solid var(--border-glass-subtle);
       padding-bottom: 16px;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .qs-tab-btn {
@@ -1239,7 +1314,9 @@
       line-height: 1.5;
     }
 
-    .code-snippet-box {
+    .code-snippet-box,
+    .code-block,
+    .copy-bar {
       background: var(--code-bg);
       border: 1px solid var(--border-glass);
       border-radius: var(--radius-sm);
@@ -1251,6 +1328,15 @@
       font-family: var(--font-mono);
       font-size: 0.88rem;
       color: var(--text-primary);
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .code-snippet-box code {
+      min-width: 0;
+      flex: 1 1 auto;
+      overflow-x: auto;
+      white-space: nowrap;
     }
 
     .copy-btn {
@@ -1267,6 +1353,7 @@
       align-items: center;
       gap: 6px;
       transition: all 0.2s var(--ease-apple);
+      flex-shrink: 0;
     }
 
     .copy-btn:hover {
@@ -1317,6 +1404,12 @@
       justify-content: space-between;
       gap: 16px;
       user-select: none;
+      min-width: 0;
+    }
+
+    .faq-question span {
+      flex: 1 1 auto;
+      min-width: 0;
     }
 
     .faq-question::-webkit-details-marker {
@@ -1481,31 +1574,547 @@
     }
 
     @media (max-width: 768px) {
+      .container {
+        padding: 0 16px;
+        min-width: 0;
+      }
+
+      /* Top Navigation Bar */
       .site-header {
         top: 8px;
         padding: 0 12px;
+        margin-bottom: 24px;
+      }
+      .nav-inner {
+        padding: 8px 10px;
+        gap: 6px;
       }
       .nav-links {
         display: none;
       }
-      .features-grid {
-        grid-template-columns: 1fr;
+      .brand {
+        font-size: 0.95rem;
+        gap: 6px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .brand-icon {
+        width: 26px;
+        height: 26px;
+        flex-shrink: 0;
+      }
+      .brand-icon svg {
+        width: 14px;
+        height: 14px;
+      }
+      .nav-actions {
+        gap: 6px;
+        flex-shrink: 0;
+      }
+      .segment-control {
+        padding: 2px;
+        flex-shrink: 0;
+      }
+      .segment-btn {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .icon-btn,
+      .theme-toggle {
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
+      }
+      .icon-btn svg,
+      .theme-toggle svg {
+        width: 14px;
+        height: 14px;
+      }
+      .btn-nav-download,
+      .nav-cta {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+        gap: 4px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .btn-nav-download svg,
+      .nav-cta svg {
+        width: 12px;
+        height: 12px;
+      }
+
+      /* Hero Section & Actions & Stats */
+      .hero-section {
+        padding: 30px 0 48px;
+      }
+      .version-badge,
+      .hero-badge {
+        max-width: 100%;
+        font-size: 0.76rem;
+        padding: 6px 12px;
+        line-height: 1.4;
+        text-align: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        word-break: break-word;
+      }
+      .hero-title {
+        font-size: clamp(1.8rem, 6.5vw, 2.5rem);
+        margin-bottom: 16px;
+      }
+      .hero-description {
+        font-size: 0.98rem;
+        margin-bottom: 30px;
+        line-height: 1.55;
+      }
+      .hero-cta-group,
+      .hero-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 40px;
+      }
+      .hero-cta-group .btn-primary,
+      .hero-cta-group .btn-secondary,
+      .hero-actions .btn-primary,
+      .hero-actions .btn-secondary {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+        text-align: center;
+        padding: 13px 20px;
+        font-size: 0.95rem;
       }
       .hero-stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 40px;
+        max-width: 100%;
       }
-      .widget-switcher-header {
-        flex-direction: column;
-        align-items: flex-start;
+      .stat-card {
+        padding: 16px 12px;
+        min-width: 0;
+      }
+      .stat-value {
+        font-size: 1.35rem;
+      }
+      .stat-label {
+        font-size: 0.76rem;
+      }
+
+      /* Desktop Mockup Stage & Titlebars */
+      .desktop-stage {
+        padding: 18px 12px;
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+      }
+      .stage-content-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        min-width: 0;
+        max-width: 100%;
+      }
+      .stage-content-grid > * {
+        min-width: 0;
+        max-width: 100%;
+      }
+      .mockup-card,
+      .window-frame {
+        min-width: 0;
+        max-width: 100%;
+      }
+      .menubar-strip-frame,
+      .menubar-strip {
+        padding: 6px 10px;
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
       }
       .menubar-menu-items {
         display: none;
       }
-      .desktop-stage {
-        padding: 20px 14px;
+      .menubar-right-preview {
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
       }
-      .widget-showcase-box, .quickstart-card {
-        padding: 24px 18px;
+      .menubar-right-preview img {
+        max-width: 100%;
+        height: auto;
+        max-height: 22px;
+        object-fit: contain;
+      }
+      .mockup-header,
+      .window-titlebar {
+        padding: 8px 10px;
+        gap: 8px;
+        min-width: 0;
+        max-width: 100%;
+      }
+      .window-shortcut {
+        display: none !important;
+      }
+      .window-title {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.78rem;
+      }
+      .mockup-tabs,
+      .window-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .mockup-tabs::-webkit-scrollbar,
+      .window-tabs::-webkit-scrollbar {
+        display: none;
+      }
+      .mockup-tab-btn {
+        padding: 4px 8px;
+        font-size: 0.72rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      /* Sections & Widgets */
+      .section {
+        padding: 60px 0;
+      }
+      .section-header {
+        margin-bottom: 36px;
+      }
+      .section-title {
+        font-size: clamp(1.6rem, 5vw, 2.2rem);
+      }
+      .section-subtitle {
+        font-size: 0.98rem;
+      }
+      .widget-showcase-box,
+      .quickstart-card {
+        padding: 24px 16px;
+        border-radius: var(--radius-lg);
+        min-width: 0;
+        max-width: 100%;
+      }
+      .widget-switcher-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+      }
+      .widget-switcher-info {
+        width: 100%;
+      }
+      .widget-switcher-info h3 {
+        font-size: 1.2rem;
+      }
+      .widget-switcher-info p {
+        font-size: 0.9rem;
+      }
+      .widget-toggle-pills,
+      .widget-style-tabs {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+        padding: 4px;
+        box-sizing: border-box;
+      }
+      .widget-toggle-btn {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        padding: 8px 10px;
+        font-size: 0.8rem;
+        border-radius: var(--radius-pill);
+      }
+      .widget-toggle-btn svg {
+        flex-shrink: 0;
+        width: 14px;
+        height: 14px;
+      }
+      .widget-features-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-top: 24px;
+      }
+      .widget-feature-card {
+        padding: 18px 16px;
+      }
+
+      /* Features & Comparison Table */
+      .features-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+      .feature-card {
+        padding: 24px 20px;
+      }
+      .comparison-table-wrapper,
+      .comparison-table-wrap,
+      .comparison-card {
+        border-radius: var(--radius-lg);
+        -webkit-overflow-scrolling: touch;
+        overflow-x: auto;
+        max-width: 100%;
+        min-width: 0;
+      }
+
+      /* Quick Start Guide */
+      .quickstart-tabs {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        padding-bottom: 16px;
+        margin-bottom: 24px;
+      }
+      .qs-tab-btn {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+      }
+      .qs-tab-btn svg {
+        flex-shrink: 0;
+      }
+      .steps-list {
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+      .step-item {
+        gap: 14px;
+      }
+      .step-number {
+        width: 28px;
+        height: 28px;
+        font-size: 0.85rem;
+      }
+      .gatekeeper-box {
+        padding: 20px 16px;
+      }
+      .code-snippet-box,
+      .code-block,
+      .copy-bar {
+        padding: 8px 12px;
+        gap: 10px;
+        min-width: 0;
+        max-width: 100%;
+      }
+      .code-snippet-box code {
+        min-width: 0;
+        flex: 1 1 auto;
+        overflow-x: auto;
+        white-space: nowrap;
+        font-size: 0.8rem;
+        scrollbar-width: none;
+      }
+      .code-snippet-box code::-webkit-scrollbar {
+        display: none;
+      }
+      .copy-btn {
+        flex-shrink: 0;
+        padding: 6px 10px;
+        font-size: 0.78rem;
+      }
+
+      /* FAQ */
+      .faq-question {
+        padding: 18px 20px;
+        font-size: 0.98rem;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .faq-question span {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .faq-icon {
+        flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+      }
+      .faq-answer {
+        padding: 0 20px 20px;
+        font-size: 0.9rem;
+      }
+
+      /* Footer */
+      .site-footer {
+        padding: 50px 0 36px;
+        margin-top: 60px;
+      }
+      .footer-top-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        margin-bottom: 40px;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+        gap: 14px;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 0 12px;
+      }
+
+      /* Header and Nav at 360px - 480px */
+      .site-header {
+        top: 6px;
+        padding: 0 8px;
+        margin-bottom: 20px;
+      }
+      .nav-inner {
+        padding: 8px 10px;
+        gap: 6px;
+      }
+      .brand {
+        font-size: 0.92rem;
+        gap: 6px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .brand-icon {
+        width: 26px;
+        height: 26px;
+      }
+      .brand-icon svg {
+        width: 14px;
+        height: 14px;
+      }
+      .nav-actions {
+        gap: 6px;
+        flex-shrink: 0;
+      }
+      .segment-control {
+        padding: 2px;
+      }
+      .segment-btn {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .icon-btn,
+      .theme-toggle {
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
+      }
+      .btn-nav-download,
+      .nav-cta {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+        gap: 4px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      /* Hero Section */
+      .version-badge,
+      .hero-badge {
+        font-size: 0.74rem;
+        padding: 5px 10px;
+      }
+      .hero-stats-grid {
+        gap: 10px;
+      }
+      .stat-card {
+        padding: 14px 8px;
+      }
+      .stat-value {
+        font-size: 1.25rem;
+      }
+      .stat-label {
+        font-size: 0.72rem;
+      }
+
+      /* Widgets switcher & quickstart */
+      .widget-toggle-btn {
+        padding: 8px 6px;
+        font-size: 0.76rem;
+        gap: 4px;
+      }
+      .widget-toggle-btn svg {
+        width: 13px;
+        height: 13px;
+      }
+      .quickstart-tabs {
+        gap: 6px;
+      }
+      .qs-tab-btn {
+        padding: 8px 6px;
+        font-size: 0.78rem;
+        gap: 4px;
+      }
+      .code-snippet-box,
+      .code-block,
+      .copy-bar {
+        padding: 8px 10px;
+      }
+      .code-snippet-box code {
+        font-size: 0.74rem;
+      }
+      .copy-btn {
+        padding: 5px 8px;
+        font-size: 0.72rem;
+      }
+    }
+
+    @media (max-width: 375px) {
+      .site-header {
+        padding: 0 4px;
+      }
+      .nav-inner {
+        padding: 6px 8px;
+        gap: 4px;
+      }
+      .brand {
+        font-size: 0.85rem;
+        gap: 5px;
+      }
+      .brand-icon {
+        width: 24px;
+        height: 24px;
+      }
+      .brand-icon svg {
+        width: 13px;
+        height: 13px;
+      }
+      .nav-actions {
+        gap: 4px;
+      }
+      .segment-btn {
+        padding: 3px 6px;
+        font-size: 0.72rem;
+      }
+      .icon-btn,
+      .theme-toggle {
+        width: 28px;
+        height: 28px;
+      }
+      .btn-nav-download,
+      .nav-cta {
+        padding: 5px 8px;
+        font-size: 0.72rem;
+        gap: 3px;
       }
     }
   </style>
@@ -1570,7 +2179,7 @@
         </div>
 
         <!-- Dark / Light Theme Toggle Button -->
-        <button type="button" class="icon-btn" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle theme">
+        <button type="button" class="icon-btn theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle theme">
           <svg id="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
             <circle cx="12" cy="12" r="5"></circle>
             <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -1588,7 +2197,7 @@
         </button>
 
         <!-- Navbar Download CTA -->
-        <a href="https://github.com/133hou/QBMenubar/releases/latest/download/QBMenubar-v1.3.3-macOS.zip" class="btn-nav-download">
+        <a href="https://github.com/133hou/QBMenubar/releases/latest/download/QBMenubar-v1.3.3-macOS.zip" class="btn-nav-download nav-cta">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
           <span>v1.3.3</span>
         </a>
@@ -1602,7 +2211,7 @@
     <!-- Hero Section -->
     <section class="hero-section">
       <!-- Version Pill -->
-      <div class="version-badge">
+      <div class="version-badge hero-badge">
         <span class="badge-dot"></span>
         <span class="lang-en">⚡️ macOS 14.0+ (Sonoma • Sequoia • Tahoe) • v1.3.3 Universal</span>
         <span class="lang-zh">⚡️ 适配 macOS 14.0+ (Sonoma • Sequoia • Tahoe) • v1.3.3 正式版</span>
@@ -1621,7 +2230,7 @@
       </p>
 
       <!-- CTA Buttons -->
-      <div class="hero-cta-group">
+      <div class="hero-cta-group hero-actions">
         <a href="https://github.com/133hou/QBMenubar/releases/latest/download/QBMenubar-v1.3.3-macOS.zip" class="btn-primary">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.63-.77 1.06-1.85.94-2.93-.91.04-2.02.61-2.67 1.38-.58.67-1.09 1.76-.95 2.82 1.02.08 2.05-.5 2.68-1.27z"/></svg>
           <span class="lang-en">Download v1.3.3 for macOS</span>
@@ -1670,7 +2279,7 @@
       <!-- Hero Visual Showcase -->
       <div class="hero-showcase">
         <!-- Menu Bar Strip Mockup -->
-        <div class="menubar-strip-frame">
+        <div class="menubar-strip-frame menubar-strip">
           <div class="menubar-left">
             <svg class="apple-logo-svg" viewBox="0 0 170 170">
               <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.08-7.77-7.87-12.23-14.38-6.19-8.99-11.13-19.5-14.82-31.54-3.69-12.04-5.54-23.36-5.54-33.97 0-14.34 3.58-26.31 10.74-35.91 7.16-9.6 16.32-14.52 27.49-14.75 5.23 0 10.83 1.34 16.81 4.02 5.98 2.68 9.94 4.08 11.89 4.2 2.18-.24 6.37-1.68 12.57-4.32 6.2-2.64 11.66-3.86 16.39-3.66 12.63.61 22.84 5.38 30.64 14.31-10.89 6.64-16.22 15.77-15.99 27.38.23 9.12 3.73 16.89 10.5 23.32 6.77 6.43 14.86 10.02 24.28 10.78-2.31 7.07-5.31 14.5-9.01 22.28zM119.22 33.15c0-7.39 2.64-14.38 7.92-20.97 5.28-6.59 11.95-10.78 20.01-12.57.12 1.09.18 1.94.18 2.55 0 7.39-2.79 14.48-8.36 21.28-5.57 6.8-12.16 10.79-19.75 11.97-.24-.73-.36-1.48-.36-2.26z"/>
@@ -1695,28 +2304,28 @@
         <div class="desktop-stage">
           <div class="stage-content-grid">
             <!-- Left: Popover Window -->
-            <div class="mockup-card">
-              <div class="mockup-header">
+            <div class="mockup-card window-frame">
+              <div class="mockup-header window-titlebar">
                 <div class="window-traffic-lights">
                   <span class="traffic-light light-close"></span>
                   <span class="traffic-light light-min"></span>
                   <span class="traffic-light light-zoom"></span>
                 </div>
-                <span>QBMenubar Popover</span>
-                <span>⌘1</span>
+                <span class="window-title">QBMenubar Popover</span>
+                <span class="window-shortcut">⌘1</span>
               </div>
               <img src="images/preview_popover.png" alt="QBMenubar Liquid Glass Popover Panel with Speed Chart and Torrent List" width="900" height="1360">
             </div>
 
             <!-- Right: Settings Window with Tabbed Preview -->
-            <div class="mockup-card">
-              <div class="mockup-header">
+            <div class="mockup-card window-frame">
+              <div class="mockup-header window-titlebar">
                 <div class="window-traffic-lights">
                   <span class="traffic-light light-close"></span>
                   <span class="traffic-light light-min"></span>
                   <span class="traffic-light light-zoom"></span>
                 </div>
-                <div class="mockup-tabs" role="tablist">
+                <div class="mockup-tabs window-tabs" role="tablist">
                   <button type="button" class="mockup-tab-btn active" id="tab-pref-conn" onclick="switchPrefTab('conn')" role="tab" aria-selected="true">
                     <span class="lang-en">WebUI Connection</span>
                     <span class="lang-zh">WebUI 连接</span>
@@ -1726,7 +2335,7 @@
                     <span class="lang-zh">关于与系统诊断</span>
                   </button>
                 </div>
-                <span>⌘,</span>
+                <span class="window-shortcut">⌘,</span>
               </div>
               <div class="pref-img-container">
                 <img src="images/preview_settings.png" id="img-pref-conn" class="pref-img-view active" alt="QBMenubar macOS System Settings Style Preferences Window with Liquid Glass Selection" width="1680" height="1240">
@@ -1768,7 +2377,7 @@
             </p>
           </div>
 
-          <div class="widget-toggle-pills" role="tablist">
+          <div class="widget-toggle-pills widget-style-tabs" role="tablist">
             <button type="button" class="widget-toggle-btn active" id="btn-style-ring" onclick="switchWidgetStyle('ring')" role="tab" aria-selected="true">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
               <span class="lang-en">Liquid Glass Circular Ring</span>
@@ -1829,15 +2438,15 @@
       </div>
 
       <!-- Widget Settings Preferences Preview -->
-      <div class="mockup-card">
-        <div class="mockup-header">
+      <div class="mockup-card window-frame">
+        <div class="mockup-header window-titlebar">
           <div class="window-traffic-lights">
             <span class="traffic-light light-close"></span>
             <span class="traffic-light light-min"></span>
             <span class="traffic-light light-zoom"></span>
           </div>
-          <span>QBMenubar Settings — Widgets &amp; Desktop Configuration</span>
-          <span>WidgetKit</span>
+          <span class="window-title">QBMenubar Settings — Widgets &amp; Desktop Configuration</span>
+          <span class="window-shortcut">WidgetKit</span>
         </div>
         <img src="images/preview_settings_widgets.png" alt="QBMenubar Widget Settings and Desktop Widget Configuration" width="1680" height="1280" loading="lazy">
       </div>
@@ -1970,7 +2579,7 @@
         </p>
       </div>
 
-      <div class="comparison-table-wrapper">
+      <div class="comparison-table-wrapper comparison-table-wrap comparison-card">
         <table class="comp-table" aria-label="Feature Comparison">
           <thead>
             <tr>
@@ -2229,7 +2838,7 @@
             <span class="lang-en">If macOS displays <em>"cannot be opened because Apple cannot check it for malicious software"</em> (standard for unsigned open-source binaries): Right-click <code>QBMenubar.app</code> in Finder -> select <strong>Open</strong> -> click <strong>Open</strong>. Or copy and execute this single Terminal command:</span>
             <span class="lang-zh">开源软件首次打开时，macOS 可能会弹出 <em>“无法打开，因为无法验证开发者”</em> 拦截提示。解决方法：在访达「应用程序」中 <strong>右键点击 QBMenubar.app -> 选择打开 -> 点击打开</strong>。或直接在终端执行以下解除隔离属性命令：</span>
           </p>
-          <div class="code-snippet-box">
+          <div class="code-snippet-box code-block copy-bar">
             <code>xattr -cr /Applications/QBMenubar.app</code>
             <button type="button" class="copy-btn" id="copy-gatekeeper-btn" onclick="copySnippet('xattr -cr /Applications/QBMenubar.app', 'copy-gatekeeper-btn')">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>

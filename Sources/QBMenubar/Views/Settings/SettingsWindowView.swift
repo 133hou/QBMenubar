@@ -590,7 +590,7 @@ public struct SettingsWindowView: View {
 
     @ViewBuilder
     private var widgetsPane: some View {
-        // Group 1: Desktop Widget Synchronization & Permissions
+        // Group 1: Desktop Widget Synchronization
         SettingsGroup(title: L10n.widgetPermissionSection(lang)) {
             SettingsRow(
                 title: L10n.enableWidgetSync(lang),
@@ -601,86 +601,10 @@ public struct SettingsWindowView: View {
                     set: { newValue in
                         viewModel.config.enableWidgetSync = newValue
                         viewModel.config.save()
-                        viewModel.updateWidgetSnapshot()
+                        viewModel.updateWidgetSnapshot(forceReload: true)
                     }
                 ))
                 .toggleStyle(.switch)
-            }
-
-            SettingsDivider()
-
-            SettingsRow(
-                title: L10n.fullDiskAccessTitle(lang),
-                subtitle: L10n.fullDiskAccessSubtitle(lang)
-            ) {
-                HStack(spacing: 6) {
-                    if !viewModel.config.enableWidgetSync {
-                        Circle().fill(Color.secondary).frame(width: 7, height: 7)
-                        Text(L10n.widgetPermissionDisabled(lang))
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundStyle(.secondary)
-                    } else if WidgetDataManager.checkGroupContainerPermission() {
-                        Circle().fill(Color.green).frame(width: 7, height: 7)
-                        Text(L10n.widgetPermissionGranted(lang))
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundStyle(.green)
-                    } else {
-                        Circle().fill(Color.orange).frame(width: 7, height: 7)
-                        Text(L10n.widgetPermissionBlocked(lang))
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundStyle(.orange)
-                    }
-                }
-            }
-
-            if viewModel.config.enableWidgetSync && !WidgetDataManager.checkGroupContainerPermission() {
-                SettingsDivider()
-
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(L10n.widgetPermissionDesc(lang))
-                        .font(.system(size: 11))
-                        .foregroundStyle(.secondary)
-                        .lineSpacing(2.5)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    Button {
-                        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") {
-                            NSWorkspace.shared.open(url)
-                        }
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "lock.shield.fill")
-                            Text(L10n.openFullDiskAccessBtn(lang))
-                        }
-                        .font(.system(size: 11.5, weight: .medium))
-                    }
-                    .adaptiveGlassButton(prominent: true)
-
-                    HStack(spacing: 6) {
-                        Image(systemName: "checkmark.shield.fill")
-                            .font(.system(size: 11))
-                            .foregroundStyle(.blue)
-                        Text(L10n.widgetPrivacyPromise(lang))
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundStyle(.primary.opacity(0.85))
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .padding(.horizontal, 9)
-                    .padding(.vertical, 6)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(
-                        RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .fill(Color.blue.opacity(0.08))
-                    )
-
-                    Text(L10n.terminalResetHint(lang))
-                        .font(.system(size: 9, design: .monospaced))
-                        .foregroundStyle(.tertiary)
-                        .textSelection(.enabled)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 12)
             }
         }
 

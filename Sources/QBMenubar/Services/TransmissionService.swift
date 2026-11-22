@@ -5,6 +5,7 @@ public actor TransmissionService: TorrentClientService {
     private let session: URLSession
     private var sessionId: String? = nil
     private var tagCounter: Int = 1
+    private var refreshSessionTask: Task<String, Error>?
 
     public init(config: APIConfig) {
         self.config = config
@@ -17,6 +18,9 @@ public actor TransmissionService: TorrentClientService {
 
     public func updateConfig(_ newConfig: APIConfig) {
         self.config = newConfig
+        self.sessionId = nil
+        self.refreshSessionTask?.cancel()
+        self.refreshSessionTask = nil
     }
 
     private func nextTag() -> Int {
@@ -67,6 +71,55 @@ public actor TransmissionService: TorrentClientService {
         return request
     }
 
+    private func resolveSessionId(staleSessionId: String?, candidateResponse: HTTPURLResponse?) async throws -> String {
+        // 1. If another concurrent call already refreshed sessionId, reuse it immediately
+        if let current = self.sessionId, current != staleSessionId {
+            return current
+        }
+
+        // 2. If a refresh is already in progress, await its result
+        if let inFlight = refreshSessionTask {
+            return try await inFlight.value
+        }
+
+        // 3. If candidate 409 response provided the header, adopt it immediately
+        if let newSessionId = candidateResponse?.value(forHTTPHeaderField: "X-Transmission-Session-Id"), !newSessionId.isEmpty {
+            self.sessionId = newSessionId
+            return newSessionId
+        }
+
+        // 4. Otherwise coalesce onto a single serialized handshake task
+        let task = Task<String, Error> { [weak self] in
+            guard let self = self else { throw URLError(.cancelled) }
+            return try await self.performSessionHandshake()
+        }
+        self.refreshSessionTask = task
+        do {
+            let refreshed = try await task.value
+            self.refreshSessionTask = nil
+            return refreshed
+        } catch {
+            self.refreshSessionTask = nil
+            throw error
+        }
+    }
+
+    private func performSessionHandshake() async throws -> String {
+        let req = try makeBaseURLRequest()
+        let (_, response) = try await session.data(for: req)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+        if let newId = httpResponse.value(forHTTPHeaderField: "X-Transmission-Session-Id"), !newId.isEmpty {
+            self.sessionId = newId
+            return newId
+        }
+        if httpResponse.statusCode == 200, let current = self.sessionId {
+            return current
+        }
+        throw URLError(.cannotConnectToHost)
+    }
+
     private func executeRPC<Args: Encodable, ResultArgs: Decodable>(
         method: String,
         arguments: Args?
@@ -77,6 +130,7 @@ public actor TransmissionService: TorrentClientService {
 
         var request = try makeBaseURLRequest()
         request.httpBody = requestBody
+        let usedSessionId = self.sessionId
 
         var (data, response) = try await session.data(for: request)
 
@@ -86,23 +140,19 @@ public actor TransmissionService: TorrentClientService {
 
         // Handle Transmission 409 CSRF Session-Id Handshake
         if httpResponse.statusCode == 409 {
-            if let newSessionId = httpResponse.value(forHTTPHeaderField: "X-Transmission-Session-Id") {
-                self.sessionId = newSessionId
-                request.setValue(newSessionId, forHTTPHeaderField: "X-Transmission-Session-Id")
+            let newSessionId = try await resolveSessionId(staleSessionId: usedSessionId, candidateResponse: httpResponse)
+            request.setValue(newSessionId, forHTTPHeaderField: "X-Transmission-Session-Id")
 
-                (data, response) = try await session.data(for: request)
-                guard let retryResponse = response as? HTTPURLResponse else {
-                    throw URLError(.badServerResponse)
-                }
+            (data, response) = try await session.data(for: request)
+            guard let retryResponse = response as? HTTPURLResponse else {
+                throw URLError(.badServerResponse)
+            }
 
-                if retryResponse.statusCode == 401 {
-                    throw URLError(.userAuthenticationRequired)
-                }
-                guard retryResponse.statusCode == 200 else {
-                    throw URLError(.badServerResponse)
-                }
-            } else {
-                throw URLError(.cannotConnectToHost)
+            if retryResponse.statusCode == 401 {
+                throw URLError(.userAuthenticationRequired)
+            }
+            guard retryResponse.statusCode == 200 else {
+                throw URLError(.badServerResponse)
             }
         } else if httpResponse.statusCode == 401 {
             throw URLError(.userAuthenticationRequired)

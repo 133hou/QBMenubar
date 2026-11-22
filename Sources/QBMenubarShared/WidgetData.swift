@@ -149,7 +149,7 @@ public struct WidgetData: Codable, Sendable, Equatable {
 
     public static let placeholder = WidgetData(
         updatedAt: Date(),
-        isConnected: true,
+        isConnected: false,
         dlSpeed: 0,
         upSpeed: 0,
         dlSpeedFormatted: "0 B/s",
@@ -274,7 +274,17 @@ public enum WidgetDataManager {
     public static let snapshotKey = "qb_widget_snapshot"
     public static let fileName = "widget_snapshot.json"
 
-    /// Checks whether the application has permission to write to and read from the App Group container.
+    /// The fallback directory in Application Support if App Group container is unavailable.
+    public static var fallbackContainerURL: URL? {
+        if let appSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+            let qbDir = appSupportURL.appendingPathComponent("QBMenubar")
+            try? FileManager.default.createDirectory(at: qbDir, withIntermediateDirectories: true)
+            return qbDir
+        }
+        return nil
+    }
+
+    /// Checks whether the application has permission to write to and read from the App Group container or fallback directory.
     public static func checkGroupContainerPermission() -> Bool {
         for groupID in candidateAppGroupIDs {
             if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupID) {
@@ -289,32 +299,17 @@ public enum WidgetDataManager {
                 }
             }
         }
-        return false
-    }
-
-    /// Resets the TCC permission cache for the app and immediately attempts container access to re-trigger macOS system permission alert.
-    @discardableResult
-    public static func triggerPermissionPrompt() -> Bool {
-        // Reset TCC approval for com.antigravity.QBMenubar via tccutil
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
-        task.arguments = ["reset", "All", "com.antigravity.QBMenubar"]
-        try? task.run()
-        task.waitUntilExit()
-
-        usleep(150_000)
-
-        // Probe access to invoke macOS TCC prompt
-        for groupID in candidateAppGroupIDs {
-            if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupID) {
-                let probeFile = containerURL.appendingPathComponent(".probe_prompt.tmp")
-                try? FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)
-                try? "prompt".write(to: probeFile, atomically: true, encoding: .utf8)
+        if let fallbackURL = fallbackContainerURL {
+            let probeFile = fallbackURL.appendingPathComponent(".probe_\(ProcessInfo.processInfo.processIdentifier).tmp")
+            do {
+                try "probe".write(to: probeFile, atomically: true, encoding: .utf8)
                 try? FileManager.default.removeItem(at: probeFile)
+                return true
+            } catch {
+                return false
             }
         }
-
-        return checkGroupContainerPermission()
+        return false
     }
 
     /// Saves the latest widget snapshot across all shared storage locations.
@@ -340,10 +335,8 @@ public enum WidgetDataManager {
         }
 
         // 3. Application Support fallback
-        if let appSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
-            let qbDir = appSupportURL.appendingPathComponent("QBMenubar")
-            try? FileManager.default.createDirectory(at: qbDir, withIntermediateDirectories: true)
-            let fileURL = qbDir.appendingPathComponent(fileName)
+        if let fallbackDir = fallbackContainerURL {
+            let fileURL = fallbackDir.appendingPathComponent(fileName)
             try? encoded.write(to: fileURL, options: .atomic)
         }
     }
@@ -379,8 +372,8 @@ public enum WidgetDataManager {
         }
 
         // 4. Application Support fallback file
-        if let appSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
-            let fileURL = appSupportURL.appendingPathComponent("QBMenubar").appendingPathComponent(fileName)
+        if let fallbackDir = fallbackContainerURL {
+            let fileURL = fallbackDir.appendingPathComponent(fileName)
             if let data = try? Data(contentsOf: fileURL),
                let snapshot = try? decoder.decode(WidgetData.self, from: data) {
                 return snapshot

@@ -1,4 +1,5 @@
 import Foundation
+import Security
 import QBMenubarShared
 
 public enum AppLanguage: String, Codable, CaseIterable, Identifiable, Sendable {
@@ -318,13 +319,46 @@ public struct APIConfig: Codable, Equatable, Sendable {
         self.sidebarSelectionStyle = sidebarSelectionStyle
     }
 
+    private enum CodingKeys: String, CodingKey {
+        case clientType
+        case baseURL
+        case apiPrefix
+        case username
+        case password
+        case bypassLocalhost
+        case pollInterval
+        case chartHistorySeconds
+        case showCompleted
+        case maxDisplayTorrents
+        case enableNotifications
+        case notifyOnStart
+        case notifyOnComplete
+        case menuBarStyle
+        case iconTheme
+        case arrowTheme
+        case iconSize
+        case language
+        case pinnedTorrentHash
+        case showPinnedProgress
+        case enableWidgetSync
+        case widgetProgressStyle
+        case sidebarSelectionStyle
+    }
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.clientType = try container.decodeIfPresent(ClientType.self, forKey: .clientType) ?? .qbittorrent
         self.baseURL = try container.decodeIfPresent(String.self, forKey: .baseURL) ?? "http://127.0.0.1:8080"
         self.apiPrefix = try container.decodeIfPresent(String.self, forKey: .apiPrefix) ?? "/api/v2"
         self.username = try container.decodeIfPresent(String.self, forKey: .username) ?? "admin"
-        self.password = try container.decodeIfPresent(String.self, forKey: .password) ?? ""
+
+        let legacyPassword = try container.decodeIfPresent(String.self, forKey: .password) ?? ""
+        if !legacyPassword.isEmpty {
+            self.password = legacyPassword
+        } else {
+            self.password = KeychainHelper.loadPassword() ?? ""
+        }
+
         self.bypassLocalhost = try container.decodeIfPresent(Bool.self, forKey: .bypassLocalhost) ?? true
         self.pollInterval = try container.decodeIfPresent(Double.self, forKey: .pollInterval) ?? 2.0
         self.chartHistorySeconds = try container.decodeIfPresent(Int.self, forKey: .chartHistorySeconds) ?? 30
@@ -345,15 +379,50 @@ public struct APIConfig: Codable, Equatable, Sendable {
         self.sidebarSelectionStyle = try container.decodeIfPresent(SidebarSelectionStyle.self, forKey: .sidebarSelectionStyle) ?? .liquidGlass
     }
 
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(clientType, forKey: .clientType)
+        try container.encode(baseURL, forKey: .baseURL)
+        try container.encode(apiPrefix, forKey: .apiPrefix)
+        try container.encode(username, forKey: .username)
+        // Password is intentionally omitted from encoding to avoid plaintext persistence in UserDefaults
+        try container.encode(bypassLocalhost, forKey: .bypassLocalhost)
+        try container.encode(pollInterval, forKey: .pollInterval)
+        try container.encode(chartHistorySeconds, forKey: .chartHistorySeconds)
+        try container.encode(showCompleted, forKey: .showCompleted)
+        try container.encode(maxDisplayTorrents, forKey: .maxDisplayTorrents)
+        try container.encode(enableNotifications, forKey: .enableNotifications)
+        try container.encode(notifyOnStart, forKey: .notifyOnStart)
+        try container.encode(notifyOnComplete, forKey: .notifyOnComplete)
+        try container.encode(menuBarStyle, forKey: .menuBarStyle)
+        try container.encode(iconTheme, forKey: .iconTheme)
+        try container.encode(arrowTheme, forKey: .arrowTheme)
+        try container.encode(iconSize, forKey: .iconSize)
+        try container.encode(language, forKey: .language)
+        try container.encodeIfPresent(pinnedTorrentHash, forKey: .pinnedTorrentHash)
+        try container.encode(showPinnedProgress, forKey: .showPinnedProgress)
+        try container.encode(enableWidgetSync, forKey: .enableWidgetSync)
+        try container.encode(widgetProgressStyle, forKey: .widgetProgressStyle)
+        try container.encode(sidebarSelectionStyle, forKey: .sidebarSelectionStyle)
+    }
+
     public static func load() -> APIConfig {
         guard let data = UserDefaults.standard.data(forKey: userDefaultsKey),
-              let config = try? JSONDecoder().decode(APIConfig.self, from: data) else {
-            return .defaultConfig
+              var config = try? JSONDecoder().decode(APIConfig.self, from: data) else {
+            var defaultConfig = APIConfig.defaultConfig
+            if let keychainPassword = KeychainHelper.loadPassword() {
+                defaultConfig.password = keychainPassword
+            }
+            return defaultConfig
+        }
+        if config.password.isEmpty, let keychainPassword = KeychainHelper.loadPassword() {
+            config.password = keychainPassword
         }
         return config
     }
 
     public func save() {
+        KeychainHelper.savePassword(self.password)
         if let data = try? JSONEncoder().encode(self) {
             UserDefaults.standard.set(data, forKey: Self.userDefaultsKey)
         }
@@ -418,5 +487,81 @@ extension WidgetProgressStyle {
         case .circularGlass: return L10n.widgetStyleCircularGlass(lang)
         case .linear: return L10n.widgetStyleLinear(lang)
         }
+    }
+}
+
+// MARK: - Keychain Helper
+
+public enum KeychainHelper {
+    public static let service = "com.antigravity.QBMenubar"
+    public static let defaultAccount = "webui-password"
+    nonisolated(unsafe) private static var inMemoryFallback: [String: String] = [:]
+    private static let lock = NSLock()
+
+    public static func savePassword(_ password: String, account: String = defaultAccount) {
+        guard !password.isEmpty else {
+            deletePassword(account: account)
+            return
+        }
+
+        lock.lock()
+        defer { lock.unlock() }
+
+        inMemoryFallback[account] = password
+
+        guard let data = password.data(using: .utf8) else { return }
+
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account
+        ]
+
+        let status = SecItemCopyMatching(query as CFDictionary, nil)
+        if status == errSecSuccess {
+            let attributesToUpdate: [String: Any] = [
+                kSecValueData as String: data
+            ]
+            _ = SecItemUpdate(query as CFDictionary, attributesToUpdate as CFDictionary)
+        } else if status == errSecItemNotFound {
+            var newItem = query
+            newItem[kSecValueData as String] = data
+            _ = SecItemAdd(newItem as CFDictionary, nil)
+        }
+    }
+
+    public static func loadPassword(account: String = defaultAccount) -> String? {
+        lock.lock()
+        defer { lock.unlock() }
+
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        if status == errSecSuccess, let data = item as? Data, let str = String(data: data, encoding: .utf8) {
+            return str
+        }
+
+        return inMemoryFallback[account]
+    }
+
+    public static func deletePassword(account: String = defaultAccount) {
+        lock.lock()
+        defer { lock.unlock() }
+
+        inMemoryFallback.removeValue(forKey: account)
+
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account
+        ]
+        _ = SecItemDelete(query as CFDictionary)
     }
 }

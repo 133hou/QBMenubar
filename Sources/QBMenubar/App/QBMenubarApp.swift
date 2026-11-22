@@ -27,7 +27,11 @@ struct QBMenubarApp: App {
             PopoverContentView(viewModel: viewModel)
                 .onOpenURL { url in
                     NSApp.activate(ignoringOtherApps: true)
-                    if url.host == "torrent", let hash = url.pathComponents.dropFirst().first {
+                    if url.host == "open" {
+                        Task {
+                            await viewModel.refresh()
+                        }
+                    } else if url.host == "torrent", let hash = url.pathComponents.dropFirst().first {
                         viewModel.expandedTorrentHash = hash
                     }
                 }

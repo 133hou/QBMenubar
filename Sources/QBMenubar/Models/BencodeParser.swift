@@ -1,12 +1,13 @@
 import Foundation
 
-public enum BencodeError: Error, LocalizedError {
+public enum BencodeError: Error, LocalizedError, Equatable {
     case unexpectedEOF
     case invalidInteger
     case invalidStringLength
     case invalidDictKey
     case invalidByte(UInt8, Int)
     case missingInfoDictionary
+    case maxDepthExceeded
 
     public var errorDescription: String? {
         switch self {
@@ -22,6 +23,8 @@ public enum BencodeError: Error, LocalizedError {
             return "解析错误，位置 \(index) 处存在非法字节: \(byte)"
         case .missingInfoDictionary:
             return "种子文件缺少必要的基础信息字典 (info)"
+        case .maxDepthExceeded:
+            return "种子解析层级过深 (超出最大递归限制)"
         }
     }
 }
@@ -63,26 +66,29 @@ public enum BencodeValue: Sendable {
 public final class BencodeParser {
     private let data: Data
     private var index: Int = 0
+    private let maxDepth: Int
 
-    public init(data: Data) {
+    public init(data: Data, maxDepth: Int = 256) {
         self.data = data
         self.index = 0
+        self.maxDepth = maxDepth
     }
 
     public func parse() throws -> BencodeValue {
         index = 0
-        return try parseValue()
+        return try parseValue(depth: 0)
     }
 
-    private func parseValue() throws -> BencodeValue {
+    private func parseValue(depth: Int = 0) throws -> BencodeValue {
+        guard depth <= maxDepth else { throw BencodeError.maxDepthExceeded }
         guard index < data.count else { throw BencodeError.unexpectedEOF }
         let byte = data[index]
         if byte == UInt8(ascii: "i") {
             return try parseInteger()
         } else if byte == UInt8(ascii: "l") {
-            return try parseList()
+            return try parseList(depth: depth + 1)
         } else if byte == UInt8(ascii: "d") {
-            return try parseDictionary()
+            return try parseDictionary(depth: depth + 1)
         } else if byte >= UInt8(ascii: "0") && byte <= UInt8(ascii: "9") {
             return try parseString()
         } else {
@@ -116,33 +122,35 @@ public final class BencodeParser {
             throw BencodeError.invalidStringLength
         }
         let strStart = colonIndex + 1
+        guard len <= data.count - strStart else { throw BencodeError.unexpectedEOF }
         let strEnd = strStart + len
-        guard strEnd <= data.count else { throw BencodeError.unexpectedEOF }
         let strData = data.subdata(in: strStart..<strEnd)
         index = strEnd
         return .string(strData)
     }
 
-    private func parseList() throws -> BencodeValue {
+    private func parseList(depth: Int) throws -> BencodeValue {
+        guard depth <= maxDepth else { throw BencodeError.maxDepthExceeded }
         index += 1 // skip 'l'
         var items: [BencodeValue] = []
         while index < data.count && data[index] != UInt8(ascii: "e") {
-            items.append(try parseValue())
+            items.append(try parseValue(depth: depth))
         }
         guard index < data.count else { throw BencodeError.unexpectedEOF }
         index += 1 // skip 'e'
         return .list(items)
     }
 
-    private func parseDictionary() throws -> BencodeValue {
+    private func parseDictionary(depth: Int) throws -> BencodeValue {
+        guard depth <= maxDepth else { throw BencodeError.maxDepthExceeded }
         index += 1 // skip 'd'
         var dict: [String: BencodeValue] = [:]
         while index < data.count && data[index] != UInt8(ascii: "e") {
-            guard case .string(let keyData) = try parseValue() else {
+            guard case .string(let keyData) = try parseValue(depth: depth) else {
                 throw BencodeError.invalidDictKey
             }
             let key = String(data: keyData, encoding: .utf8) ?? String(decoding: keyData, as: UTF8.self)
-            let val = try parseValue()
+            let val = try parseValue(depth: depth)
             dict[key] = val
         }
         guard index < data.count else { throw BencodeError.unexpectedEOF }

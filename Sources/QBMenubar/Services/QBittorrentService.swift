@@ -9,7 +9,7 @@ public actor QBittorrentService: TorrentClientService {
         let sessionConfig = URLSessionConfiguration.default
         sessionConfig.httpCookieAcceptPolicy = .always
         sessionConfig.httpShouldSetCookies = true
-        sessionConfig.httpCookieStorage = HTTPCookieStorage.shared
+        sessionConfig.httpCookieStorage = HTTPCookieStorage()
         sessionConfig.timeoutIntervalForRequest = 2.5
         sessionConfig.timeoutIntervalForResource = 5.0
         sessionConfig.waitsForConnectivity = false
@@ -49,14 +49,33 @@ public actor QBittorrentService: TorrentClientService {
         if let formData = formData {
             request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
             let bodyString = formData.map { key, value in
-                let escapedKey = key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? key
-                let escapedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
+                let escapedKey = Self.formURLEncode(key)
+                let escapedValue = Self.formURLEncode(value)
                 return "\(escapedKey)=\(escapedValue)"
             }.joined(separator: "&")
             request.httpBody = bodyString.data(using: .utf8)
         }
 
         return request
+    }
+
+    internal static func formURLEncode(_ value: String) -> String {
+        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-._~"))
+        return value.addingPercentEncoding(withAllowedCharacters: allowed) ?? value
+    }
+
+    private func validateSuccessResponse(_ response: URLResponse, data: Data) throws {
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+        guard (200...299).contains(httpResponse.statusCode) else {
+            let errorMsg = String(data: data, encoding: .utf8) ?? "HTTP \(httpResponse.statusCode)"
+            throw NSError(
+                domain: "QBittorrentService",
+                code: httpResponse.statusCode,
+                userInfo: [NSLocalizedDescriptionKey: errorMsg]
+            )
+        }
     }
 
     // MARK: - Connection & Auth
@@ -135,7 +154,8 @@ public actor QBittorrentService: TorrentClientService {
 
     public func toggleSpeedLimitsMode() async throws {
         let request = try makeRequest(path: "/transfer/toggleSpeedLimitsMode", method: "POST")
-        _ = try await session.data(for: request)
+        let (data, response) = try await session.data(for: request)
+        try validateSuccessResponse(response, data: data)
     }
 
     public func fetchTorrents(filter: String? = nil) async throws -> [Torrent] {
@@ -178,7 +198,8 @@ public actor QBittorrentService: TorrentClientService {
             method: "POST",
             formData: ["hashes": hashesString]
         )
-        _ = try await session.data(for: request)
+        let (data, response) = try await session.data(for: request)
+        try validateSuccessResponse(response, data: data)
     }
 
     public func resumeTorrents(hashes: [String]) async throws {
@@ -188,7 +209,8 @@ public actor QBittorrentService: TorrentClientService {
             method: "POST",
             formData: ["hashes": hashesString]
         )
-        _ = try await session.data(for: request)
+        let (data, response) = try await session.data(for: request)
+        try validateSuccessResponse(response, data: data)
     }
 
     public func deleteTorrents(hashes: [String], deleteFiles: Bool) async throws {
@@ -201,7 +223,8 @@ public actor QBittorrentService: TorrentClientService {
                 "deleteFiles": deleteFiles ? "true" : "false"
             ]
         )
-        _ = try await session.data(for: request)
+        let (data, response) = try await session.data(for: request)
+        try validateSuccessResponse(response, data: data)
     }
 
     public func recheckTorrents(hashes: [String]) async throws {
@@ -211,7 +234,8 @@ public actor QBittorrentService: TorrentClientService {
             method: "POST",
             formData: ["hashes": hashesString]
         )
-        _ = try await session.data(for: request)
+        let (data, response) = try await session.data(for: request)
+        try validateSuccessResponse(response, data: data)
     }
 
     public func addTorrent(urls: [String], savePath: String? = nil, paused: Bool = false) async throws {
@@ -228,7 +252,8 @@ public actor QBittorrentService: TorrentClientService {
             method: "POST",
             formData: formData
         )
-        _ = try await session.data(for: request)
+        let (data, response) = try await session.data(for: request)
+        try validateSuccessResponse(response, data: data)
     }
 
     public func addTorrent(
@@ -273,10 +298,7 @@ public actor QBittorrentService: TorrentClientService {
 
         request.httpBody = body
         let (data, response) = try await session.data(for: request)
-        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode >= 400 {
-            let errorMsg = String(data: data, encoding: .utf8) ?? "HTTP \(httpResponse.statusCode)"
-            throw NSError(domain: "QBittorrentService", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMsg])
-        }
+        try validateSuccessResponse(response, data: data)
     }
 
     public func getDefaultSavePath() async -> String? {

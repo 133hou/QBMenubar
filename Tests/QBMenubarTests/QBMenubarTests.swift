@@ -311,3 +311,95 @@ struct ClientTypeTests {
         #expect(trService is TransmissionService)
     }
 }
+
+@Suite("Backend & Core Security Fixes Tests")
+struct BackendCoreFixesTests {
+    @Test func testQBittorrentFormURLEncode() {
+        let specialChars = "hello & world = 1 + 2"
+        let encoded = QBittorrentService.formURLEncode(specialChars)
+        #expect(encoded == "hello%20%26%20world%20%3D%201%20%2B%202")
+        #expect(!encoded.contains("&"))
+        #expect(!encoded.contains("="))
+        #expect(!encoded.contains("+"))
+
+        let magnet = "magnet:?xt=urn:btih:da39a3ee5e6b4b0d3255bfef95601890afd80709&dn=Ubuntu+22.04&tr=https%3A%2F%2Ftracker.example.com%2Fannounce"
+        let encodedMagnet = QBittorrentService.formURLEncode(magnet)
+        #expect(!encodedMagnet.contains("&dn="))
+        #expect(!encodedMagnet.contains("&tr="))
+        #expect(encodedMagnet.contains("%26dn%3D"))
+        #expect(encodedMagnet.contains("%26tr%3D"))
+        #expect(encodedMagnet.contains("%2B"))
+    }
+
+    @Test func testBencodeParserOverflowStringLength() {
+        // String length near Int64.max that would cause arithmetic overflow if checked with `strStart + len`
+        let overflowData = "9223372036854775800:abc".data(using: .utf8)!
+        let parser = BencodeParser(data: overflowData)
+        #expect(throws: BencodeError.unexpectedEOF) {
+            try parser.parse()
+        }
+    }
+
+    @Test func testBencodeParserNegativeStringLength() {
+        let negativeLenData = "-1:a".data(using: .utf8)!
+        let parser = BencodeParser(data: negativeLenData)
+        #expect(throws: BencodeError.self) {
+            try parser.parse()
+        }
+    }
+
+    @Test func testBencodeParserExcessiveNestingDepth() {
+        // 300 nested lists exceed default maxDepth = 256
+        let deeplyNested = String(repeating: "l", count: 300) + String(repeating: "e", count: 300)
+        let data = deeplyNested.data(using: .utf8)!
+        let parser = BencodeParser(data: data)
+        #expect(throws: BencodeError.maxDepthExceeded) {
+            try parser.parse()
+        }
+    }
+
+    @Test func testAPIConfigOmitsPlaintextPasswordInJSON() throws {
+        let secret = "SuperSecretP@ssw0rd!#$&=+"
+        let config = APIConfig(
+            username: "admin",
+            password: secret
+        )
+        let encodedData = try JSONEncoder().encode(config)
+        let jsonString = String(data: encodedData, encoding: .utf8)!
+
+        // Verify JSON representation does NOT contain the secret password or password key
+        #expect(!jsonString.contains(secret))
+        #expect(!jsonString.contains("\"password\""))
+
+        // Verify decoding legacy JSON that contained password still succeeds and migrates
+        let legacyJSON = """
+        {
+            "baseURL": "http://127.0.0.1:8080",
+            "apiPrefix": "/api/v2",
+            "username": "legacyUser",
+            "password": "\(secret)"
+        }
+        """.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode(APIConfig.self, from: legacyJSON)
+        #expect(decoded.password == secret)
+        #expect(decoded.username == "legacyUser")
+    }
+
+    @Test func testKeychainHelperAndMigration() {
+        let testAccount = "test-account-\(UUID().uuidString)"
+        let testPassword = "MySecureKeychainPassword_123"
+
+        KeychainHelper.savePassword(testPassword, account: testAccount)
+        let loaded = KeychainHelper.loadPassword(account: testAccount)
+        #expect(loaded == testPassword)
+
+        // Saving empty password should delete without deadlocking on NSLock
+        KeychainHelper.savePassword("", account: testAccount)
+        let loadedAfterEmpty = KeychainHelper.loadPassword(account: testAccount)
+        #expect(loadedAfterEmpty == nil)
+
+        KeychainHelper.deletePassword(account: testAccount)
+        let loadedAfterDelete = KeychainHelper.loadPassword(account: testAccount)
+        #expect(loadedAfterDelete == nil)
+    }
+}

@@ -23,12 +23,12 @@ public struct TorrentTimelineProvider: TimelineProvider {
             completion(TorrentEntry(date: Date(), data: .sample))
             return
         }
-        let data = WidgetDataManager.loadSnapshot() ?? .sample
+        let data = WidgetDataManager.loadSnapshot() ?? .placeholder
         completion(TorrentEntry(date: Date(), data: data))
     }
 
     public func getTimeline(in context: Context, completion: @escaping (Timeline<TorrentEntry>) -> Void) {
-        let currentData = WidgetDataManager.loadSnapshot() ?? .sample
+        let currentData = WidgetDataManager.loadSnapshot() ?? .placeholder
         let entry = TorrentEntry(date: Date(), data: currentData)
         let nextReload = Calendar.current.date(byAdding: .minute, value: 5, to: Date()) ?? Date().addingTimeInterval(300)
         let timeline = Timeline(entries: [entry], policy: .after(nextReload))

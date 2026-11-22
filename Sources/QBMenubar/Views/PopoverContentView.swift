@@ -6,8 +6,23 @@ public struct PopoverContentView: View {
     @State private var dragStartHeight: Double = 550.0
     @State private var isDraggingResize: Bool = false
     @State private var isHoveringResize: Bool = false
+    @State private var hasPushedResizeCursor: Bool = false
     @State private var hostWindow: NSWindow? = nil
     @State private var dragAnchorTopY: CGFloat = 0.0
+
+    private func pushResizeCursor() {
+        if !hasPushedResizeCursor {
+            NSCursor.resizeUpDown.push()
+            hasPushedResizeCursor = true
+        }
+    }
+
+    private func popResizeCursor() {
+        if hasPushedResizeCursor {
+            NSCursor.pop()
+            hasPushedResizeCursor = false
+        }
+    }
 
     private var currentHeight: CGFloat {
         CGFloat(min(max(popoverHeight, 380.0), 920.0))
@@ -298,9 +313,9 @@ public struct PopoverContentView: View {
             .onHover { hovering in
                 isHoveringResize = hovering
                 if hovering {
-                    NSCursor.resizeUpDown.push()
-                } else {
-                    NSCursor.pop()
+                    pushResizeCursor()
+                } else if !isDraggingResize {
+                    popResizeCursor()
                 }
             }
             .gesture(
@@ -335,6 +350,9 @@ public struct PopoverContentView: View {
                     }
                     .onEnded { _ in
                         isDraggingResize = false
+                        if !isHoveringResize {
+                            popResizeCursor()
+                        }
                         if let win = hostWindow, dragAnchorTopY > 0 {
                             var frame = win.frame
                             frame.origin.y = dragAnchorTopY - CGFloat(popoverHeight)
@@ -362,11 +380,16 @@ public struct PopoverContentView: View {
         .background(.regularMaterial)
         .background(
             PopoverWindowAccessor { window in
-                if self.hostWindow !== window {
-                    self.hostWindow = window
+                DispatchQueue.main.async {
+                    if self.hostWindow !== window {
+                        self.hostWindow = window
+                    }
                 }
             }
         )
+        .onDisappear {
+            popResizeCursor()
+        }
     }
 
     private var connectionColor: Color {
@@ -528,7 +551,9 @@ struct PopoverWindowAccessor: NSViewRepresentable {
     func updateNSView(_ nsView: PopoverWindowObserverView, context: Context) {
         nsView.onWindowAvailable = onWindow
         if let win = nsView.window {
-            onWindow(win)
+            DispatchQueue.main.async {
+                onWindow(win)
+            }
         }
     }
 }

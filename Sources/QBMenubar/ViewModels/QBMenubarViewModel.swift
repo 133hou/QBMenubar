@@ -50,14 +50,23 @@ public enum FilterTab: String, CaseIterable, Identifiable, Sendable {
 public final class QBMenubarViewModel {
     public var config: APIConfig {
         didSet {
-            config.save()
-            Task {
-                if config.clientType != oldValue.clientType {
-                    self.service = TorrentServiceFactory.create(for: config)
+            if config.clientType != oldValue.clientType {
+                pendingClientTypeChange = true
+            }
+            configSyncTask?.cancel()
+            configSyncTask = Task { [weak self] in
+                try? await Task.sleep(nanoseconds: 400_000_000)
+                guard !Task.isCancelled, let self = self else { return }
+
+                self.config.save()
+                if self.pendingClientTypeChange {
+                    self.pendingClientTypeChange = false
+                    self.service = TorrentServiceFactory.create(for: self.config)
+                    self.connectionState = .disconnected
                 } else {
-                    await service.updateConfig(config)
+                    await self.service.updateConfig(self.config)
                 }
-                await refresh()
+                await self.refresh()
             }
         }
     }
@@ -83,11 +92,19 @@ public final class QBMenubarViewModel {
     @ObservationIgnored
     private var pollingTask: Task<Void, Never>?
     @ObservationIgnored
+    private var configSyncTask: Task<Void, Never>?
+    @ObservationIgnored
+    private var pendingClientTypeChange: Bool = false
+    @ObservationIgnored
     private var knownTorrentHashes: Set<String> = []
     @ObservationIgnored
     private var completedTorrentHashes: Set<String> = []
     @ObservationIgnored
     private var isFirstPoll: Bool = true
+    @ObservationIgnored
+    private var lastWidgetReloadDate: Date? = nil
+    @ObservationIgnored
+    private var lastWidgetConnectedState: Bool? = nil
 
     public var isMock: Bool = false
 
@@ -103,6 +120,7 @@ public final class QBMenubarViewModel {
 
     isolated deinit {
         pollingTask?.cancel()
+        configSyncTask?.cancel()
     }
 
     // MARK: - Polling
@@ -136,49 +154,17 @@ public final class QBMenubarViewModel {
                 connectionState = .connected(ping: ping)
             }
 
-            // Fetch speed and transfer using existing session cookie (non-blocking)
-            async let transferTask = service.fetchTransferInfo()
-            async let speedModeTask = service.fetchSpeedLimitsMode()
-            async let torrentsTask = service.fetchTorrents()
-
-            let (newTransfer, newSpeedMode, newTorrents) = try await (transferTask, speedModeTask, torrentsTask)
-
-            self.transferInfo = newTransfer
-            self.isAltSpeedLimits = newSpeedMode
-            self.torrents = newTorrents
-
-            if case .connected = connectionState {
-                // maintain connected
-            } else {
-                connectionState = .connected(ping: 1)
-            }
-
-            // Process notifications for download started & completed
-            checkNotifications(newTorrents: newTorrents)
-
-            // Record to chart history
-            let point = SpeedHistoryPoint(
-                downloadBytes: newTransfer.dlInfoSpeed,
-                uploadBytes: newTransfer.upInfoSpeed
-            )
-            speedHistory.append(point)
-            let maxPoints = max(10, config.chartHistorySeconds)
-            if speedHistory.count > maxPoints {
-                speedHistory.removeFirst(speedHistory.count - maxPoints)
-            }
-
-            // If an item is expanded, refresh its files
-            if let expandedHash = expandedTorrentHash {
-                await fetchFiles(for: expandedHash)
-            }
-
-            // Sync snapshot for macOS Desktop & Notification Center Widget
-            updateWidgetSnapshot()
+            let newlyCompleted = try await fetchAndApplyData()
+            updateWidgetSnapshot(forceReload: newlyCompleted)
         } catch {
             // When request fails (e.g. cookie expired), attempt re-auth once
             if let _ = try? await service.login(), let (_, ping) = try? await service.testConnection() {
                 connectionState = .connected(ping: ping)
-                updateWidgetSnapshot()
+                if let newlyCompleted = try? await fetchAndApplyData() {
+                    updateWidgetSnapshot(forceReload: newlyCompleted)
+                } else {
+                    updateWidgetSnapshot()
+                }
             } else {
                 let errorMsg = error.localizedDescription
                 connectionState = .error(errorMsg)
@@ -187,7 +173,49 @@ public final class QBMenubarViewModel {
         }
     }
 
-    private func checkNotifications(newTorrents: [Torrent]) {
+    @discardableResult
+    private func fetchAndApplyData() async throws -> Bool {
+        // Fetch speed and transfer using existing session cookie (non-blocking)
+        async let transferTask = service.fetchTransferInfo()
+        async let speedModeTask = service.fetchSpeedLimitsMode()
+        async let torrentsTask = service.fetchTorrents()
+
+        let (newTransfer, newSpeedMode, newTorrents) = try await (transferTask, speedModeTask, torrentsTask)
+
+        self.transferInfo = newTransfer
+        self.isAltSpeedLimits = newSpeedMode
+        self.torrents = newTorrents
+
+        if case .connected = connectionState {
+            // maintain connected
+        } else {
+            connectionState = .connected(ping: 1)
+        }
+
+        // Process notifications for download started & completed
+        let newlyCompleted = checkNotifications(newTorrents: newTorrents)
+
+        // Record to chart history
+        let point = SpeedHistoryPoint(
+            downloadBytes: newTransfer.dlInfoSpeed,
+            uploadBytes: newTransfer.upInfoSpeed
+        )
+        speedHistory.append(point)
+        let maxPoints = max(10, config.chartHistorySeconds)
+        if speedHistory.count > maxPoints {
+            speedHistory.removeFirst(speedHistory.count - maxPoints)
+        }
+
+        // If an item is expanded, refresh its files
+        if let expandedHash = expandedTorrentHash {
+            await fetchFiles(for: expandedHash)
+        }
+
+        return newlyCompleted
+    }
+
+    @discardableResult
+    private func checkNotifications(newTorrents: [Torrent]) -> Bool {
         if isFirstPoll {
             for t in newTorrents {
                 knownTorrentHashes.insert(t.hash)
@@ -196,17 +224,17 @@ public final class QBMenubarViewModel {
                 }
             }
             isFirstPoll = false
-            return
+            return false
         }
 
-        guard config.enableNotifications else { return }
-
+        var hasNewlyCompleted = false
         let lang = config.language
+
         for t in newTorrents {
             // 1. Download Started Notification
             if !knownTorrentHashes.contains(t.hash) {
                 knownTorrentHashes.insert(t.hash)
-                if config.notifyOnStart {
+                if config.enableNotifications && config.notifyOnStart {
                     let title = L10n.tr(lang, zhHans: "📥 下载已开始", zhHant: "📥 下載已開始", en: "📥 Download Started")
                     let body = L10n.tr(
                         lang,
@@ -227,7 +255,8 @@ public final class QBMenubarViewModel {
             let isDone = t.progress >= 1.0 || t.state == "pausedUP" || t.state == "uploading"
             if isDone && !completedTorrentHashes.contains(t.hash) {
                 completedTorrentHashes.insert(t.hash)
-                if config.notifyOnComplete {
+                hasNewlyCompleted = true
+                if config.enableNotifications && config.notifyOnComplete {
                     let title = L10n.tr(lang, zhHans: "🎉 下载已完成", zhHant: "🎉 下載已完成", en: "🎉 Download Completed")
                     let body = L10n.tr(
                         lang,
@@ -249,6 +278,8 @@ public final class QBMenubarViewModel {
         let currentHashes = Set(newTorrents.map { $0.hash })
         knownTorrentHashes = knownTorrentHashes.intersection(currentHashes)
         completedTorrentHashes = completedTorrentHashes.intersection(currentHashes)
+
+        return hasNewlyCompleted
     }
 
     // MARK: - Filtered Torrents
@@ -405,7 +436,9 @@ public final class QBMenubarViewModel {
         guard let path = path, !path.isEmpty else { return }
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             if FileManager.default.fileExists(atPath: path) {
-                NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: path)
+                DispatchQueue.main.async {
+                    NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: path)
+                }
             } else {
                 Task { @MainActor in
                     self?.showBanner("本地路径不存在或为远程服务器路径")
@@ -503,12 +536,17 @@ public final class QBMenubarViewModel {
 
     // MARK: - Widget Snapshot Sync
 
-    public func updateWidgetSnapshot() {
+    public func updateWidgetSnapshot(forceReload: Bool = false) {
         guard config.enableWidgetSync else {
             let disabledSnapshot = WidgetData.disabled(permissionDenied: false)
             WidgetDataManager.saveSnapshot(disabledSnapshot)
             #if canImport(WidgetKit)
-            WidgetCenter.shared.reloadTimelines(ofKind: WidgetDataManager.widgetKind)
+            let shouldReload = forceReload || (lastWidgetConnectedState != false)
+            if shouldReload {
+                lastWidgetReloadDate = Date()
+                lastWidgetConnectedState = false
+                WidgetCenter.shared.reloadTimelines(ofKind: WidgetDataManager.widgetKind)
+            }
             #endif
             return
         }
@@ -518,7 +556,12 @@ public final class QBMenubarViewModel {
             let noPermSnapshot = WidgetData.disabled(permissionDenied: true)
             WidgetDataManager.saveSnapshot(noPermSnapshot)
             #if canImport(WidgetKit)
-            WidgetCenter.shared.reloadTimelines(ofKind: WidgetDataManager.widgetKind)
+            let shouldReload = forceReload || (lastWidgetConnectedState != false)
+            if shouldReload {
+                lastWidgetReloadDate = Date()
+                lastWidgetConnectedState = false
+                WidgetCenter.shared.reloadTimelines(ofKind: WidgetDataManager.widgetKind)
+            }
             #endif
             return
         }
@@ -581,11 +624,20 @@ public final class QBMenubarViewModel {
 
         WidgetDataManager.saveSnapshot(snapshot)
         #if canImport(WidgetKit)
-        WidgetCenter.shared.reloadTimelines(ofKind: WidgetDataManager.widgetKind)
+        let now = Date()
+        let connectionChanged = (lastWidgetConnectedState != isConnected)
+        let timeElapsed = (lastWidgetReloadDate == nil || now.timeIntervalSince(lastWidgetReloadDate!) >= 900)
+        let shouldReload = forceReload || connectionChanged || timeElapsed
+
+        if shouldReload {
+            lastWidgetReloadDate = now
+            lastWidgetConnectedState = isConnected
+            WidgetCenter.shared.reloadTimelines(ofKind: WidgetDataManager.widgetKind)
+        }
         #endif
     }
 
-    public func updateWidgetSnapshotDisconnected() {
+    public func updateWidgetSnapshotDisconnected(forceReload: Bool = false) {
         guard config.enableWidgetSync else { return }
         guard WidgetDataManager.checkGroupContainerPermission() else { return }
 
@@ -598,7 +650,16 @@ public final class QBMenubarViewModel {
         snapshot.upSpeedFormatted = "0 B/s"
         WidgetDataManager.saveSnapshot(snapshot)
         #if canImport(WidgetKit)
-        WidgetCenter.shared.reloadTimelines(ofKind: WidgetDataManager.widgetKind)
+        let now = Date()
+        let connectionChanged = (lastWidgetConnectedState != false)
+        let timeElapsed = (lastWidgetReloadDate == nil || now.timeIntervalSince(lastWidgetReloadDate!) >= 900)
+        let shouldReload = forceReload || connectionChanged || timeElapsed
+
+        if shouldReload {
+            lastWidgetReloadDate = now
+            lastWidgetConnectedState = false
+            WidgetCenter.shared.reloadTimelines(ofKind: WidgetDataManager.widgetKind)
+        }
         #endif
     }
 }

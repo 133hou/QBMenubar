@@ -9,6 +9,7 @@ public final class SettingsWindowController: NSObject, NSWindowDelegate {
 
     public func show(viewModel: QBMenubarViewModel, category: SettingsCategory = .general) {
         if let existing = window {
+            existing.title = L10n.settingsWindowTitle(viewModel.config.language)
             let contentView = SettingsWindowView(viewModel: viewModel, initialCategory: category)
             existing.contentView = NSHostingView(rootView: contentView)
             existing.makeKeyAndOrderFront(nil)
@@ -26,7 +27,7 @@ public final class SettingsWindowController: NSObject, NSWindowDelegate {
             defer: false
         )
 
-        newWindow.title = "设置"
+        newWindow.title = L10n.settingsWindowTitle(viewModel.config.language)
         newWindow.titleVisibility = .hidden
         newWindow.titlebarAppearsTransparent = true
         newWindow.toolbar = nil

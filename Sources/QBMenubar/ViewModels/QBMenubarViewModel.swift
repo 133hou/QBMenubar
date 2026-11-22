@@ -235,12 +235,29 @@ public final class QBMenubarViewModel {
             if !knownTorrentHashes.contains(t.hash) {
                 knownTorrentHashes.insert(t.hash)
                 if config.enableNotifications && config.notifyOnStart {
-                    let title = L10n.tr(lang, zhHans: "📥 下载已开始", zhHant: "📥 下載已開始", en: "📥 Download Started")
+                    let title = L10n.tr(
+                        lang,
+                        zhHans: "📥 下载已开始",
+                        zhHant: "📥 下載已開始",
+                        en: "📥 Download Started",
+                        ja: "📥 ダウンロードを開始しました",
+                        ko: "📥 다운로드 시작됨",
+                        de: "📥 Download gestartet",
+                        fr: "📥 Téléchargement commencé",
+                        es: "📥 Descarga iniciada",
+                        ru: "📥 Загрузка началась"
+                    )
                     let body = L10n.tr(
                         lang,
-                        zhHans: "大小: \(t.formattedSize) • \(t.stateDescription)",
+                        zhHans: "大小: \(t.formattedSize) • \(t.localizedStateDescription(lang: lang))",
                         zhHant: "大小: \(t.formattedSize) • \(t.localizedStateDescription(lang: lang))",
-                        en: "Size: \(t.formattedSize) • \(t.localizedStateDescription(lang: lang))"
+                        en: "Size: \(t.formattedSize) • \(t.localizedStateDescription(lang: lang))",
+                        ja: "サイズ: \(t.formattedSize) • \(t.localizedStateDescription(lang: lang))",
+                        ko: "크기: \(t.formattedSize) • \(t.localizedStateDescription(lang: lang))",
+                        de: "Größe: \(t.formattedSize) • \(t.localizedStateDescription(lang: lang))",
+                        fr: "Taille: \(t.formattedSize) • \(t.localizedStateDescription(lang: lang))",
+                        es: "Tamaño: \(t.formattedSize) • \(t.localizedStateDescription(lang: lang))",
+                        ru: "Размер: \(t.formattedSize) • \(t.localizedStateDescription(lang: lang))"
                     )
                     NotificationManager.shared.sendNotification(
                         title: title,
@@ -257,12 +274,29 @@ public final class QBMenubarViewModel {
                 completedTorrentHashes.insert(t.hash)
                 hasNewlyCompleted = true
                 if config.enableNotifications && config.notifyOnComplete {
-                    let title = L10n.tr(lang, zhHans: "🎉 下载已完成", zhHant: "🎉 下載已完成", en: "🎉 Download Completed")
+                    let title = L10n.tr(
+                        lang,
+                        zhHans: "🎉 下载已完成",
+                        zhHant: "🎉 下載已完成",
+                        en: "🎉 Download Completed",
+                        ja: "🎉 ダウンロードが完了しました",
+                        ko: "🎉 다운로드 완료됨",
+                        de: "🎉 Download abgeschlossen",
+                        fr: "🎉 Téléchargement terminé",
+                        es: "🎉 Descarga completada",
+                        ru: "🎉 Загрузка завершена"
+                    )
                     let body = L10n.tr(
                         lang,
                         zhHans: "已完成 \(t.formattedSize) 的下载，点击在 Finder 中定位",
                         zhHant: "已完成 \(t.formattedSize) 的下載，點擊在 Finder 中定位",
-                        en: "Finished downloading \(t.formattedSize). Click to reveal in Finder."
+                        en: "Finished downloading \(t.formattedSize). Click to reveal in Finder.",
+                        ja: "\(t.formattedSize) のダウンロードが完了しました。クリックしてFinderで表示します",
+                        ko: "\(t.formattedSize) 다운로드가 완료되었습니다. 클릭하여 Finder에서 확인하세요",
+                        de: "Download von \(t.formattedSize) abgeschlossen. Klicken, um im Finder anzuzeigen",
+                        fr: "Téléchargement de \(t.formattedSize) terminé. Cliquez pour afficher dans le Finder",
+                        es: "Descarga de \(t.formattedSize) completada. Haga clic para mostrar en Finder",
+                        ru: "Загрузка \(t.formattedSize) завершена. Нажмите, чтобы показать в Finder"
                     )
                     NotificationManager.shared.sendNotification(
                         title: title,
@@ -330,9 +364,9 @@ public final class QBMenubarViewModel {
             do {
                 try await service.toggleSpeedLimitsMode()
                 isAltSpeedLimits.toggle()
-                showBanner("已\(isAltSpeedLimits ? "开启" : "关闭")备用限速 🐢")
+                showBanner(L10n.bannerAltSpeed(config.language, enabled: isAltSpeedLimits))
             } catch {
-                showBanner("切换限速失败: \(error.localizedDescription)")
+                showBanner(L10n.bannerActionFailed(config.language, error: error.localizedDescription))
             }
         }
     }
@@ -342,8 +376,9 @@ public final class QBMenubarViewModel {
             do {
                 try await service.pauseTorrents(hashes: [hash])
                 await refresh()
+                showBanner(L10n.bannerPausedOne(config.language))
             } catch {
-                showBanner("暂停失败: \(error.localizedDescription)")
+                showBanner(L10n.bannerActionFailed(config.language, error: error.localizedDescription))
             }
         }
     }
@@ -353,8 +388,9 @@ public final class QBMenubarViewModel {
             do {
                 try await service.resumeTorrents(hashes: [hash])
                 await refresh()
+                showBanner(L10n.bannerResumedOne(config.language))
             } catch {
-                showBanner("恢复失败: \(error.localizedDescription)")
+                showBanner(L10n.bannerActionFailed(config.language, error: error.localizedDescription))
             }
         }
     }
@@ -364,9 +400,9 @@ public final class QBMenubarViewModel {
             do {
                 try await service.pauseTorrents(hashes: ["all"])
                 await refresh()
-                showBanner("已暂停所有任务")
+                showBanner(L10n.bannerPausedAll(config.language))
             } catch {
-                showBanner("操作失败: \(error.localizedDescription)")
+                showBanner(L10n.bannerActionFailed(config.language, error: error.localizedDescription))
             }
         }
     }
@@ -376,9 +412,9 @@ public final class QBMenubarViewModel {
             do {
                 try await service.resumeTorrents(hashes: ["all"])
                 await refresh()
-                showBanner("已恢复所有任务")
+                showBanner(L10n.bannerResumedAll(config.language))
             } catch {
-                showBanner("操作失败: \(error.localizedDescription)")
+                showBanner(L10n.bannerActionFailed(config.language, error: error.localizedDescription))
             }
         }
     }
@@ -391,9 +427,9 @@ public final class QBMenubarViewModel {
                     expandedTorrentHash = nil
                 }
                 await refresh()
-                showBanner(deleteFiles ? "已彻底删除任务与文件" : "已删除任务")
+                showBanner(L10n.bannerDeletedTorrent(config.language, deleteFiles: deleteFiles))
             } catch {
-                showBanner("删除失败: \(error.localizedDescription)")
+                showBanner(L10n.bannerActionFailed(config.language, error: error.localizedDescription))
             }
         }
     }
@@ -403,9 +439,9 @@ public final class QBMenubarViewModel {
             do {
                 try await service.recheckTorrents(hashes: [hash])
                 await refresh()
-                showBanner("已触发校验")
+                showBanner(L10n.bannerRechecking(config.language))
             } catch {
-                showBanner("校验失败: \(error.localizedDescription)")
+                showBanner(L10n.bannerActionFailed(config.language, error: error.localizedDescription))
             }
         }
     }
@@ -413,7 +449,7 @@ public final class QBMenubarViewModel {
     public func addFromClipboard() {
         guard let string = NSPasteboard.general.string(forType: .string)?.trimmingCharacters(in: .whitespacesAndNewlines),
               !string.isEmpty else {
-            showBanner("剪贴板中没有文本")
+            showBanner(L10n.bannerClipboardEmpty(config.language))
             return
         }
 
@@ -422,13 +458,13 @@ public final class QBMenubarViewModel {
                 do {
                     try await service.addTorrent(urls: [string])
                     await refresh()
-                    showBanner("已成功添加下载任务 📥")
+                    showBanner(L10n.bannerAddedTorrent(config.language))
                 } catch {
-                    showBanner("添加失败: \(error.localizedDescription)")
+                    showBanner(L10n.bannerAddFailed(config.language, error: error.localizedDescription))
                 }
             }
         } else {
-            showBanner("剪贴板内容不是有效下载链接")
+            showBanner(L10n.bannerNoValidLinks(config.language))
         }
     }
 
@@ -441,7 +477,8 @@ public final class QBMenubarViewModel {
                 }
             } else {
                 Task { @MainActor in
-                    self?.showBanner("本地路径不存在或为远程服务器路径")
+                    guard let self = self else { return }
+                    self.showBanner(L10n.bannerLocalPathNotFound(self.config.language))
                 }
             }
         }
@@ -503,11 +540,11 @@ public final class QBMenubarViewModel {
     public func togglePinTorrent(_ torrent: Torrent) {
         if config.pinnedTorrentHash?.caseInsensitiveCompare(torrent.hash) == .orderedSame {
             config.pinnedTorrentHash = "auto"
-            showBanner("已恢复菜单栏自动选择任务")
+            showBanner(L10n.bannerUnpinnedTorrent(config.language))
         } else {
             config.pinnedTorrentHash = torrent.hash
             config.showPinnedProgress = true
-            showBanner("📌 已在菜单栏固定显示「\(torrent.name)」进度")
+            showBanner(L10n.bannerPinnedTorrent(config.language, name: torrent.name))
         }
         config.save()
     }

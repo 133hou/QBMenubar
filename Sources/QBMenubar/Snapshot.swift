@@ -673,9 +673,13 @@ public struct SnapshotGenerator {
         let bounds = hostingView.bounds
         guard let rep = hostingView.bitmapImageRepForCachingDisplay(in: bounds) else {
             print("Failed to create bitmap rep for \(path)")
+            window.orderOut(nil)
+            window.close()
             return
         }
         hostingView.cacheDisplay(in: bounds, to: rep)
+        window.orderOut(nil)
+        window.close()
         if let png = rep.representation(using: .png, properties: [:]) {
             try? png.write(to: URL(fileURLWithPath: path))
             print("Saved screenshot to \(path) (\(png.count) bytes)")

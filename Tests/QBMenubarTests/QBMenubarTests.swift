@@ -132,6 +132,52 @@ struct LocalizationTests {
             #expect(!L10n.widgetStyleLinear(lang).isEmpty)
             #expect(!L10n.fullDiskAccessTitle(lang).isEmpty)
             #expect(!L10n.liveAppearancePreview(lang).isEmpty)
+            #expect(!L10n.settingsWindowTitle(lang).isEmpty)
+            #expect(!L10n.addTorrentWindowTitle(lang).isEmpty)
+            #expect(!L10n.bannerAltSpeed(lang, enabled: true).isEmpty)
+            #expect(!L10n.bannerAltSpeed(lang, enabled: false).isEmpty)
+            #expect(!L10n.bannerPausedAll(lang).isEmpty)
+            #expect(!L10n.bannerResumedAll(lang).isEmpty)
+            #expect(!L10n.bannerDeletedTorrent(lang, deleteFiles: true).isEmpty)
+            #expect(!L10n.bannerDeletedTorrent(lang, deleteFiles: false).isEmpty)
+            #expect(!L10n.bannerRechecking(lang).isEmpty)
+            #expect(!L10n.bannerPausedOne(lang).isEmpty)
+            #expect(!L10n.bannerResumedOne(lang).isEmpty)
+            #expect(!L10n.bannerClipboardEmpty(lang).isEmpty)
+            #expect(!L10n.bannerNoValidLinks(lang).isEmpty)
+            #expect(!L10n.bannerAddedTorrent(lang).isEmpty)
+            #expect(!L10n.bannerAddFailed(lang, error: "timeout").isEmpty)
+            #expect(!L10n.bannerLocalPathNotFound(lang).isEmpty)
+            #expect(!L10n.bannerPinnedTorrent(lang, name: "Ubuntu").isEmpty)
+            #expect(!L10n.bannerUnpinnedTorrent(lang).isEmpty)
+            #expect(!L10n.bannerActionFailed(lang, error: "network").isEmpty)
+        }
+    }
+
+    @Test func testNonEnglishLanguagesHaveDistinctCoreStrings() {
+        let nonEnglishLanguages: [AppLanguage] = [.ja, .ko, .de, .fr, .es, .ru]
+        for lang in nonEnglishLanguages {
+            let general = L10n.general(lang)
+            let menuBar = L10n.menuBar(lang)
+            let widgets = L10n.widgets(lang)
+            let notifications = L10n.notifications(lang)
+            let settingsTitle = L10n.settingsWindowTitle(lang)
+            let bannerPausedAll = L10n.bannerPausedAll(lang)
+
+            #expect(!general.isEmpty)
+            #expect(!menuBar.isEmpty)
+            #expect(!widgets.isEmpty)
+            #expect(!notifications.isEmpty)
+            #expect(!settingsTitle.isEmpty)
+            #expect(!bannerPausedAll.isEmpty)
+
+            // Assert they return distinct localized strings (not falling back to English)
+            #expect(general != L10n.general(.en), "Expected distinct translation for general in \(lang.rawValue), got \(general)")
+            #expect(menuBar != L10n.menuBar(.en), "Expected distinct translation for menuBar in \(lang.rawValue), got \(menuBar)")
+            #expect(widgets != L10n.widgets(.en), "Expected distinct translation for widgets in \(lang.rawValue), got \(widgets)")
+            #expect(notifications != L10n.notifications(.en), "Expected distinct translation for notifications in \(lang.rawValue), got \(notifications)")
+            #expect(settingsTitle != L10n.settingsWindowTitle(.en), "Expected distinct translation for settingsWindowTitle in \(lang.rawValue), got \(settingsTitle)")
+            #expect(bannerPausedAll != L10n.bannerPausedAll(.en), "Expected distinct translation for bannerPausedAll in \(lang.rawValue), got \(bannerPausedAll)")
         }
     }
 

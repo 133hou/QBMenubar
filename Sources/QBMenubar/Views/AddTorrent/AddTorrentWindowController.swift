@@ -9,6 +9,7 @@ public final class AddTorrentWindowController: NSObject, NSWindowDelegate {
 
     public func show(viewModel: QBMenubarViewModel, initialFileURL: URL? = nil, autoPick: Bool = false) {
         if let existing = window {
+            existing.title = L10n.addTorrentWindowTitle(viewModel.config.language)
             existing.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
             return
@@ -24,7 +25,7 @@ public final class AddTorrentWindowController: NSObject, NSWindowDelegate {
             defer: false
         )
 
-        newWindow.title = "添加下载任务 - 确认下载内容"
+        newWindow.title = L10n.addTorrentWindowTitle(viewModel.config.language)
         newWindow.isReleasedWhenClosed = false
         newWindow.contentView = hostingView
         newWindow.center()

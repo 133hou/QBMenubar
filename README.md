@@ -27,24 +27,41 @@
   <a href="README_ru.md">Русский</a>
 </p>
 
-**QBMenubar** is a lightweight, ultra-responsive native macOS Menu Bar controller for **qBittorrent & Transmission**, engineered with **Swift 6 + SwiftUI + MenuBarExtra (.window)**. It brings the cutting-edge **Liquid Glass** translucent aesthetics and **Apple Motion Feel** spring physics directly to your Mac's status bar — giving you zero-overhead monitoring and remote management for local clients, home NAS, or cloud seedboxes.
+**QBMenubar** is the ultimate lightweight, ultra-responsive native **qBittorrent macOS menu bar app** and **Transmission remote GUI for Mac**, engineered in pure **Swift 6 + SwiftUI + MenuBarExtra (.window)**. It serves as the modern **Apple Silicon native BitTorrent manager** and **Transgui (Transmission Remote GUI) alternative**, bringing cutting-edge **Liquid Glass** translucent aesthetics, interactive macOS **desktop widgets**, and **Apple Motion Feel** spring physics directly to your Mac's status bar. Whether managing local downloads, monitoring home NAS storage (**Synology, QNAP, Unraid, TrueNAS, Docker**), or tracking high-speed **PT / private tracker seedboxes**, QBMenubar delivers zero-overhead real-time monitoring and remote control.
 
 <p align="center">
   <img src="docs/images/preview_menubar.png" alt="QBMenubar macOS Menu Bar Speed Monitor and Pinned Progress Badge" width="650" />
 </p>
 
+## 🧭 Quick Navigation
+- [🎯 Use Cases & Key Scenarios](#use-cases)
+- [📸 Screenshots & UI Showcase](#screenshots)
+- [📊 Feature Comparison: Why QBMenubar?](#comparison)
+- [✨ Features & Highlights](#features)
+  - [🧩 Desktop Widgets (Zero Permission Sync)](#desktop-widgets)
+- [🔒 Security, Privacy & Reliability](#security)
+- [🚀 What's New in v1.3.2](#whats-new)
+- [📥 Installation & Download](#installation)
+- [⚙️ Configuration (1-Minute Quick Start)](#configuration)
+- [❓ Frequently Asked Questions (FAQ)](#faq)
+- [🏷️ Keywords & Search Topics](#keywords)
+- [📄 License](#license)
+
 ---
 
+<a id="use-cases"></a>
 ## 🎯 Use Cases & Key Scenarios
 
-- 🚀 **Local & Remote NAS Monitoring**: Effortlessly monitor and control qBittorrent running on your local Mac, Synology DSM, QNAP, Unraid, TrueNAS, Docker containers, or remote Linux seedboxes via LAN IP, domain, or reverse proxy.
-- 📌 **Menu Bar Progress Pinning**: Pin any mission-critical torrent's live download percentage directly next to your macOS clock (e.g. `↓ 12.0 MB/s 85%`).
-- ⚡️ **Zero Resource Overhead**: Native compiled Swift 6 binary with ~0.0% idle CPU and under 40 MB RAM — virtually invisible to battery and system performance unlike heavy browser tabs or Electron wrappers.
+- 🚀 **Local & Remote NAS Monitoring**: Effortlessly monitor and control qBittorrent and Transmission running on your local Mac, **Synology DSM, QNAP, Unraid, TrueNAS, Docker** containers, or remote Linux seedboxes via LAN IP, DDNS domain, or HTTPS reverse proxy.
+- 📌 **Menu Bar Progress Pinning**: Pin any mission-critical torrent's live download percentage directly next to your macOS clock (e.g. `↓ 12.0 MB/s 85%`) — ideal for **PT / private tracker seedbox monitoring**.
+- ⚡️ **Zero Resource Overhead**: Native compiled Swift 6 universal binary (Apple Silicon M1/M2/M3/M4 & Intel) with ~0.0% idle CPU and under 40 MB RAM — virtually invisible to battery and system performance unlike heavy browser tabs or Electron wrappers.
 - 🐢 **One-Click Quick Actions**: Instantly pause/resume all torrents, toggle Alternate Speed Limits (Turtle Mode 🐢) during Zoom meetings or gaming sessions, or open WebUI with one click.
-- 📋 **Seamless Torrent Ingestion**: Automatically detects magnet links and `.torrent` URLs from your clipboard, plus full `.torrent` file parsing with pre-download file selection.
+- 📋 **Seamless Torrent Ingestion**: Automatically detects magnet links (`magnet:?xt=`) and `.torrent` URLs from your clipboard, plus full `.torrent` file parsing with pre-download file inspection and target path selection.
+- 🖥️ **qBittorrent Desktop Widget for macOS**: Glanceable Small, Medium, and Large desktop and Notification Center widgets powered by WidgetKit, updating without opening the app or browser.
 
 ---
 
+<a id="screenshots"></a>
 ## 📸 Screenshots & UI Showcase
 
 <p align="center">
@@ -64,16 +81,17 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/preview_settings_widgets.png" alt="QBMenubar Widget Settings and Data Access Permissions" width="580" />
+  <img src="docs/images/preview_settings_widgets.png" alt="QBMenubar Widget Settings and Desktop Widget Configuration" width="580" />
 </p>
 
 ---
 
+<a id="comparison"></a>
 ## 📊 Feature Comparison: Why QBMenubar?
 
-| Feature | QBMenubar (Native) | WebUI in Browser | Official Qt Desktop Client | Python / ScriptBar Plugins |
+| Feature | QBMenubar (Native Mac App) | WebUI in Browser | Official Qt Desktop Client | Transgui / Script Plugins |
 |---|:---:|:---:|:---:|:---:|
-| **Dual-Client Engine** | ✅ **qBittorrent & Transmission** | ❌ (Single instance) | ❌ qBittorrent only | ⚠️ Single client |
+| **Dual-Client Engine** | ✅ **qBittorrent & Transmission** | ❌ (Single instance) | ❌ qBittorrent only | ⚠️ Single client / legacy |
 | **Menu Bar Resident** | ✅ Native Liquid Glass | ❌ (Window only) | ❌ (Dock/Window only) | ⚠️ Text only (No UI) |
 | **Pinned Torrent Progress** | ✅ Direct status bar badge | ❌ | ❌ | ❌ |
 | **Real-time Speed Waveform** | ✅ Swift Charts smooth wave | ⚠️ Static graph | ⚠️ Basic graph | ❌ |
@@ -84,9 +102,11 @@
 | **Expandable File Tree Preview**| ✅ Interactive list | ⚠️ Multi-click table | ⚠️ Cluttered table | ❌ |
 | **Desktop & Notification Center Widgets**| ✅ Small, Medium & Large (WidgetKit) | ❌ | ❌ | ❌ |
 | **macOS Native System Notifications**| ✅ Download complete | ⚠️ Browser permission | ⚠️ Legacy alert | ❌ |
+| **Apple Silicon M-Series Native**| ✅ Pure Swift 6 universal | ⚠️ Web process | 🟡 Rosetta / Fat Qt | ⚠️ Script dependent |
 
 ---
 
+<a id="features"></a>
 ## ✨ Features & Highlights
 
 1. **Status Bar Speed & Progress Item**:
@@ -114,24 +134,19 @@
    - **Small Widget (`.systemSmall`)**: Glanceable single-task progress card featuring hero active torrent progress, live download/upload speeds, and remaining ETA.
    - **Medium Widget (`.systemMedium`)**: Split-panel layout displaying global real-time bandwidth metrics alongside top downloading tasks with progress bars.
    - **Large Widget (`.systemLarge`)**: Full download dashboard with active torrent listings, state badges, transfer rates, and instant deep-linking into QBMenubar.
-   - **Zero Overhead App Group Storage**: Seamless background sync between the menu bar daemon and macOS Notification Center.
+   - **Zero Overhead Local Snapshot Storage**: Seamless background sync between the menu bar daemon and macOS Notification Center.
    - Native support for macOS Full Color, Tinted, and Accented modes (`widgetAccentable`).
 
-### 🧩 Desktop Widgets & Permission Guide
+<a id="desktop-widgets"></a>
+### 🧩 Desktop Widgets (WidgetKit) — Zero Permission Required
 
-QBMenubar supports macOS Desktop & Notification Center Widgets across three sizes (`Small`, `Medium`, `Large`). To sync live download speeds and progress between the menu bar daemon and the desktop widgets:
+QBMenubar delivers native macOS Desktop & Notification Center Widgets across three sizes (`Small`, `Medium`, and `Large`), keeping your active downloads and network speeds glanceable at all times.
 
 1. **Enable in Settings**: Open QBMenubar Preferences (**⌘,**) -> **Widgets** tab -> turn on **Enable Desktop Widget Sync**.
-2. **macOS "Data from other apps" Permission**:
-   - **Why macOS prompts this**: Under macOS 15 (Sequoia) & macOS 26 (Tahoe), cross-process communication between an app and its sandboxed WidgetKit extension uses App Groups (`~/Library/Group Containers/`). Because open-source releases use ad-hoc code signing without a paid Apple commercial developer team profile, macOS flags this cross-process shared folder with a security notice: *"QBMenubar tried to access your data from other apps and was blocked."*
-   - **🔒 Zero Privacy Risk**: QBMenubar **only** writes and reads its own `widget_snapshot.json` (containing torrent names, speeds, and progress percentages). It **never** accesses your personal files or any data from other applications.
-   - **How to Grant Permission**:
-     - **System Settings**: In **Preferences -> Widgets**, click **"Open Full Disk Access Settings"** (or open **System Settings > Privacy & Security > Full Disk Access**), click **`+`**, select **QBMenubar.app**, and turn on the permission toggle.
-     - **Terminal Reset**: If you previously blocked access and want to reset permissions, run in Terminal:
-       ```bash
-       tccutil reset All com.antigravity.QBMenubar
-       ```
-   - **Note**: The widget requires Full Disk Access to display live tasks; without it, widgets display a *"Permission Required"* state. **The core Menu Bar app continues to operate with 100% full functionality even if widget permission is not granted.**
+2. **Zero Permission Required (No Full Disk Access)**:
+   - **🔒 Native Sandbox & Privacy**: Desktop Widgets sync via an optimized local snapshot system. Unlike older utilities that required elevated privileges, QBMenubar requires **no Full Disk Access** and accesses zero user files or personal data.
+   - **🔋 Smart WidgetKit Budget Throttling**: Updates are synchronized with macOS WidgetKit reload budgets to conserve MacBook battery life, avoiding aggressive background polling while maintaining timely status updates.
+   - **🛡️ Clean Empty & Disconnected States**: When qBittorrent or Transmission is offline or no downloads are active, widgets automatically display clean, self-healing status cards without crashing or displaying stale data.
 3. **Adding Widgets to Desktop**:
    - Right-click anywhere on your macOS desktop -> click **"Edit Widgets..."** (or open Notification Center and click **"Edit Widgets"** at the bottom).
    - In the left sidebar or search box, search for **`QBMenubar`** or **`qBittorrent`**.
@@ -139,16 +154,32 @@ QBMenubar supports macOS Desktop & Notification Center Widgets across three size
 
 ---
 
+<a id="security"></a>
+## 🔒 Security, Privacy & Reliability
+
+QBMenubar is engineered with enterprise-grade security and data integrity as top priorities:
+
+- 🔐 **macOS Keychain Encrypted Credentials**: WebUI authentication passwords are encrypted and stored directly in the native **macOS Keychain Services**, completely eliminating plaintext storage in `UserDefaults` or configuration files.
+- 🔋 **Smart Battery-Friendly WidgetKit Throttling**: Employs adaptive reload throttling (coalesced 15-minute budget windows and smart state tracking) to prevent battery drain on MacBooks while keeping widgets responsive.
+- 🌐 **Hardened Networking (RFC 3986 Standard)**: Strict percent-encoding ensures authentication passwords with special characters (`@`, `#`, `$`, `%`, `&`, `+`) and complex magnet links transmit without corruption or truncation.
+- 🛡️ **Transmission CSRF Concurrency Safety**: Manages Transmission JSON-RPC 409 Session-ID tokens with thread-safe serialization, preventing race conditions during concurrent network calls.
+- 📦 **Protected Bencode Parser**: Built-in 256-level recursion nesting depth limits and integer overflow guards protect against maliciously crafted `.torrent` files.
+
+---
+
+<a id="whats-new"></a>
 ### 🚀 What's New in v1.3.2
 - **Native Transmission Client Support**: Fully decoupled service architecture natively supporting Transmission JSON-RPC (with automatic 409 CSRF Session-Id handshake and Basic Auth). Seamlessly switch between qBittorrent and Transmission with 100% feature parity across desktop widgets, speed graphs, and task management.
-- **Liquid Glass Optical Selection Lens in Settings**: Crystal clear optical glass lens with 3D meniscus refraction shadows, prismatic chromatic dispersion, and seamless spring motion matching native macOS Tahoe feel (classic solid style switchable and preserved in General Settings).
-- **Liquid Glass Circular Progress Ring for Widgets**: Directional flow arrow tip, frosted glass track, and central floating squircle status indicator (classic linear capsule progress bar 100% preserved and selectable in Preferences -> Widgets).
+- **macOS Keychain Password Encryption & Hardened Security**: WebUI passwords now securely reside in the macOS Keychain. Networking is hardened with RFC 3986 form encoding, concurrent Transmission CSRF token safety, and recursion-protected Bencode parsing.
+- **Smart WidgetKit Reload Throttling (Zero Permission)**: Eliminated Full Disk Access requirements. Desktop widgets now sync efficiently via local snapshots with battery-friendly refresh budget throttling.
+- **Liquid Glass Optical Selection Lens in Settings**: Crystal clear optical glass lens with 3D meniscus refraction shadows, prismatic chromatic dispersion, and seamless spring motion matching native macOS Tahoe feel (classic solid style switchable in General Settings).
+- **Liquid Glass Circular Progress Ring for Widgets**: Directional flow arrow tip, frosted glass track, and central floating squircle status indicator (classic linear capsule progress bar preserved in Preferences -> Widgets).
 - **Native WidgetKit Extension Entry Point**: Configured `_NSExtensionMain` entry point for the SwiftPM WidgetKit binary, ensuring robust ExtensionKit launch, descriptor discovery, and placeholder precaching by macOS `chronod`.
-- **Streamlined Full Disk Access Authorization**: Clarified and unified the cross-process App Group permission flow directly to macOS Full Disk Access, preventing text clipping and layout overflows in Preferences.
 - **Clean Single-Bundle Registration**: Eliminated redundant binary registrations and ensured clean system discovery.
 
 ---
 
+<a id="installation"></a>
 ## 📥 Installation & Download
 
 ### Option 1: Direct Download (Recommended)
@@ -179,6 +210,7 @@ open QBMenubar.app
 
 ---
 
+<a id="configuration"></a>
 ## ⚙️ Configuration (1-Minute Quick Start)
 
 ### For qBittorrent Users:
@@ -191,39 +223,52 @@ open QBMenubar.app
 
 ---
 
+<a id="faq"></a>
 ## ❓ Frequently Asked Questions (FAQ)
 
 <details>
-<summary><b>1. Can I use QBMenubar with both qBittorrent and Transmission?</b></summary>
+<summary><b>1. Is QBMenubar a good alternative to Transmission Remote GUI (Transgui) on macOS?</b></summary>
+Yes, absolutely. While <i>Transmission Remote GUI (Transgui)</i> was historically popular, it is built with legacy Pascal/Lazarus frameworks, lacks modern macOS UI integration, and does not support Apple Silicon natively. QBMenubar is built from scratch in Swift 6 for Apple Silicon and Intel Macs. It supports both <b>Transmission and qBittorrent</b>, features modern macOS Liquid Glass aesthetics, lives unobtrusively in your menu bar, provides native macOS Desktop Widgets, and consumes virtually zero CPU (&lt;0.1%) and RAM (~40MB).
+</details>
+
+<details>
+<summary><b>2. How does QBMenubar store my WebUI password securely?</b></summary>
+Your credentials are encrypted and stored in the secure <b>macOS Keychain</b> using Apple's native Security framework (<code>kSecClassGenericPassword</code>). Passwords are never saved in plaintext in <code>UserDefaults</code>, preferences plists, or exported configuration files. When connecting to your WebUI, credentials are retrieved from the Keychain into memory only for authentication requests.
+</details>
+
+<details>
+<summary><b>3. Can I use QBMenubar with both qBittorrent and Transmission?</b></summary>
 Yes! QBMenubar features a unified client abstraction architecture. Simply select either <b>qBittorrent</b> or <b>Transmission</b> in <b>Settings -> WebUI Connection</b>. All status bar speeds, popover cards, speed waveforms, and desktop widgets seamlessly support both backends.
 </details>
 
 <details>
-<summary><b>2. How do I monitor a remote Synology, TrueNAS, Unraid, or Docker container?</b></summary>
+<summary><b>4. How do I monitor a remote Synology, TrueNAS, Unraid, or Docker container?</b></summary>
 Enter your remote device's IP address (e.g. <code>http://192.168.1.100:8080</code> or <code>http://nas.local:9091</code>), domain name, or HTTPS reverse proxy URL in the Server Address field. QBMenubar works flawlessly across LAN, VPN (Tailscale, WireGuard), and WAN reverse proxies with subpaths.
 </details>
 
 <details>
-<summary><b>3. How do I add Desktop Widgets in macOS Sonoma, Sequoia, and Tahoe?</b></summary>
-Right-click any empty space on your macOS desktop (or open Notification Center and click <b>Edit Widgets</b> at the bottom), search for <b>QBMenubar</b>, and drag your preferred widget size (<b>Small</b>, <b>Medium</b>, or <b>Large</b>) onto your desktop. You can choose between the <b>Liquid Glass circular ring</b> and <b>classic linear capsule bar</b> in Preferences.
+<summary><b>5. How do I add Desktop Widgets in macOS Sonoma, Sequoia, and Tahoe?</b></summary>
+Right-click any empty space on your macOS desktop (or open Notification Center and click <b>Edit Widgets</b> at the bottom), search for <b>QBMenubar</b>, and drag your preferred widget size (<b>Small</b>, <b>Medium</b>, or <b>Large</b>) onto your desktop. You can choose between the <b>Liquid Glass circular ring</b> and <b>classic linear capsule bar</b> in Preferences. No Full Disk Access or special permissions are required.
 </details>
 
 <details>
-<summary><b>4. Why does QBMenubar use under 40 MB of RAM while browser tabs use hundreds of MB?</b></summary>
-QBMenubar is 100% natively compiled in pure <b>Swift 6 and SwiftUI</b> with zero web view engines, zero Chromium runtimes, and zero JavaScript overhead. It communicates with your backend via lightweight JSON/REST/RPC requests, using virtually zero CPU (<0.1%) when idle.
+<summary><b>6. Why does QBMenubar use under 40 MB of RAM while browser tabs use hundreds of MB?</b></summary>
+QBMenubar is 100% natively compiled in pure <b>Swift 6 and SwiftUI</b> with zero web view engines, zero Chromium runtimes, and zero JavaScript overhead. It communicates with your backend via lightweight JSON/REST/RPC requests, using virtually zero CPU (&lt;0.1%) when idle.
 </details>
 
 <details>
-<summary><b>5. Can I resize or stretch the menu bar popover window?</b></summary>
+<summary><b>7. Can I resize or stretch the menu bar popover window?</b></summary>
 Yes! Grab the subtle capsule handle at the very bottom center of the popover window and drag it up or down to adjust the height anywhere between <b>380pt and 920pt</b>. Your custom height is remembered automatically, and double-clicking the handle snaps it back to the default height.
 </details>
 
 ---
 
+<a id="keywords"></a>
 ## 🏷️ Keywords & Search Topics
-`qbittorrent` • `transmission` • `qbittorrent-controller` • `transmission-remote` • `qbittorrent-webui` • `transmission-rpc` • `macos-menubar` • `menubar-app` • `menubar-extra` • `widgetkit` • `desktop-widgets` • `swiftui` • `swift6` • `liquid-glass` • `torrent-client` • `torrent-manager` • `bittorrent` • `nas` • `synology` • `unraid` • `truenas` • `qnap` • `docker` • `apple-silicon` • `macos-tahoe` • `macos-sequoia` • `macos-sonoma`
+`qbittorrent` • `transmission` • `qbittorrent-macos` • `qbittorrent-menu-bar` • `transmission-remote-gui` • `transgui-alternative` • `transmission-mac` • `qbittorrent-remote` • `transmission-rpc` • `qbittorrent-webui` • `macos-menubar` • `menubar-app` • `menubar-extra` • `widgetkit` • `desktop-widgets` • `swiftui` • `swift6` • `liquid-glass` • `bittorrent-client` • `seedbox-monitor` • `pt-client` • `private-tracker` • `synology-nas` • `qnap` • `unraid` • `truenas` • `docker-torrent` • `apple-silicon` • `macos-tahoe` • `macos-sequoia` • `macos-sonoma`
 
 ---
 
+<a id="license"></a>
 ## 📄 License
 Distributed under the MIT License. See [LICENSE](LICENSE) for more details.

@@ -54,9 +54,9 @@ cat <<EOF > "$WIDGET_CONTENTS/Info.plist"
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleVersion</key>
-    <string>1.3.3</string>
+    <string>1.3.4</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.3.3</string>
+    <string>1.3.4</string>
     <key>CFBundleExecutable</key>
     <string>QBMenubarWidget</string>
     <key>CFBundleSupportedPlatforms</key>
@@ -92,9 +92,9 @@ cat <<EOF > "$CONTENTS_DIR/Info.plist"
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleVersion</key>
-    <string>1.3.3</string>
+    <string>1.3.4</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.3.3</string>
+    <string>1.3.4</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>CFBundleExecutable</key>
@@ -109,6 +109,8 @@ cat <<EOF > "$CONTENTS_DIR/Info.plist"
     <true/>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>NSUserNotificationAlertStyle</key>
+    <string>alert</string>
     <key>CFBundleURLTypes</key>
     <array>
         <dict>

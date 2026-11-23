@@ -449,3 +449,257 @@ struct BackendCoreFixesTests {
         #expect(loadedAfterDelete == nil)
     }
 }
+
+@Suite("Menu Bar & WidgetKit Real-Time Tests")
+struct MenuBarAndWidgetKitRealTimeTests {
+    @Test @MainActor func testPinnedTorrentFallbackWhenPinnedHashMissing() {
+        let viewModel = QBMenubarViewModel(isMock: true)
+        viewModel.config.showPinnedProgress = true
+        viewModel.config.pinnedTorrentHash = "11111111111111111111"
+
+        let activeDownloading = Torrent(
+            hash: "active_download_hash",
+            name: "ActiveDownload.iso",
+            size: 2_000_000_000,
+            progress: 0.45,
+            dlspeed: 5_242_880,
+            upspeed: 100_000,
+            eta: 120,
+            state: "downloading"
+        )
+        let pausedTorrent = Torrent(
+            hash: "paused_hash",
+            name: "Paused.iso",
+            size: 1_000_000_000,
+            progress: 0.10,
+            dlspeed: 0,
+            upspeed: 0,
+            eta: -1,
+            state: "pausedDL"
+        )
+        viewModel.torrents = [pausedTorrent, activeDownloading]
+
+        // Pinned hash "11111111111111111111" does not exist in viewModel.torrents.
+        // It must fall back to the active downloading torrent instead of returning nil.
+        #expect(viewModel.pinnedTorrent != nil)
+        #expect(viewModel.pinnedTorrent?.hash == "active_download_hash")
+        #expect(viewModel.pinnedTorrentProgressText == "45%")
+
+        // Explicit "none" should disable pinning
+        viewModel.config.pinnedTorrentHash = "none"
+        #expect(viewModel.pinnedTorrent == nil)
+
+        // Matching existing hash should return that specific torrent
+        viewModel.config.pinnedTorrentHash = "paused_hash"
+        #expect(viewModel.pinnedTorrent?.hash == "paused_hash")
+
+        // Disabling showPinnedProgress should return nil
+        viewModel.config.showPinnedProgress = false
+        #expect(viewModel.pinnedTorrent == nil)
+    }
+
+    @Test @MainActor func testMockViewModelMutatingConfigDoesNotPersistOrCrash() async throws {
+        let initialSavedConfig = APIConfig.load()
+        let viewModel = QBMenubarViewModel(isMock: true)
+
+        // Mutating config on mock should not crash, should not trigger networking,
+        // and should NOT overwrite saved UserDefaults config.
+        viewModel.config.pinnedTorrentHash = "mock_hash_9999"
+        viewModel.config.showPinnedProgress = true
+        viewModel.config.pollInterval = 999.0
+        viewModel.config.baseURL = "http://mock-invalid-host-should-not-persist:9999"
+
+        let dummyTorrent = Torrent(
+            hash: "test_dummy_hash",
+            name: "Dummy.iso",
+            size: 100,
+            progress: 0.5,
+            dlspeed: 0,
+            upspeed: 0,
+            eta: 0,
+            state: "downloading"
+        )
+        viewModel.togglePinTorrent(dummyTorrent)
+        viewModel.setPinnedTorrentHash("another_mock_hash")
+
+        // Sleep briefly to exceed debounce window (400ms) used in live config.didSet
+        try await Task.sleep(nanoseconds: 500_000_000)
+
+        // UserDefaults should still reflect initialSavedConfig, not the mock values
+        let reloadedConfig = APIConfig.load()
+        #expect(reloadedConfig.pinnedTorrentHash == initialSavedConfig.pinnedTorrentHash)
+        #expect(reloadedConfig.baseURL == initialSavedConfig.baseURL)
+        #expect(reloadedConfig.pollInterval == initialSavedConfig.pollInterval)
+        #expect(viewModel.isConnected == false)
+    }
+
+    @Test @MainActor func testWidgetSnapshotStateAndCooldowns() {
+        let viewModel = QBMenubarViewModel(isMock: true)
+        viewModel.config.enableWidgetSync = true
+
+        let torrent1 = Torrent(
+            hash: "hash_1",
+            name: "Test1.iso",
+            size: 1_000_000_000,
+            progress: 0.30,
+            dlspeed: 2_000_000,
+            upspeed: 0,
+            eta: 100,
+            state: "downloading"
+        )
+        viewModel.torrents = [torrent1]
+        viewModel.transferInfo = TransferInfo(
+            dlInfoSpeed: 2_000_000,
+            upInfoSpeed: 0,
+            dlInfoData: 100_000_000,
+            upInfoData: 0,
+            connectionStatus: "connected",
+            dhtNodes: 100
+        )
+        viewModel.connectionState = .connected(ping: 10)
+
+        // Test calling updateWidgetSnapshot with forceReload
+        viewModel.updateWidgetSnapshot(forceReload: true)
+        let loaded = WidgetDataManager.loadSnapshot()
+        #expect(loaded != nil)
+        #expect(loaded?.activeDownloadsCount == 1)
+        #expect(loaded?.tasks.first?.id == "hash_1")
+
+        // Test updateWidgetSnapshotDisconnected
+        viewModel.updateWidgetSnapshotDisconnected(forceReload: true)
+        let disconnectedLoaded = WidgetDataManager.loadSnapshot()
+        #expect(disconnectedLoaded?.isConnected == false)
+        #expect(disconnectedLoaded?.dlSpeed == 0)
+    }
+}
+
+@Suite("Download Completion & Notification Tests")
+struct DownloadCompletionNotificationTests {
+    @Test @MainActor func testIsTorrentCompletedStates() {
+        // qBittorrent v5 stoppedUP
+        let stoppedUPTorrent = Torrent(
+            hash: "hash_stopped_up",
+            name: "Completed_StoppedUP.iso",
+            size: 1_000_000,
+            progress: 1.0,
+            dlspeed: 0,
+            upspeed: 0,
+            eta: 0,
+            state: "stoppedUP"
+        )
+        #expect(QBMenubarViewModel.isTorrentCompleted(stoppedUPTorrent))
+
+        // stalledUP
+        let stalledUPTorrent = Torrent(
+            hash: "hash_stalled_up",
+            name: "Completed_StalledUP.iso",
+            size: 1_000_000,
+            progress: 0.95,
+            dlspeed: 0,
+            upspeed: 0,
+            eta: 0,
+            state: "stalledUP"
+        )
+        #expect(QBMenubarViewModel.isTorrentCompleted(stalledUPTorrent))
+
+        // pausedUP
+        let pausedUPTorrent = Torrent(
+            hash: "hash_paused_up",
+            name: "Completed_PausedUP.iso",
+            size: 1_000_000,
+            progress: 0.8,
+            dlspeed: 0,
+            upspeed: 0,
+            eta: 0,
+            state: "pausedUP"
+        )
+        #expect(QBMenubarViewModel.isTorrentCompleted(pausedUPTorrent))
+
+        // uploading
+        let uploadingTorrent = Torrent(
+            hash: "hash_uploading",
+            name: "Completed_Uploading.iso",
+            size: 1_000_000,
+            progress: 0.9,
+            dlspeed: 0,
+            upspeed: 50_000,
+            eta: 0,
+            state: "uploading"
+        )
+        #expect(QBMenubarViewModel.isTorrentCompleted(uploadingTorrent))
+
+        // forcedUP and queuedUP
+        let forcedUPTorrent = Torrent(
+            hash: "hash_forced_up",
+            name: "Completed_ForcedUP.iso",
+            size: 1_000_000,
+            progress: 0.7,
+            dlspeed: 0,
+            upspeed: 10_000,
+            eta: 0,
+            state: "forcedUP"
+        )
+        #expect(QBMenubarViewModel.isTorrentCompleted(forcedUPTorrent))
+
+        let queuedUPTorrent = Torrent(
+            hash: "hash_queued_up",
+            name: "Completed_QueuedUP.iso",
+            size: 1_000_000,
+            progress: 0.7,
+            dlspeed: 0,
+            upspeed: 0,
+            eta: 0,
+            state: "queuedUP"
+        )
+        #expect(QBMenubarViewModel.isTorrentCompleted(queuedUPTorrent))
+
+        // progress: 0.99995 (even when downloading)
+        let highProgressTorrent = Torrent(
+            hash: "hash_high_progress",
+            name: "NearlyDone.iso",
+            size: 1_000_000,
+            progress: 0.99995,
+            dlspeed: 10_000,
+            upspeed: 0,
+            eta: 1,
+            state: "downloading"
+        )
+        #expect(QBMenubarViewModel.isTorrentCompleted(highProgressTorrent))
+
+        // Returning false for downloading at 50%
+        let downloading50Torrent = Torrent(
+            hash: "hash_downloading_50",
+            name: "Downloading50.iso",
+            size: 1_000_000,
+            progress: 0.50,
+            dlspeed: 1_000_000,
+            upspeed: 0,
+            eta: 100,
+            state: "downloading"
+        )
+        #expect(!QBMenubarViewModel.isTorrentCompleted(downloading50Torrent))
+
+        // Returning false for pausedDL at 50%
+        let pausedDL50Torrent = Torrent(
+            hash: "hash_paused_dl_50",
+            name: "PausedDL50.iso",
+            size: 1_000_000,
+            progress: 0.50,
+            dlspeed: 0,
+            upspeed: 0,
+            eta: -1,
+            state: "pausedDL"
+        )
+        #expect(!QBMenubarViewModel.isTorrentCompleted(pausedDL50Torrent))
+    }
+
+    @Test func testNotificationManagerMethodsSafeWithoutBundleId() async {
+        let status = await NotificationManager.shared.checkAuthorizationStatus()
+        #expect(status == .notDetermined || status == .authorized || status == .denied || status == .provisional)
+
+        NotificationManager.shared.requestAuthorization()
+        NotificationManager.shared.sendTestNotification(lang: .en)
+        NotificationManager.shared.sendTestNotification(lang: .zhHans)
+        NotificationManager.shared.sendNotification(title: "Test", subtitle: "Sub", body: "Body", savePath: nil)
+    }
+}

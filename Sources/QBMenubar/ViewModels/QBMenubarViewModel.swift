@@ -50,6 +50,7 @@ public enum FilterTab: String, CaseIterable, Identifiable, Sendable {
 public final class QBMenubarViewModel {
     public var config: APIConfig {
         didSet {
+            guard !isMock else { return }
             if config.clientType != oldValue.clientType {
                 pendingClientTypeChange = true
             }
@@ -105,6 +106,14 @@ public final class QBMenubarViewModel {
     private var lastWidgetReloadDate: Date? = nil
     @ObservationIgnored
     private var lastWidgetConnectedState: Bool? = nil
+    @ObservationIgnored
+    private var lastWidgetActiveDownloads: Int? = nil
+    @ObservationIgnored
+    private var lastWidgetTopTaskID: String? = nil
+    @ObservationIgnored
+    private var lastWidgetTopProgressPercent: Int? = nil
+    @ObservationIgnored
+    private var pollingActivity: NSObjectProtocol?
 
     public var isMock: Bool = false
 
@@ -121,12 +130,22 @@ public final class QBMenubarViewModel {
     isolated deinit {
         pollingTask?.cancel()
         configSyncTask?.cancel()
+        if let activity = pollingActivity {
+            ProcessInfo.processInfo.endActivity(activity)
+            pollingActivity = nil
+        }
     }
 
     // MARK: - Polling
 
     public func startPolling() {
         if isMock { return }
+        if pollingActivity == nil {
+            pollingActivity = ProcessInfo.processInfo.beginActivity(
+                options: [.userInitiatedAllowingIdleSystemSleep, .latencyCritical],
+                reason: "QBMenubar live torrent speed monitoring"
+            )
+        }
         pollingTask?.cancel()
         pollingTask = Task { [weak self] in
             while !Task.isCancelled {
@@ -141,6 +160,10 @@ public final class QBMenubarViewModel {
     public func stopPolling() {
         pollingTask?.cancel()
         pollingTask = nil
+        if let activity = pollingActivity {
+            ProcessInfo.processInfo.endActivity(activity)
+            pollingActivity = nil
+        }
     }
 
     public func refresh() async {
@@ -154,14 +177,14 @@ public final class QBMenubarViewModel {
                 connectionState = .connected(ping: ping)
             }
 
-            let newlyCompleted = try await fetchAndApplyData()
-            updateWidgetSnapshot(forceReload: newlyCompleted)
+            let hasSignificantChange = try await fetchAndApplyData()
+            updateWidgetSnapshot(forceReload: hasSignificantChange)
         } catch {
             // When request fails (e.g. cookie expired), attempt re-auth once
             if let _ = try? await service.login(), let (_, ping) = try? await service.testConnection() {
                 connectionState = .connected(ping: ping)
-                if let newlyCompleted = try? await fetchAndApplyData() {
-                    updateWidgetSnapshot(forceReload: newlyCompleted)
+                if let hasSignificantChange = try? await fetchAndApplyData() {
+                    updateWidgetSnapshot(forceReload: hasSignificantChange)
                 } else {
                     updateWidgetSnapshot()
                 }
@@ -193,7 +216,7 @@ public final class QBMenubarViewModel {
         }
 
         // Process notifications for download started & completed
-        let newlyCompleted = checkNotifications(newTorrents: newTorrents)
+        let hasSignificantChange = checkNotifications(newTorrents: newTorrents)
 
         // Record to chart history
         let point = SpeedHistoryPoint(
@@ -211,7 +234,11 @@ public final class QBMenubarViewModel {
             await fetchFiles(for: expandedHash)
         }
 
-        return newlyCompleted
+        return hasSignificantChange
+    }
+
+    nonisolated internal static func isTorrentCompleted(_ torrent: Torrent) -> Bool {
+        torrent.progress >= 0.9999 || ["pausedUP", "stoppedUP", "uploading", "stalledUP", "forcedUP", "queuedUP"].contains(torrent.state)
     }
 
     @discardableResult
@@ -219,7 +246,7 @@ public final class QBMenubarViewModel {
         if isFirstPoll {
             for t in newTorrents {
                 knownTorrentHashes.insert(t.hash)
-                if t.progress >= 1.0 || t.state == "pausedUP" || t.state == "uploading" {
+                if Self.isTorrentCompleted(t) {
                     completedTorrentHashes.insert(t.hash)
                 }
             }
@@ -227,6 +254,7 @@ public final class QBMenubarViewModel {
             return false
         }
 
+        var hasNewlyStarted = false
         var hasNewlyCompleted = false
         let lang = config.language
 
@@ -234,6 +262,7 @@ public final class QBMenubarViewModel {
             // 1. Download Started Notification
             if !knownTorrentHashes.contains(t.hash) {
                 knownTorrentHashes.insert(t.hash)
+                hasNewlyStarted = true
                 if config.enableNotifications && config.notifyOnStart {
                     let title = L10n.tr(
                         lang,
@@ -269,7 +298,7 @@ public final class QBMenubarViewModel {
             }
 
             // 2. Download Completed Notification
-            let isDone = t.progress >= 1.0 || t.state == "pausedUP" || t.state == "uploading"
+            let isDone = Self.isTorrentCompleted(t)
             if isDone && !completedTorrentHashes.contains(t.hash) {
                 completedTorrentHashes.insert(t.hash)
                 hasNewlyCompleted = true
@@ -313,7 +342,7 @@ public final class QBMenubarViewModel {
         knownTorrentHashes = knownTorrentHashes.intersection(currentHashes)
         completedTorrentHashes = completedTorrentHashes.intersection(currentHashes)
 
-        return hasNewlyCompleted
+        return hasNewlyStarted || hasNewlyCompleted
     }
 
     // MARK: - Filtered Torrents
@@ -512,15 +541,16 @@ public final class QBMenubarViewModel {
         if target == "none" {
             return nil
         }
-        if target == "auto" {
-            // Find most active downloading task, or first downloading task, or first unfinished task, or first torrent
-            return torrents.filter { $0.isDownloading && $0.dlspeed > 0 }.max(by: { $0.dlspeed < $1.dlspeed })
-                ?? torrents.first(where: { $0.isDownloading })
-                ?? torrents.first(where: { $0.progress < 1.0 && !$0.isPaused })
-                ?? torrents.first(where: { $0.progress < 1.0 })
-                ?? torrents.first
+        if target != "auto", let match = torrents.first(where: { $0.hash.caseInsensitiveCompare(target) == .orderedSame }) {
+            return match
         }
-        return torrents.first(where: { $0.hash.caseInsensitiveCompare(target) == .orderedSame })
+        // "auto" or fallback if pinned hash is missing/deleted:
+        // Find most active downloading task, or first downloading task, or first unfinished task, or first torrent
+        return torrents.filter { $0.isDownloading && $0.dlspeed > 0 }.max(by: { $0.dlspeed < $1.dlspeed })
+            ?? torrents.first(where: { $0.isDownloading })
+            ?? torrents.first(where: { $0.progress < 1.0 && !$0.isPaused })
+            ?? torrents.first(where: { $0.progress < 1.0 })
+            ?? torrents.first
     }
 
     public var pinnedTorrentProgressText: String? {
@@ -546,7 +576,9 @@ public final class QBMenubarViewModel {
             config.showPinnedProgress = true
             showBanner(L10n.bannerPinnedTorrent(config.language, name: torrent.name))
         }
-        config.save()
+        if !isMock {
+            config.save()
+        }
     }
 
     public func isTorrentPinned(_ torrent: Torrent) -> Bool {
@@ -558,7 +590,9 @@ public final class QBMenubarViewModel {
         if hash != nil && hash != "none" {
             config.showPinnedProgress = true
         }
-        config.save()
+        if !isMock {
+            config.save()
+        }
     }
 
     private func showBanner(_ message: String) {
@@ -582,6 +616,9 @@ public final class QBMenubarViewModel {
             if shouldReload {
                 lastWidgetReloadDate = Date()
                 lastWidgetConnectedState = false
+                lastWidgetActiveDownloads = 0
+                lastWidgetTopTaskID = nil
+                lastWidgetTopProgressPercent = nil
                 WidgetCenter.shared.reloadTimelines(ofKind: WidgetDataManager.widgetKind)
             }
             #endif
@@ -597,6 +634,9 @@ public final class QBMenubarViewModel {
             if shouldReload {
                 lastWidgetReloadDate = Date()
                 lastWidgetConnectedState = false
+                lastWidgetActiveDownloads = 0
+                lastWidgetTopTaskID = nil
+                lastWidgetTopProgressPercent = nil
                 WidgetCenter.shared.reloadTimelines(ofKind: WidgetDataManager.widgetKind)
             }
             #endif
@@ -662,13 +702,34 @@ public final class QBMenubarViewModel {
         WidgetDataManager.saveSnapshot(snapshot)
         #if canImport(WidgetKit)
         let now = Date()
+        let topTask = widgetTasks.first
+        let topTaskID = topTask?.id
+        let topProgressPercent = topTask?.progressPercent
+
         let connectionChanged = (lastWidgetConnectedState != isConnected)
-        let timeElapsed = (lastWidgetReloadDate == nil || now.timeIntervalSince(lastWidgetReloadDate!) >= 900)
-        let shouldReload = forceReload || connectionChanged || timeElapsed
+        let activeDownloadsChanged = (lastWidgetActiveDownloads != activeDL)
+        let topTaskChanged = (lastWidgetTopTaskID != topTaskID)
+        let immediateTrigger = forceReload || connectionChanged || activeDownloadsChanged || topTaskChanged
+
+        let elapsed = lastWidgetReloadDate.map { now.timeIntervalSince($0) } ?? .infinity
+        let isActivelyDownloading = (activeDL > 0 || transferInfo.dlInfoSpeed > 0)
+
+        let cooldownTrigger: Bool
+        if isActivelyDownloading {
+            let progressChanged = (topProgressPercent != lastWidgetTopProgressPercent)
+            cooldownTrigger = (elapsed >= 10) || (progressChanged && elapsed >= 5)
+        } else {
+            cooldownTrigger = (elapsed >= 900)
+        }
+
+        let shouldReload = immediateTrigger || cooldownTrigger
 
         if shouldReload {
             lastWidgetReloadDate = now
             lastWidgetConnectedState = isConnected
+            lastWidgetActiveDownloads = activeDL
+            lastWidgetTopTaskID = topTaskID
+            lastWidgetTopProgressPercent = topProgressPercent
             WidgetCenter.shared.reloadTimelines(ofKind: WidgetDataManager.widgetKind)
         }
         #endif
@@ -689,12 +750,17 @@ public final class QBMenubarViewModel {
         #if canImport(WidgetKit)
         let now = Date()
         let connectionChanged = (lastWidgetConnectedState != false)
+        let activeDownloadsChanged = (lastWidgetActiveDownloads != nil && lastWidgetActiveDownloads != 0)
+        let topTaskChanged = (lastWidgetTopTaskID != nil)
         let timeElapsed = (lastWidgetReloadDate == nil || now.timeIntervalSince(lastWidgetReloadDate!) >= 900)
-        let shouldReload = forceReload || connectionChanged || timeElapsed
+        let shouldReload = forceReload || connectionChanged || activeDownloadsChanged || topTaskChanged || timeElapsed
 
         if shouldReload {
             lastWidgetReloadDate = now
             lastWidgetConnectedState = false
+            lastWidgetActiveDownloads = 0
+            lastWidgetTopTaskID = nil
+            lastWidgetTopProgressPercent = nil
             WidgetCenter.shared.reloadTimelines(ofKind: WidgetDataManager.widgetKind)
         }
         #endif

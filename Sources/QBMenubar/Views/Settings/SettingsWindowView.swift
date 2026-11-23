@@ -676,6 +676,83 @@ public struct SettingsWindowView: View {
                         .toggleStyle(.switch)
                 }
             }
+
+            SettingsDivider()
+
+            SettingsRow(
+                title: L10n.tr(
+                    lang,
+                    zhHans: "通知权限与测试",
+                    zhHant: "通知權限與測試",
+                    en: "Notification Permissions & Testing",
+                    ja: "通知の許可とテスト",
+                    ko: "알림 권한 및 테스트",
+                    de: "Benachrichtigungsberechtigungen & Test",
+                    fr: "Autorisations de notification et test",
+                    es: "Permisos de notificación y prueba",
+                    ru: "Разрешения и тестирование уведомлений"
+                ),
+                subtitle: L10n.tr(
+                    lang,
+                    zhHans: "测试系统横幅提醒或前往系统设置管理权限",
+                    zhHant: "測試系統橫幅提醒或前往系統設定管理權限",
+                    en: "Test system banners or open System Settings to manage permissions",
+                    ja: "システムバナー通知をテストするか、システム設定で権限を管理します",
+                    ko: "시스템 배너 알림을 테스트하거나 시스템 설정에서 권한을 관리합니다",
+                    de: "System-Banner testen oder Systemeinstellungen zur Berechtigungsverwaltung öffnen",
+                    fr: "Tester les bannières système ou ouvrir les Réglages Système pour gérer les autorisations",
+                    es: "Probar banners del sistema o abrir Ajustes del Sistema para gestionar permisos",
+                    ru: "Проверьте системные баннеры или откройте Системные настройки для управления разрешениями"
+                )
+            ) {
+                HStack(spacing: 8) {
+                    Button {
+                        NotificationManager.shared.sendTestNotification(lang: lang)
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "bell.badge")
+                            Text(L10n.tr(
+                                lang,
+                                zhHans: "发送测试通知",
+                                zhHant: "發送測試通知",
+                                en: "Send Test Notification",
+                                ja: "テスト通知を送信",
+                                ko: "테스트 알림 보내기",
+                                de: "Testbenachrichtigung senden",
+                                fr: "Envoyer une notification de test",
+                                es: "Enviar notificación de prueba",
+                                ru: "Отправить тестовое уведомление"
+                            ))
+                        }
+                    }
+                    .adaptiveGlassButton(prominent: false)
+
+                    Button {
+                        if let url = URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension") {
+                            let configuration = NSWorkspace.OpenConfiguration()
+                            configuration.activates = true
+                            NSWorkspace.shared.open(url, configuration: configuration) { _, _ in }
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "gearshape")
+                            Text(L10n.tr(
+                                lang,
+                                zhHans: "打开系统通知设置",
+                                zhHant: "開啟系統通知設定",
+                                en: "Open System Notification Settings",
+                                ja: "システム通知設定を開く",
+                                ko: "시스템 알림 설정 열기",
+                                de: "System-Benachrichtigungseinstellungen öffnen",
+                                fr: "Ouvrir les réglages de notification système",
+                                es: "Abrir ajustes de notificaciones del sistema",
+                                ru: "Открыть настройки системных уведомлений"
+                            ))
+                        }
+                    }
+                    .adaptiveGlassButton(prominent: false)
+                }
+            }
         }
     }
 
@@ -732,7 +809,7 @@ public struct SettingsWindowView: View {
                     Text("QBMenubar")
                         .font(.system(size: 17, weight: .bold))
 
-                    Text(L10n.tr(lang, zhHans: "版本 1.3.3 (Build 2026.11)", zhHant: "版本 1.3.3 (Build 2026.11)", en: "Version 1.3.3 (Build 2026.11)"))
+                    Text(L10n.tr(lang, zhHans: "版本 1.3.4 (Build 2026.11)", zhHant: "版本 1.3.4 (Build 2026.11)", en: "Version 1.3.4 (Build 2026.11)"))
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
 
